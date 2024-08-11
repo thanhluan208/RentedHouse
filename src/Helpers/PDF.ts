@@ -1,8 +1,7 @@
 import * as pdfMake from "pdfmake/build/pdfmake";
-import * as pdfFonts from "pdfmake/build/vfs_fonts";
 import { TDocumentDefinitions } from "pdfmake/interfaces";
 
-(<any>pdfMake).vfs = pdfFonts.pdfMake.vfs;
+// Remove the assignment to the vfs property
 
 
 
