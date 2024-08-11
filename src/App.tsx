@@ -14,7 +14,7 @@ function App() {
       element: <DefaultLayout />,
       children: [
         {
-          path: Paths.house,
+          path: "*",
           element: <Home />,
         },
         {
