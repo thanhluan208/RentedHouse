@@ -4,7 +4,6 @@ import PlaceholderImg from "../../assets/team.png";
 import CommonIcons from "../CommonIcons";
 import Typography from "../CommonStyles/Typography";
 import { useCallback } from "react";
-import { values } from "lodash";
 
 interface IButtonUploadField {}
 
@@ -13,7 +12,7 @@ function ButtonUploadField(props: IButtonUploadField & FieldProps) {
   const { field, form } = props;
   const { setFieldValue, errors, touched } = form;
   const { name, value } = field;
-  const theme = useTheme();
+  const theme: any = useTheme();
 
   const isTouch = getIn(touched, name);
   const err = getIn(errors, name);

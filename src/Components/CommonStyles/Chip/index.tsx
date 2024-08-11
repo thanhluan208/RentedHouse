@@ -1,20 +1,19 @@
-import { Chip, useTheme } from "@mui/material";
+import { Chip, ChipProps,  } from "@mui/material";
 
 interface IMuiChip {
   label: string;
+  color?: string;
 }
 
-function MuiChip(props: IMuiChip) {
+function MuiChip(props: IMuiChip & ChipProps) {
   //! State
-  const { label } = props;
-  const theme = useTheme();
 
   //! Function
 
   //! Render
   return (
     <Chip
-      label={label}
+      {...props}
       sx={{
         span: {
           padding: "0 4px",
@@ -22,8 +21,10 @@ function MuiChip(props: IMuiChip) {
         padding: "4px 12px",
         borderRadius: "8px",
         height: "fit-content",
-        background: theme.palette.primary.light,
-        color: theme.colors.custom.primaryColorTypo,
+        letterSpacing: "5px",
+        textTransform: "uppercase",
+        fontWeight: 700,
+        ...props.sx,
       }}
     />
   );

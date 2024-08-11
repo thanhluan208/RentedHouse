@@ -23,4 +23,9 @@ const Routes = {
   },
 };
 
+export const Paths = {
+  house: "/house",
+  guest: "/guest",
+};
+
 export default Routes;

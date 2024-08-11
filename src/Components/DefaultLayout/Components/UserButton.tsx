@@ -1,7 +1,6 @@
 import {
   Avatar,
   Box,
-  ClickAwayListener,
   Fade,
   Paper,
   Popper,

@@ -1,9 +1,14 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { useSave } from "../Stores/useStore";
+import cachedKeys from "../Constants/cachedKeys";
 
 const useToggleDialog = () => {
+  //! State
   const [open, setOpen] = useState(false);
   const [close, setClose] = useState(false);
+  const save = useSave();
 
+  //! Function
   const toggle = useCallback(() => {
     setOpen((prev) => {
       return !prev;
@@ -21,6 +26,10 @@ const useToggleDialog = () => {
       setClose(status);
     }, 500);
   }, []);
+
+  useEffect(() => {
+    save(cachedKeys.DIALOG_OPEN, open);
+  }, [open]);
 
   return { open, toggle, shouldRender, setStateDialog };
 };

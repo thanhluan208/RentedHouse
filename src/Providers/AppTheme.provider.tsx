@@ -7,10 +7,8 @@ import { GlobalStyles } from "@mui/material";
 import cachedKeys from "../Constants/cachedKeys";
 import { useSave } from "../Stores/useStore";
 
-import SFProDisplay from "../Fonts/SFProDisplay/sf-pro-display_regular.woff2";
-import SFProDisplayBold from "../Fonts/SFProDisplay/sf-pro-display-bold.woff2";
 
-const lightTheme = createTheme({
+const lightTheme: any = createTheme({
   breakpoints: {
     values: {
       xs: 0,
@@ -86,11 +84,15 @@ const lightTheme = createTheme({
       main: "#4e40e5",
       light: "#4d53e826",
     },
+    success: {
+      main: '#e8faf3',
+      contrastText: '#2dd298',
+    }
   },
   colors: {
     custom: {
       //* Main
-      backgroundSecondary: "#f4f4f6",
+      backgroundSecondary: "#e5ebf9",
 
       //* Button
       backgroundButtonHover: "#1976d214",
@@ -104,8 +106,8 @@ const lightTheme = createTheme({
       //* Dialog
       backgroundDialog: "#f5f7fa",
     },
-  },
-});
+  } as any,
+} as any);
 
 const darkTheme = createTheme({
   typography: {
@@ -142,7 +144,7 @@ export default function AppThemeProvider(props: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    save(cachedKeys.toggleTheme, toggleTheme);
+    save(cachedKeys.TOGGLE_THEME, toggleTheme);
   }, [save, toggleTheme]);
 
   return (

@@ -19,7 +19,7 @@ function NavItem(props: INavItem) {
   //! State
   const { icon, title, path, children, navActive, onClick, buttonSx, endNum } =
     props;
-  const theme = useTheme();
+  const theme: any = useTheme();
   const navigate = useNavigate();
   const location = useLocation();
 

@@ -8,7 +8,8 @@ import {
 } from "@mui/material";
 import CommonStyles from "../CommonStyles";
 import { FieldProps, getIn } from "formik";
-import React, { useState } from "react";
+import React from "react";
+import { isString } from "lodash";
 
 interface IMuiSelectField {
   onChangeCustomize: (
@@ -36,12 +37,10 @@ function MuiSelectField(props: IMuiSelectField & SelectProps & FieldProps) {
     customRenderValue,
     ...otherProps
   } = props;
-  const theme = useTheme();
+  const theme: any = useTheme();
   const { setFieldValue, errors, touched } = form;
   const { name, value, onBlur } = field;
-  const [focus, setFocus] = useState(false);
 
-  console.log("values", value);
   const isTouch = getIn(touched, name);
   const err = getIn(errors, name);
 
@@ -54,7 +53,10 @@ function MuiSelectField(props: IMuiSelectField & SelectProps & FieldProps) {
     if (onChangeCustomize) {
       onChangeCustomize(event, child);
     } else {
-      console.log("event", event.target.value);
+      setFieldValue(
+        name,
+        options.find((elm) => elm.value == event.target.value)
+      );
     }
   };
 
@@ -90,13 +92,7 @@ function MuiSelectField(props: IMuiSelectField & SelectProps & FieldProps) {
         </CommonStyles.Typography>
       )}
       <Select
-        onBlur={(e) => {
-          onBlur(e);
-          setFocus(false);
-        }}
-        onFocus={(e) => {
-          setFocus(true);
-        }}
+        onBlur={onBlur}
         {...otherProps}
         error={!!errMsg}
         label=""
@@ -114,18 +110,30 @@ function MuiSelectField(props: IMuiSelectField & SelectProps & FieldProps) {
             borderRadius: "10px",
           },
         }}
-        inputProps={{
-          style: {},
-        }}
+        displayEmpty={true}
         renderValue={(selectedValue) => {
           if (customRenderValue) {
             return customRenderValue(value);
           } else {
-            return selectedValue;
+            if (!selectedValue) {
+              return <em>{props.placeholder}</em>;
+            }
+            if (isString(selectedValue)) {
+              return (
+                options.find((elm) => elm.value == selectedValue)?.label ||
+                selectedValue ||
+                ""
+              );
+            }
+            return selectedValue?.label || selectedValue || "";
           }
         }}
-        // input={<BootstrapInput />}
       >
+        {props?.placeholder && (
+          <MenuItem disabled value={""}>
+            <em>{props?.placeholder}</em>
+          </MenuItem>
+        )}
         {options.map((op: { value: string; label: string }) => {
           if (renderOption) {
             return renderOption(op);

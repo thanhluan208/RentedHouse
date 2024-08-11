@@ -1,24 +1,21 @@
-import { Box, Divider, IconButton, Typography, useTheme } from "@mui/material";
+import { Box, Divider, useTheme } from "@mui/material";
 import Logo from "./Components/Logo";
 import Name from "./Components/Name";
 import CommonStyles from "../CommonStyles";
-import CommonIcons from "../CommonIcons";
 import Routes from "../../Constants/routes";
 import { processNavLabel } from "../../Helpers";
 import { Outlet } from "react-router-dom";
 import { capitalize } from "lodash";
 import NavItem from "./Components/NavItem";
-import AddTeam from "./Components/AddTeams";
-import ListTeam from "./Components/ListTeam";
 import UserButton from "./Components/UserButton";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import CreateBotButton from "./Components/CreateBotButton";
+import CreateHouseButton from "./Components/CreateHouseButton";
 
 export const sidebarWidth = 232;
 
 function DefaultLayout() {
   //! State
-  const theme = useTheme();
+  const theme: any = useTheme();
 
   //! Function
 
@@ -62,7 +59,7 @@ function DefaultLayout() {
               <Name />
             </Box>
             <Box sx={{ height: "40px" }}>
-              <CreateBotButton />
+              <CreateHouseButton />
             </Box>
           </Box>
           <Box mt={2}>
@@ -106,49 +103,10 @@ function DefaultLayout() {
                 </Box>
               );
             })}
-            <Box mt={1} display="flex" flexDirection={"column"}>
-              <Box display="flex" justifyContent={"space-between"}>
-                <CommonStyles.Typography
-                  type="normal14"
-                  pl={"15px"}
-                  color={theme.colors.custom.colorDisabledTypo}
-                >
-                  Teams
-                </CommonStyles.Typography>
-                <AddTeam />
-              </Box>
-
-              <ListTeam />
-            </Box>
-            <Divider
-              sx={{
-                mt: "8px",
-              }}
-            />
+            
           </Box>
 
-          <Box
-            sx={{
-              display: "flex",
-              flexDirection: "column",
-              gap: "8px",
-              mt: "8px",
-            }}
-          >
-            <NavItem
-              icon={<CommonIcons.SettingsInputHdmi />}
-              title="Coze API"
-              path="/api"
-              navActive
-            />
-            <NavItem
-              icon={<CommonIcons.Token />}
-              title="Coze Token"
-              path="/token"
-              navActive
-              endNum={10}
-            />
-          </Box>
+          
 
           <Box>
             <UserButton />

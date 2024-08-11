@@ -40,7 +40,6 @@ function AutocompleteField(
     form,
     onChangeCustomize,
     afterOnChange,
-    ...otherProps
   } = props;
   const { setFieldValue, errors, touched } = form;
   const { name, value, onBlur } = field;
@@ -50,7 +49,7 @@ function AutocompleteField(
   const err = getIn(errors, name);
 
   const errMsg = isTouch && err ? err : "";
-  const theme = useTheme();
+  const theme: any = useTheme();
 
   //! Function
   const handleChange = (
@@ -74,11 +73,12 @@ function AutocompleteField(
       sx={{
         display: "flex",
         flexDirection: "column",
-        width: textFieldProps.fullWidth ? "100%" : "fit-content",
+        width: textFieldProps?.fullWidth ? "100%" : "fit-content",
         ".MuiInputBase-root": {
           paddingTop: "0 !important",
           paddingBottom: "0 !important",
           display: "flex",
+          background:"#fff"
         },
         input: {
           "&:hover": {
@@ -109,7 +109,7 @@ function AutocompleteField(
         options={options || []}
         autoHighlight
         onChange={handleChange}
-        fullWidth={textFieldProps.fullWidth}
+        fullWidth={textFieldProps?.fullWidth}
         getOptionLabel={(option) => option?.label || ""}
         value={value}
         renderOption={
@@ -135,7 +135,7 @@ function AutocompleteField(
               onBlur(e);
               setFocus(false);
             }}
-            onFocus={(e) => {
+            onFocus={() => {
               setFocus(true);
             }}
             name={name}

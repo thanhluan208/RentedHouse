@@ -1,28 +1,30 @@
 import {
   Dialog,
-  DialogActions,
-  DialogContent,
   DialogProps,
   useTheme,
 } from "@mui/material";
 import React from "react";
-import CommonStyles from "..";
 
 interface IMUIDialog {
   children: React.ReactNode;
   toggle: () => void;
+  disableClickOutside?: boolean;
 }
 
 function MUIDialog(props: IMUIDialog & DialogProps) {
   //! State
-  const { children, toggle } = props;
-  const theme = useTheme();
+  const { children, toggle, disableClickOutside } = props;
+  const theme: any = useTheme();
   //! Function
 
   //! Render
   return (
     <Dialog
-      onClose={toggle}
+      onClose={(event: any, reason) => {
+        event.stopPropagation();
+        if (reason === "backdropClick" && disableClickOutside) return;
+        toggle()
+      }}
       {...props}
       PaperProps={{
         sx: {

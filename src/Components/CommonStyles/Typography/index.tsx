@@ -25,9 +25,24 @@ const Typography = (props: ITypography & TypographyProps) => {
       fontSize: "14px",
       fontWeight: 600,
     });
+    
+    styles.set("bold16", {
+      fontSize: "16px",
+      fontWeight: 600,
+    });
+
+    styles.set("bold18", {
+      fontSize: "18px",
+      fontWeight: 600,
+    });
 
     styles.set("normal18", {
       fontSize: "18px",
+      fontWeight: 500,
+    });
+
+    styles.set("bold24", {
+      fontSize: "24px",
       fontWeight: 600,
     });
 

@@ -1,35 +1,26 @@
-import Personal from "../assets/personal.png";
-import Team from "../assets/team.png";
-
-export interface WorkSpaceOption {
-  label: string;
-  avatar: string;
-  value: string;
-  type?: string;
-}
-
-export const workSpaceOptions = [
+export const HouseStatus = [
   {
-    label: "Personal",
-    avatar: Personal,
-    value: "personal",
+    value: "full",
+    label: "Full",
   },
   {
-    label: "Team 1",
-    avatar: Team,
-    type: "team",
-    value: "team1",
+    value: "available",
+    label: "Available",
   },
   {
-    label: "Team 2",
-    avatar: Team,
-    type: "team",
-    value: "team2",
+    value: "inactive",
+    label: "Inactive",
   },
   {
-    label: "Team 3",
-    avatar: Team,
-    type: "team",
-    value: "team3",
+    value: "under_construction",
+    label: "Under construction",
   },
 ];
+
+
+export enum HouseStatusEnum {
+  full = "full",
+  available = "available",
+  inactive = "inactive",
+  under_construction = "under_construction",
+}

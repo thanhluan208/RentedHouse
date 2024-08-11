@@ -6,8 +6,9 @@ import {
   useTheme,
 } from "@mui/material";
 import { FieldProps, getIn } from "formik";
-import { useCallback, useState } from "react";
+import { useCallback,  } from "react";
 import CommonStyles from "../CommonStyles";
+import { removeAllDot } from "../../Helpers";
 
 interface IInputField {
   onChangeCustomize: (
@@ -17,6 +18,7 @@ interface IInputField {
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => void;
   maxChar: number;
+  isPrice?: boolean;
 }
 
 function InputField(props: IInputField & FieldProps & TextFieldProps) {
@@ -27,12 +29,12 @@ function InputField(props: IInputField & FieldProps & TextFieldProps) {
     afterOnChange,
     onChangeCustomize,
     maxChar,
+    isPrice,
     ...otherProps
   } = props;
-  const theme = useTheme();
+  const theme: any = useTheme();
   const { setFieldValue, errors, touched } = form;
   const { name, value, onBlur } = field;
-  const [focus, setFocus] = useState(false);
 
   const isTouch = getIn(touched, name);
   const err = getIn(errors, name);
@@ -45,6 +47,9 @@ function InputField(props: IInputField & FieldProps & TextFieldProps) {
       if (onChangeCustomize) {
         onChangeCustomize(event);
         return;
+      } else if (isPrice) {
+      const value = removeAllDot(event.target.value).replace(/[^0-9]/g, '');
+        setFieldValue(name, Number(value).toLocaleString("vi-VN"));
       } else {
         if (maxChar && event?.target?.value?.length >= maxChar) {
           setFieldValue(name, event.target.value.substring(0, maxChar));
@@ -98,13 +103,7 @@ function InputField(props: IInputField & FieldProps & TextFieldProps) {
       <TextField
         name={name}
         value={value}
-        onBlur={(e) => {
-          onBlur(e);
-          setFocus(false);
-        }}
-        onFocus={(e) => {
-          setFocus(true);
-        }}
+        onBlur={onBlur}
         {...otherProps}
         error={errMsg}
         helperText={errMsg}
@@ -141,6 +140,7 @@ function InputField(props: IInputField & FieldProps & TextFieldProps) {
               </CommonStyles.Typography>
             </InputAdornment>
           ),
+          ...otherProps.InputProps,
         }}
       />
     </Box>
