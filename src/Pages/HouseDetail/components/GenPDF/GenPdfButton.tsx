@@ -7,7 +7,7 @@ import { Formik, Form, FastField } from "formik";
 
 import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import CommonIcons from "../../../../Components/CommonIcons";
-import { capitalize, isEmpty, isString } from "lodash";
+import { isEmpty, isString } from "lodash";
 import { House } from "../../../Home/interface";
 import RoomSelect from "./RoomSelect";
 import GuestSelect from "./GuestSelect";
@@ -16,7 +16,10 @@ import TableBill from "./TableBill";
 import { generatePDF } from "../../../../Helpers/PDF";
 import CommonField from "../../../../Components/CommonFields";
 import moment, { Moment } from "moment";
-import { numberToVietnameseText, removeAllDot } from "../../../../Helpers";
+import { Bill } from "../../../../Interfaces/common";
+import FormikEffectPDF from "./FormikEffectPDF";
+import { monthlyBill } from "../../../../Constants/PDF.templates";
+import { genPDFCompare, } from "../../../../Helpers";
 
 interface IPDFActionDialog {
   toggle: () => void;
@@ -24,7 +27,7 @@ interface IPDFActionDialog {
 }
 
 export interface PDFInitValues {
-  room: RoomDetail | undefined | string;
+  room: RoomDetail | undefined;
   guest:
     | {
         id: string;
@@ -34,13 +37,8 @@ export interface PDFInitValues {
   bill: Bill[];
   fromDate: Moment | undefined;
   toDate: Moment | undefined;
+  isCompare?: boolean;
 }
-
-export type Bill = {
-  id: string;
-  name: string;
-  price: number;
-};
 
 export const PDFActionDialog = (props: IPDFActionDialog) => {
   //! State
@@ -55,6 +53,9 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
           id: "1",
           name: "Tiền điện",
           price: 0,
+          unit: "kWh",
+          unitPrice: 0,
+          quantity: 0,
         },
       ],
       fromDate: moment(),
@@ -68,107 +69,60 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
 
   //! Function
 
-  const handleSubmit = useCallback(async (values: PDFInitValues) => {
-    const dd = {
-      content: [
-        {
-          text: "Hóa đơn tiền dịch vụ",
-          style: "header",
-        },
-        {
-          text: [
-            "Phòng: ",
-            {
-              text: isString(values?.room) ? values?.room : values?.room?.name,
-              bold: true,
-            },
+  const handleSubmit = useCallback(
+    async (values: PDFInitValues) => {
+      if (!values.guest?.id || isString(values.room) || !values?.room?.id)
+        return;
+      !values.isCompare && generatePDF(monthlyBill(values) as any);
 
-            " (Từ ngày: ",
-            {
-              text: values?.fromDate?.format("DD/MM/YYYY"),
-              bold: true,
-            },
-            " đến ngày: ",
-            {
-              text: values?.toDate?.format("DD/MM/YYYY"),
-              bold: true,
-            },
-            ")",
-          ],
-          style: "subHeaderCenter",
-        },
-        {
-          style: "tableExample",
-          table: {
-            widths: [50, "*", "*"],
-            body: [
-              [
-                { text: "STT", style: "tableHeader" },
-                { text: "Dịch vụ", style: "tableHeader" },
-                { text: "Giá", style: "tableHeader" },
-              ],
-              ...values.bill.map((elm, index) => {
-                return [index + 1, elm.name, elm.price];
-              }),
-            ],
-          },
-        },
-        {
-          text:
-            "Tổng tiền: " +
-            `${values.bill
-              .reduce(
-                (total, item) => total + Number(removeAllDot(`${item.price}`)),
-                0
-              )
-              .toLocaleString("vi-VN")} VND`,
-          style: "subheader",
-        },
-        {
-          text:
-            "Tổng tiền bằng chữ: " +
-            `${capitalize(
-              numberToVietnameseText(
-                +values.bill.reduce(
-                  (total, item) =>
-                    total + Number(removeAllDot(`${item.price}`)),
-                  0
-                )
-              )
-            )} đồng.`,
-          style: "subheader",
-        },
-      ],
-      styles: {
-        header: {
-          fontSize: 18,
-          bold: true,
-          alignment: "center",
-        },
-        subHeaderCenter: {
-          fontSize: 16,
-          bold: true,
-          margin: [0, 5, 0, 20],
-          alignment: "center",
-        },
-        subheader: {
-          fontSize: 16,
-          bold: true,
-          margin: [0, 10, 0, 5],
-        },
-        tableExample: {
-          margin: [0, 5, 0, 15],
-        },
-        tableHeader: {
-          bold: true,
-          fontSize: 13,
-          color: "black",
-        },
-      },
-    };
+      // const toastID = toast.loading("Creating new bill...", {
+      //   isLoading: true,
+      //   autoClose: false,
+      // });
+      // const finalBill = {
+      //   billDetails: values.bill,
+      //   fromDate: values.fromDate?.startOf("day").valueOf(),
+      //   toDate: values.toDate?.endOf("day").valueOf(),
+      //   guest: JSON.stringify({
+      //     id: values.guest.id,
+      //     name: values.guest.name,
+      //   }),
+      //   room: JSON.stringify({
+      //     id: values.room.id,
+      //     name: values.room.name,
+      //   }),
+      //   total: values.bill.reduce(
+      //     (acc, cur) => acc + +removeAllDot(`${cur.price}`),
+      //     0
+      //   ),
+      // };
 
-    generatePDF(dd as any);
-  }, []);
+      // await FirebaseServices.updateGuestBill(
+      //   values.guest?.id,
+      //   finalBill,
+      //   () => {
+      //     toast.update(toastID, {
+      //       render: "Failed to create bill!",
+      //       type: "error",
+      //       isLoading: false,
+      //       autoClose: 3000,
+      //     });
+      //   }
+      // );
+
+      // toast.update(toastID, {
+      //   render: "Bill created successfully!",
+      //   type: "success",
+      //   isLoading: false,
+      //   autoClose: 3000,
+      // });
+
+      // toggle();
+
+      values.isCompare && genPDFCompare(values);
+    },
+    [toggle]
+  );
 
   //! Render
   return (
@@ -189,6 +143,7 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
               flexDirection: "column",
             }}
           >
+            <FormikEffectPDF />
             <Box>
               <DialogTitle>
                 <Box
@@ -197,9 +152,18 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
                   alignItems={"center"}
                   mb={2}
                 >
-                  <CommonStyles.Typography type="bold18">
-                    Generate bill
-                  </CommonStyles.Typography>
+                  <Box
+                    sx={{ display: "flex", gap: "10px", alignItems: "center" }}
+                  >
+                    <CommonStyles.Typography type="bold18">
+                      Generate bill
+                    </CommonStyles.Typography>
+                    <FastField
+                      name="isCompare"
+                      component={CommonField.SwitchField}
+                      label="Compare last month"
+                    />
+                  </Box>
                   <CommonStyles.Button
                     isIcon
                     onClick={(event) => {

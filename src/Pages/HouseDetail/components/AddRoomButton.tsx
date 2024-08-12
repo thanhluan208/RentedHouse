@@ -4,18 +4,21 @@ import CommonStyles from "../../../Components/CommonStyles";
 import { useCallback, useMemo } from "react";
 import * as yup from "yup";
 import { toast } from "react-toastify";
-import { FastField, Formik, Form } from "formik";
+import { Formik, Form } from "formik";
 
 import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import CommonIcons from "../../../Components/CommonIcons";
-import CommonField from "../../../Components/CommonFields";
-import { HouseStatus } from "../../../Constants/options";
 import { isEmpty } from "lodash";
-import GuestsSelect from "./GuessInput";
 import { useGet } from "../../../Stores/useStore";
 import FirebaseServices from "../../../Services/Firebase.service";
 import { House } from "../../Home/interface";
 import FormikEffect from "./FormikEffect";
+import RoomInformations from "./AddRoomDialog/RoomInformations";
+import RoomFee from "./AddRoomDialog/RoomFee";
+import PerfectScrollBar from "react-perfect-scrollbar";
+import { Bill } from "../../../Interfaces/common";
+import TableExpenditure from "./AddRoomDialog/TableExpenditure";
+import RoomOverall from "./AddRoomDialog/RoomOverall";
 
 interface IRoomActionDialog {
   toggle: () => void;
@@ -35,6 +38,12 @@ export interface RoomInitValues {
     label: string;
   };
   guests: GuestInit[] | [];
+  electricityFee: number;
+  waterFee: number;
+  internetFee: number;
+  livingExpense: number;
+  parkingFee: number;
+  expenditures?: Bill[];
 }
 
 export interface GuestInit {
@@ -59,14 +68,51 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
         ? data.status
         : { value: "available", label: "Available" },
       guests: data?.guests ? data.guests : [],
+      electricityFee: data?.electricityFee ? data.electricityFee : 0,
+      waterFee: data?.waterFee ? data.waterFee : 0,
+      internetFee: data?.internetFee ? data.internetFee : 0,
+      livingExpense: data?.livingExpense ? data.livingExpense : 0,
+      parkingFee: data?.parkingFee ? data.parkingFee : 0,
+      expenditures: data?.expenditures
+        ? data.expenditures
+        : [
+            {
+              id: "1",
+              name: "Brokerage fee",
+              price: 0,
+              unit: "",
+              unitPrice: 0,
+              quantity: 0,
+            },
+          ],
     };
   }, [data, houseData.id]);
 
   const validationSchema = useMemo(() => {
     return yup.object().shape({
       name: yup.string().required("Name is required field"),
-      price: yup.number().required("Price is required field"),
-      maxGuest: yup.number().required("Max guest is required field"),
+      price: yup.string().required("Price is required field"),
+      maxGuest: yup.string().required("Max guest is required field"),
+      size: yup.string().required("Size is required field"),
+      status: yup.object().required("Status is required field"),
+      guests: yup.array().of(
+        yup.object().shape({
+          name: yup.string().required("Name is required field"),
+        })
+      ),
+      electricityFee: yup.string().required("Electricity fee is required field"),
+      waterFee: yup.string().required("Water fee is required field"),
+      internetFee: yup.string().required("Internet fee is required field"),
+      livingExpense: yup.string().required("Living expense is required field"),
+      parkingFee: yup.string().required("Parking fee is required field"),
+      expenditures: yup.array().of(
+        yup.object().shape({
+          name: yup.string().required("Name is required field"),
+          price: yup.string().required("Price is required field"),
+          unitPrice: yup.string().required("Unit price is required field"),
+          quantity: yup.string().required("Quantity is required field"),
+        })
+      ),
     });
   }, []);
 
@@ -132,7 +178,6 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
                   display={"flex"}
                   justifyContent={"space-between"}
                   alignItems={"center"}
-                  mb={2}
                 >
                   <CommonStyles.Typography type="bold18">
                     {isEdit ? "Update room" : "Create new room"}
@@ -148,109 +193,68 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
                   </CommonStyles.Button>
                 </Box>
               </DialogTitle>
-
-              <DialogContent
-                sx={{
-                  minHeight: "50vh",
-                }}
-              >
-                <FastField
-                  name="name"
-                  component={CommonField.InputField}
-                  fullWidth
-                  label="Room name"
-                  required
-                  placeholder="Give the room a unique name"
-                  maxChar={50}
-                />
-                <FastField
-                  name="status"
-                  component={CommonField.MuiSelectField}
-                  fullWidth
-                  options={HouseStatus}
-                  label="Status"
-                  placeholder="Select status"
-                />
-                <Box
+              <PerfectScrollBar style={{ maxHeight: "70vh" }}>
+                <DialogContent
                   sx={{
-                    display: "flex",
-                    gap: "8px",
-                    alignItems: "center",
+                    minHeight: "50vh",
                   }}
                 >
-                  <FastField
-                    name="price"
-                    component={CommonField.InputField}
-                    fullWidth
-                    label="Price"
-                    placeholder="Enter price"
-                  />
-                  <FastField
-                    name="size"
-                    component={CommonField.InputField}
-                    fullWidth
-                    label="Size"
-                    InputProps={{
-                      endAdornment: (
-                        <CommonStyles.Typography type="bold14" marginRight='5px'>
-                          m²
-                        </CommonStyles.Typography>
-                      ),
-                    }}
-                    placeholder="Enter size"
-                  />
-                  <FastField
-                    name="maxGuest"
-                    component={CommonField.InputField}
-                    fullWidth
-                    label="Max guest"
-                    placeholder="Enter max guest"
-                  />
-                </Box>
-                <GuestsSelect />
-              </DialogContent>
+                  <RoomInformations />
+                  <RoomFee />
+                  <TableExpenditure />
+                </DialogContent>
+              </PerfectScrollBar>
 
               <DialogActions>
                 <Box
-                  display="flex"
-                  justifyContent={"end"}
-                  gap="16px"
                   sx={{
-                    button: {
-                      fontWeight: "550",
-                      padding: "6px 20px",
-                    },
+                    width: "100%",
+                    display: "flex",
+                    justifyContent: "space-between",
+                    alignItems: "center",
                   }}
                 >
-                  <CommonStyles.Button
-                    variant="contained"
+                  <RoomOverall />
+                  <Box
+                    display="flex"
+                    gap="16px"
                     sx={{
-                      background: "#fff",
-                      color: "#000",
-                      "&:hover": {
-                        background: "#fff",
+                      button: {
+                        fontWeight: "550",
+                        padding: "6px 20px",
                       },
                     }}
-                    onClick={(event) => {
-                      event.stopPropagation();
-                      toggle();
-                    }}
-                    disabled={isSubmitting}
-                    type="button"
                   >
-                    Cancel
-                  </CommonStyles.Button>
-                  <CommonStyles.Button
-                    variant="contained"
-                    sx={{
-                      color: "#fff",
-                    }}
-                    type="submit"
-                    isLoading={isSubmitting}
-                    disabled={isSubmitting || !isEmpty(errors) || !dirty}
-                  >
-                    Confirm
-                  </CommonStyles.Button>
+                    <CommonStyles.Button
+                      variant="contained"
+                      sx={{
+                        background: "#fff",
+                        color: "#000",
+                        "&:hover": {
+                          background: "#fff",
+                        },
+                      }}
+                      onClick={(event) => {
+                        event.stopPropagation();
+                        toggle();
+                      }}
+                      disabled={isSubmitting}
+                      type="button"
+                    >
+                      Cancel
+                    </CommonStyles.Button>
+                    <CommonStyles.Button
+                      variant="contained"
+                      sx={{
+                        color: "#fff",
+                      }}
+                      type="submit"
+                      isLoading={isSubmitting}
+                      disabled={isSubmitting || !isEmpty(errors) || !dirty}
+                    >
+                      Confirm
+                    </CommonStyles.Button>
+                  </Box>
                 </Box>
               </DialogActions>
             </Box>
@@ -279,7 +283,7 @@ const AddRoomButton = (props: IAddRoomButton) => {
         <CommonStyles.Dialog
           open={open}
           toggle={toggle}
-          maxWidth="sm"
+          maxWidth="lg"
           fullWidth
         >
           <RoomActionDialog toggle={toggle} houseData={houseData} />

@@ -6,7 +6,7 @@ import { v4 as uuid } from "uuid";
 import CommonField from "../../../Components/CommonFields";
 import CommonIcons from "../../../Components/CommonIcons";
 
-const GuestSelect = () => {
+const GuestInput = () => {
   //! State
   const { values } = useFormikContext<RoomInitValues>();
 
@@ -84,4 +84,4 @@ const GuestSelect = () => {
   );
 };
 
-export default GuestSelect;
+export default GuestInput;

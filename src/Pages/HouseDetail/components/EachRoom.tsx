@@ -27,6 +27,7 @@ const EachRoom = (props: IEachRoom) => {
   const save = useSave();
   const { data, isLoading, refetch } = useGetRoomDetail(id);
 
+
   const color = useMemo(() => {
     if (!data) return {};
     if (data.status.value === HouseStatusEnum.available) {
@@ -62,7 +63,7 @@ const EachRoom = (props: IEachRoom) => {
   }, [save, refetch]);
 
   //! Render
-  if (!data) return null;
+  if (!data?.id) return null;
 
   return (
     <Box
@@ -87,7 +88,7 @@ const EachRoom = (props: IEachRoom) => {
       }}
     >
       <CommonStyles.LoadingOverlay isLoading={isLoading} />
-      <CommonStyles.Chip label={data.status.label || ""} sx={color} />
+      <CommonStyles.Chip label={data?.status?.label || ""} sx={color} />
       <Box
         sx={{
           padding: "5px 25px",
@@ -118,10 +119,7 @@ const EachRoom = (props: IEachRoom) => {
           />
           <HouseInfo
             label="Price"
-            value={`${Number(data.price).toLocaleString("it-IT", {
-              style: "currency",
-              currency: "VND",
-            })}`}
+            value={`${data.price} VND`}
           />
           <HouseInfo label="Room size" value={`${data.size} m²`} />
           <CommonStyles.Typography type="bold14" sx={{ color: "#777575" }}>

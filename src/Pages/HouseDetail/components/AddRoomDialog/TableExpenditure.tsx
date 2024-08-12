@@ -1,18 +1,17 @@
 import { FastField, FieldArray, useFormikContext } from "formik";
 import CommonStyles from "../../../../Components/CommonStyles";
-import { PDFInitValues } from "./GenPdfButton";
 import { Column } from "../../../../Components/CommonStyles/Table";
 import CommonField from "../../../../Components/CommonFields";
 import { Box } from "@mui/material";
 import CommonIcons from "../../../../Components/CommonIcons";
-import { numberToVietnameseText, removeAllDot } from "../../../../Helpers";
-import { capitalize, isArray } from "lodash";
-import RowPrice from "./RowPrice";
-import { Bill } from "../../../../Interfaces/common";
 
-const TableBill = () => {
+import { RoomInitValues } from "../AddRoomButton";
+import { Bill } from "../../../../Interfaces/common";
+import RowPriceExpenditure from "./RowPriceExpenditure";
+
+const TableExpenditure = () => {
   //! State
-  const { values, setFieldValue } = useFormikContext<PDFInitValues>();
+  const { values, setFieldValue } = useFormikContext<RoomInitValues>();
 
   //! Function
 
@@ -31,8 +30,8 @@ const TableBill = () => {
         return (
           <Box sx={{ pr: "10px" }}>
             <FastField
-              name={`bill.${rowIndex}.name`}
-              placeholder="Tiền điên, tiền nước..."
+              name={`expenditures.${rowIndex}.name`}
+              placeholder="Tiền môi giới, tiền vật liệu..."
               component={CommonField.InputField}
             />
           </Box>
@@ -46,7 +45,7 @@ const TableBill = () => {
         return (
           <Box sx={{ pr: "10px" }}>
             <FastField
-              name={`bill.${rowIndex}.unit`}
+              name={`expenditures.${rowIndex}.unit`}
               placeholder="1000"
               component={CommonField.InputField}
             />
@@ -61,7 +60,7 @@ const TableBill = () => {
         return (
           <Box sx={{ pr: "10px" }}>
             <FastField
-              name={`bill.${rowIndex}.quantity`}
+              name={`expenditures.${rowIndex}.quantity`}
               placeholder="1000"
               component={CommonField.InputField}
               type="number"
@@ -77,7 +76,7 @@ const TableBill = () => {
         return (
           <Box sx={{ pr: "10px" }}>
             <FastField
-              name={`bill.${rowIndex}.unitPrice`}
+              name={`expenditures.${rowIndex}.unitPrice`}
               component={CommonField.InputField}
               fullWidth
               isPrice
@@ -105,7 +104,7 @@ const TableBill = () => {
       customRender: (_, rowIndex) => {
         return (
           <Box sx={{ pr: "10px", display: "flex", alignItems: "center" }}>
-            <RowPrice rowIndex={rowIndex} />
+            <RowPriceExpenditure rowIndex={rowIndex} />
           </Box>
         );
       },
@@ -120,6 +119,7 @@ const TableBill = () => {
             sx={{
               display: "flex",
               alignItems: "center",
+              justifyContent: "center",
               gap: "10px",
             }}
           >
@@ -127,12 +127,14 @@ const TableBill = () => {
               isIcon
               color="error"
               onClick={() => {
-                setFieldValue(
-                  "bill",
-                  values.bill
-                    .filter((_, index) => index !== rowIndex)
-                    .map((item, index) => ({ ...item, id: index + 1 }))
-                );
+                if (values.expenditures) {
+                  setFieldValue(
+                    "expenditures",
+                    values.expenditures
+                      .filter((_, index) => index !== rowIndex)
+                      .map((item, index) => ({ ...item, id: index + 1 }))
+                  );
+                }
               }}
             >
               <CommonIcons.Delete />
@@ -141,12 +143,13 @@ const TableBill = () => {
               isIcon
               color="primary"
               onClick={() => {
+                if (!values.expenditures) return;
                 setFieldValue(
-                  "bill",
+                  "expenditures",
                   [
-                    ...values.bill.slice(0, rowIndex + 1),
-                    { id: values.bill.length + 1, name: "", price: "" },
-                    ...values.bill.slice(rowIndex + 1),
+                    ...values.expenditures.slice(0, rowIndex + 1),
+                    { id: values.expenditures.length + 1, name: "", price: "" },
+                    ...values.expenditures.slice(rowIndex + 1),
                   ].map((item, index) => ({ ...item, id: index + 1 }))
                 );
               }}
@@ -160,47 +163,23 @@ const TableBill = () => {
   ];
 
   return (
-    <Box>
+    <Box sx={{ marginTop: "20px" }}>
+      <CommonStyles.Typography type="bold16" mb={2}>
+        Room expenditures
+      </CommonStyles.Typography>
       <FieldArray
-        name="bill"
+        name="expenditures"
         render={() => {
           return (
-            <CommonStyles.Table columns={columns} data={values.bill || []} />
+            <CommonStyles.Table
+              columns={columns}
+              data={values.expenditures || []}
+            />
           );
         }}
       />
-      <CommonStyles.Typography type="bold18" mt={2}>
-        Total:{" "}
-        <CommonStyles.Typography type="normal18" component="span">
-          {isArray(values.bill) &&
-            values.bill
-              .reduce(
-                (total, item) => total + Number(removeAllDot(`${item.price}`)),
-                0
-              )
-              .toLocaleString("vi-VN")}{" "}
-          VND
-        </CommonStyles.Typography>
-        <CommonStyles.Typography type="bold18" mt={2}>
-          In words:{" "}
-          <CommonStyles.Typography type="normal18" component="span">
-            {capitalize(
-              numberToVietnameseText(
-                isArray(values.bill)
-                  ? +values.bill.reduce(
-                      (total, item) =>
-                        total + Number(removeAllDot(`${item.price}`)),
-                      0
-                    )
-                  : 0
-              )
-            )}{" "}
-            đồng.
-          </CommonStyles.Typography>
-        </CommonStyles.Typography>
-      </CommonStyles.Typography>
     </Box>
   );
 };
 
-export default TableBill;
+export default TableExpenditure;

@@ -17,6 +17,7 @@ import {
   writeBatch,
   arrayRemove,
   where,
+  and,
 } from "firebase/firestore";
 import {
   FirebaseStorage,
@@ -33,6 +34,7 @@ import {
 import { RoomDetail } from "../Hooks/useGetRoomDetail";
 import { v4 as uuid } from "uuid";
 import { GuestInitValue } from "../Pages/Guest/components/AddGuestButton";
+import { GuestBill } from "../Hooks/useGetBill";
 
 export type FailureCallback = (error: any) => void;
 
@@ -163,7 +165,6 @@ class FirebaseService {
 
   getRoomByHouse = async (houseId: string) => {
     try {
-      console.log('houseId', houseId)
       let q = query(
         collection(this.db, "rooms"),
         where("house_id", "==", houseId)
@@ -189,7 +190,7 @@ class FirebaseService {
 
   getGuests = async (onFailed?: FailureCallback) => {
     try {
-      let q = query(collection(this.db, "guest"));
+      let q = query(collection(this.db, "guests"));
 
       const querySnapShot = await getDocs(q);
 
@@ -276,6 +277,33 @@ class FirebaseService {
       });
     } catch (error) {
       console.log("Add guest err: ", error);
+      onFailed && onFailed(error);
+    }
+  };
+
+  updateGuestBill = async (
+    guestId: string,
+    bill: GuestBill,
+    onFailed?: FailureCallback
+  ) => {
+    try {
+      const guestRef = doc(this.db, "guests", guestId);
+      const billRef = collection(this.db, "bills");
+
+      const newBill = {
+        ...bill,
+        createdAt: Timestamp.now(),
+        updatedAt: Timestamp.now(),
+      };
+
+      const response = await addDoc(billRef, newBill);
+
+      await updateDoc(guestRef, {
+        bills: arrayUnion(response.id),
+        updatedAt: Timestamp.now(),
+      });
+    } catch (error) {
+      console.log("Update guest bill err: ", error);
       onFailed && onFailed(error);
     }
   };
@@ -416,6 +444,34 @@ class FirebaseService {
     } catch (error) {
       console.log("Upload image err: ", error);
       onFailed && onFailed(error);
+    }
+  };
+
+  getBillsCompare = async (params: any) => {
+    try {
+      let q = query(
+        collection(this.db, "bills"),
+        and(
+          where("room", "==", params.room),
+          where("fromDate", "<=", params.fromDate),
+          where("toDate", ">=", params.fromDate)
+        )
+      );
+
+      const querySnapShot = await getDocs(q)
+
+      const data = [];
+      for(const doc of querySnapShot.docs) {
+        data.push({
+          ...doc.data(),
+          id: doc.id
+        })
+      }
+
+      return data;
+
+    } catch (error) {
+      console.log('Error get bills compare: ', error)
     }
   };
 }

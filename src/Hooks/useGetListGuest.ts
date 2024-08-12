@@ -1,8 +1,9 @@
 import { useCallback, useEffect, useState } from "react";
 import FirebaseServices from "../Services/Firebase.service";
+import { GuestDetail } from "./useGetGuestDetail";
 
 const useGetListGuest = (isTrigger = true) => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<GuestDetail[] | []>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();
 
