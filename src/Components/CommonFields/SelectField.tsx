@@ -4,6 +4,7 @@ import {
   Select,
   SelectChangeEvent,
   SelectProps,
+  SxProps,
   useTheme,
 } from "@mui/material";
 import CommonStyles from "../CommonStyles";
@@ -23,6 +24,8 @@ interface IMuiSelectField {
   options: any[];
   renderOption: (options: any) => React.ReactNode;
   customRenderValue: (value: any) => React.ReactNode;
+  renderLabel?:React.ReactNode;
+  sxContainer?: SxProps
 }
 
 function MuiSelectField(props: IMuiSelectField & SelectProps & FieldProps) {
@@ -35,6 +38,7 @@ function MuiSelectField(props: IMuiSelectField & SelectProps & FieldProps) {
     onChangeCustomize,
     afterOnChange,
     customRenderValue,
+    sxContainer,
     ...otherProps
   } = props;
   const theme: any = useTheme();
@@ -74,11 +78,12 @@ function MuiSelectField(props: IMuiSelectField & SelectProps & FieldProps) {
         ".MuiSelect-select": {
           padding: "8px 16px",
         },
+        ...sxContainer,
       }}
     >
-      {otherProps?.label && (
+      {(otherProps?.label || otherProps?.renderLabel) && (
         <CommonStyles.Typography type="bold14" my={1}>
-          {otherProps?.label}
+          {otherProps?.renderLabel || otherProps?.label}
           {otherProps?.required && (
             <span
               style={{

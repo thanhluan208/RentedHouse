@@ -115,7 +115,6 @@ const TableBill = () => {
     },
   ];
 
-  console.log("values.bill", values.bill);
   return (
     <Box>
       <FieldArray

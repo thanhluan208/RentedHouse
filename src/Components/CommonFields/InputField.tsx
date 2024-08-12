@@ -1,12 +1,13 @@
 import {
   Box,
   InputAdornment,
+  SxProps,
   TextField,
   TextFieldProps,
   useTheme,
 } from "@mui/material";
 import { FieldProps, getIn } from "formik";
-import { useCallback,  } from "react";
+import { useCallback } from "react";
 import CommonStyles from "../CommonStyles";
 import { removeAllDot } from "../../Helpers";
 
@@ -19,6 +20,8 @@ interface IInputField {
   ) => void;
   maxChar: number;
   isPrice?: boolean;
+  renderLabel?: React.ReactNode;
+  sxContainer?: SxProps
 }
 
 function InputField(props: IInputField & FieldProps & TextFieldProps) {
@@ -30,6 +33,7 @@ function InputField(props: IInputField & FieldProps & TextFieldProps) {
     onChangeCustomize,
     maxChar,
     isPrice,
+    sxContainer,
     ...otherProps
   } = props;
   const theme: any = useTheme();
@@ -48,7 +52,7 @@ function InputField(props: IInputField & FieldProps & TextFieldProps) {
         onChangeCustomize(event);
         return;
       } else if (isPrice) {
-      const value = removeAllDot(event.target.value).replace(/[^0-9]/g, '');
+        const value = removeAllDot(event.target.value).replace(/[^0-9]/g, "");
         setFieldValue(name, Number(value).toLocaleString("vi-VN"));
       } else {
         if (maxChar && event?.target?.value?.length >= maxChar) {
@@ -83,11 +87,12 @@ function InputField(props: IInputField & FieldProps & TextFieldProps) {
             },
           },
         },
+        ...sxContainer,
       }}
     >
-      {otherProps?.label && (
+      {(otherProps.renderLabel || otherProps?.label) && (
         <CommonStyles.Typography type="bold14" my={1}>
-          {otherProps?.label}
+          {otherProps.renderLabel || otherProps?.label}
           {otherProps?.required && (
             <span
               style={{

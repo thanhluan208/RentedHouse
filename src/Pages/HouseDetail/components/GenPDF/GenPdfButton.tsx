@@ -7,7 +7,7 @@ import { Formik, Form, FastField } from "formik";
 
 import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import CommonIcons from "../../../../Components/CommonIcons";
-import { capitalize, isEmpty } from "lodash";
+import { capitalize, isEmpty, isString } from "lodash";
 import { House } from "../../../Home/interface";
 import RoomSelect from "./RoomSelect";
 import GuestSelect from "./GuestSelect";
@@ -24,7 +24,7 @@ interface IPDFActionDialog {
 }
 
 export interface PDFInitValues {
-  room: RoomDetail | undefined;
+  room: RoomDetail | undefined | string;
   guest:
     | {
         id: string;
@@ -32,7 +32,8 @@ export interface PDFInitValues {
       }
     | undefined;
   bill: Bill[];
-  month: Moment | undefined;
+  fromDate: Moment | undefined;
+  toDate: Moment | undefined;
 }
 
 export type Bill = {
@@ -56,7 +57,8 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
           price: 0,
         },
       ],
-      month: moment(),
+      fromDate: moment(),
+      toDate: moment().add(1, "month"),
     };
   }, []);
 
@@ -70,22 +72,25 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
     const dd = {
       content: [
         {
-          text: "Hóa đơn tiền dịch vụ tháng " + values.month?.format("MM/YYYY"),
+          text: "Hóa đơn tiền dịch vụ",
           style: "header",
         },
         {
           text: [
             "Phòng: ",
-            { text: values?.room?.name, bold: true },
+            {
+              text: isString(values?.room) ? values?.room : values?.room?.name,
+              bold: true,
+            },
 
             " (Từ ngày: ",
             {
-              text: values?.month?.startOf("month").format("DD/MM/YYYY"),
+              text: values?.fromDate?.format("DD/MM/YYYY"),
               bold: true,
             },
             " đến ngày: ",
             {
-              text: values?.month?.endOf("month").format("DD/MM/YYYY"),
+              text: values?.toDate?.format("DD/MM/YYYY"),
               bold: true,
             },
             ")",
@@ -175,7 +180,7 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
       validateOnBlur
       validateOnMount
     >
-      {({ isSubmitting, errors, dirty, }) => {
+      {({ isSubmitting, errors, dirty }) => {
         return (
           <Form
             style={{
@@ -216,10 +221,14 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
                   <RoomSelect houseId={houseData?.id} />
                   <GuestSelect />
                   <FastField
-                    name="month"
+                    name="fromDate"
                     component={CommonField.DatePickerField}
-                    label="Month"
-                    views={["month", "year"]}
+                    label="From Date"
+                  />
+                  <FastField
+                    name="toDate"
+                    component={CommonField.DatePickerField}
+                    label="To Date"
                   />
                 </Box>
                 <TableBill />

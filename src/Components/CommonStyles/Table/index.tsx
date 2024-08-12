@@ -70,6 +70,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
         data.map((row, rowIndex) => {
           return (
             <Box
+              key={row.id || `row_${rowIndex}`}
               sx={{
                 display: "grid",
                 gridTemplateColumns: gridTemplateColumns,

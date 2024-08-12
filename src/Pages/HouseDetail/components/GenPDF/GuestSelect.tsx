@@ -1,28 +1,48 @@
 import { Field, useFormikContext } from "formik";
 import CommonField from "../../../../Components/CommonFields";
 import { PDFInitValues } from "./GenPdfButton";
+import { useEffect, useMemo } from "react";
+import { isString, isUndefined } from "lodash";
 
 const GuestSelect = () => {
   //! State
-  const { values } = useFormikContext<PDFInitValues>();
+  const { values, setFieldValue } = useFormikContext<PDFInitValues>();
+  const isText = isString(values.room) && !isUndefined(values.room);
 
-  const options =
-    values?.room?.guests.map((room) => ({
-      value: room.id,
-      label: room.name,
-      ...room,
-    })) || [];
+
+  const options = useMemo(() => {
+    if (isString(values.room) || !values?.room) {
+      return [];
+    }
+    return values.room?.guests.map((guest) => ({
+      value: guest.id,
+      label: guest.name,
+      ...guest,
+    }));
+  }, [values.room]);
+
   //! Function
+
+  useEffect(() => {
+    if (isString(values.room)) {
+      setFieldValue("guest", "");
+    } else {
+      setFieldValue("guest", undefined);
+    }
+  }, [JSON.stringify(values.room)]);
 
   //! Render
   return (
     <Field
       name="guest"
-      component={CommonField.MuiSelectField}
+      component={isText ? CommonField.InputField : CommonField.MuiSelectField}
       label="Guest"
       options={options}
-      required  
-      placeholder="Select guest"
+      required
+      sxContainer={{
+        width: "150px",
+      }}
+      placeholder={isText ? "Guest Name" : "Select Guest"}
     />
   );
 };
