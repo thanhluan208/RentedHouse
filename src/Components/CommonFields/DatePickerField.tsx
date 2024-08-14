@@ -58,6 +58,7 @@ const DatePickerField = (
       <LocalizationProvider dateAdapter={AdapterMoment}>
         <DatePicker
           {...otherProps}
+          
           value={value}
           onChange={handleChange}
           sx={{

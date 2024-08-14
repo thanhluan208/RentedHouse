@@ -1,5 +1,6 @@
 import MuiButton from "./Button";
 import MuiChip from "./Chip";
+import Collapse from "./Collapse";
 import MUIDialog from "./Dialog";
 import Empty from "./Empty/Empty";
 import FilesUpload from "./FilesUpload";
@@ -17,7 +18,8 @@ const CommonStyles = {
   Empty,
   ImageUpload,
   FilesUpload,
-  Table
+  Table,
+  Collapse,
 };
 
 export default CommonStyles;

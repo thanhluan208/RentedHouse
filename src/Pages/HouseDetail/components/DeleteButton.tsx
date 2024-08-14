@@ -4,51 +4,52 @@ import CommonStyles from "../../../Components/CommonStyles";
 import ConfirmDialog from "../../../Components/CommonStyles/ConfirmDialog";
 import { toast } from "react-toastify";
 import CommonIcons from "../../../Components/CommonIcons";
-import FirebaseServices from "../../../Services/Firebase.service";
 import { useGet } from "../../../Stores/useStore";
-import { RoomDetail } from "../../../Hooks/useGetRoomDetail";
 import { Tooltip } from "@mui/material";
+import { Room } from "../../Home/interface";
+import RoomServices from "../../../Services/Room.service";
 
 interface IDeleteButton {
-  data: RoomDetail;
+  data: Room;
 }
 
 function DeleteButton(props: IDeleteButton) {
   //! State
   const { data } = props;
   const { open, shouldRender, toggle } = useToggleDialog();
-  const refetchHouseList = useGet("REFETCH_HOUSE_LIST");
+  const refetchListRoom = useGet("REFETCH_HOUST_DETAIL");
 
   //! Function
   const handleDelete = async () => {
-    if (!data?.id) return;
+    if (!data?._id) return;
 
     const toastId = toast.loading(`Deleting room ${data.name}...`, {
       isLoading: true,
       autoClose: false,
     });
 
-    const onFailed = (err: any) => {
+    try {
+      await RoomServices.deleteRoom(data._id);
+      
+      await refetchListRoom();
+
       toast.update(toastId, {
-        render: `Delete room ${data.name} failed: ` + err,
+        render: `Delete room ${data.name} successfully`,
+        type: "success",
+        autoClose: 3000,
+        isLoading: false,
+      });
+
+      toggle();
+    } catch (error: any) {
+      console.log("err", error);
+      toast.update(toastId, {
+        render: `Delete room ${data.name} failed: ` + error.message,
         type: "error",
         autoClose: 3000,
         isLoading: false,
       });
-    };
-
-    await FirebaseServices.deleteRoom(data.id, data.house_id, onFailed);
-
-    await refetchHouseList();
-
-    toast.update(toastId, {
-      render: `Delete room ${data.name} successfully`,
-      type: "success",
-      autoClose: 3000,
-      isLoading: false,
-    });
-
-    toggle();
+    }
   };
 
   //! Render

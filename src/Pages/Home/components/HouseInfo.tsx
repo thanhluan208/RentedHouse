@@ -23,7 +23,7 @@ const HouseInfo = (props: IHouseInfo) => {
       }}
     >
       <CommonStyles.Typography type="bold14" sx={{color:"#777575"}}>{label}:</CommonStyles.Typography>
-      <CommonStyles.Typography type="bold14" textAlign={"right"}>{value || "-"}</CommonStyles.Typography>
+      <CommonStyles.Typography type="bold14" textAlign={"right"} sx={{maxWidth:'60%'}}>{value || "-"}</CommonStyles.Typography>
     </Box>
   );
 };

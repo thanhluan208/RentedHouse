@@ -21,11 +21,12 @@ const MoreButton = (props: IMoreButton) => {
 
   //! Function
   const handleOpen = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.stopPropagation()
+    event.stopPropagation();
     setAnchorEl(event.currentTarget);
   };
 
-  const handleClose = () => {
+  const handleClose = (e: any) => {
+    e.stopPropagation();
     setAnchorEl(null);
   };
   //! Render
@@ -62,8 +63,8 @@ const MoreButton = (props: IMoreButton) => {
             flexDirection: "column",
           }}
         >
-          <UpdateButton data={data} setAnchorEl={setAnchorEl}/>
-          <DeleteButton data={data} setAnchorEl={setAnchorEl}/>
+          <UpdateButton data={data} setAnchorEl={setAnchorEl} />
+          <DeleteButton data={data} setAnchorEl={setAnchorEl} />
         </Paper>
       </Popover>
     </Box>

@@ -1,11 +1,5 @@
-import { Timestamp } from "firebase/firestore";
-import { capitalize, cloneDeep } from "lodash";
+import { capitalize, isString } from "lodash";
 import moment from "moment";
-import { PDFInitValues } from "../Pages/HouseDetail/components/GenPDF/GenPdfButton";
-import FirebaseServices from "../Services/Firebase.service";
-import { GuestBill } from "../Hooks/useCompareBills";
-import { compareBill } from "../Constants/PDF.templates";
-import { generatePDF } from "./PDF";
 
 export const processNavLabel = (label: string) => {
   return label
@@ -25,8 +19,8 @@ export const processDelay = (callback: () => void) => {
   });
 };
 
-export const formatDate = (date: Timestamp, format = "Do MMMM YYYY") => {
-  return moment(date.toDate()).format(format);
+export const formatDate = (date: Date, format = "Do MMMM YYYY") => {
+  return moment(date).format(format);
 };
 
 export const removeAllDot = (str: string) => {
@@ -80,26 +74,28 @@ export function numberToVietnameseText(number: number) {
   return convertNumberToText(number).replace(/\s+/g, " ").trim();
 }
 
-export const genPDFCompare = async (data: PDFInitValues) => {
-  const { room, fromDate } = data;
-  if (!room?.id) return;
-  const lastBill = (await FirebaseServices.getBillsCompare({
-    room: JSON.stringify({
-      id: room.id,
-      name: room.name,
-    }),
-    fromDate: cloneDeep(fromDate)?.subtract(1, "month").valueOf(),
-  })) as GuestBill[];
+export function removeNullAndUndefinedFromObject(obj: any) {
+  return Object.keys(obj)
+    .filter((key) => obj[key] !== null && obj[key] !== undefined)
+    .reduce((acc, key) => ({ ...acc, [key]: obj[key] }), {});
+}
 
-  const parsedBill = {
-    bill: lastBill[0].billDetails,
-    room: JSON.parse(lastBill[0].room),
-    guest: JSON.parse(lastBill[0].guest),
-    fromDate: moment(lastBill[0].fromDate),
-    toDate: moment(lastBill[0].toDate),
-  };
+export function convertFileToBase64(file: File) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
 
-  const dd = compareBill(data, parsedBill);
+    // Event handler when reading is successful
+    reader.onload = () => {
+      if (!reader?.result || !isString(reader.result)) reject("No result");
+      resolve(reader?.result);
+    };
 
-  generatePDF(dd as any);
-};
+    // Event handler for errors
+    reader.onerror = (error) => {
+      reject(error);
+    };
+
+    // Read the file as a Data URL (Base64)
+    reader.readAsDataURL(file);
+  });
+}

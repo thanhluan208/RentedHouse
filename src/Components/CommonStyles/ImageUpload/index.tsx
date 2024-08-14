@@ -6,16 +6,17 @@ import CommonStyles from "..";
 interface IUploadFile {
   label?: string;
   dropzoneProps?: DropzoneOptions;
+  initImage?: string;
 }
 
 const UploadFile = (props: IUploadFile) => {
   //! State
-  const { label, dropzoneProps } = props;
+  const { label, dropzoneProps, initImage } = props;
   const { onDrop, onDragEnter, onDragLeave, ...otherDropzoneProps } =
     dropzoneProps || {};
   const [isDragOver, setIsDragOver] = useState(false);
-  const [imageUrls, setImageUrls] = useState<string | ArrayBuffer | null>(null);
-  const {  getRootProps, getInputProps } = useDropzone({
+  const [imageUrls, setImageUrls] = useState<string | ArrayBuffer | undefined>(initImage);
+  const { getRootProps, getInputProps } = useDropzone({
     onDragEnter: (event) => {
       onDragEnter && onDragEnter(event);
       setIsDragOver(true);

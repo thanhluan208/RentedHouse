@@ -62,7 +62,7 @@ function Home() {
           </Box>
         )}
         {data.map((elm: House) => {
-          return <EachHouse data={elm} key={elm.id} />;
+          return <EachHouse data={elm} key={elm._id} />;
         })}
       </Box>
     </Box>

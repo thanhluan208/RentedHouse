@@ -1,16 +1,57 @@
-import { Timestamp } from "firebase/firestore";
+import { OptionCommon } from "../../Interfaces/common";
+import { HouseStatusEnum } from "../../Services/House.services";
 
 export interface House {
-  district: District;
+  _id: string;
   name: string;
-  commune: Commune;
+  status: HouseStatusEnum;
+  city: OptionCommon;
+  commune: OptionCommon;
+  district: OptionCommon;
   address: string;
-  city: CommonOption;
+  rooms: Room[];
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+}
+
+export interface Room {
+  _id: string;
+  name: string;
+  status: string;
+  price: number;
+  size: number;
+  maxGuest: number;
+  guests: Guest[];
+  electricityFee: number;
+  internetFee: number;
+  waterFee: number;
+  livingExpense: number;
+  parkingFee: number;
+  expenditure: Expenditure[];
+  house: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+}
+
+export interface Expenditure {
   id: string;
-  status: CommonOption;
-  rooms: string[] | [];
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+  name: string;
+  unit: string;
+  unitPrice: number;
+  quantity: number;
+  price: number;
+  _id: string;
+}
+
+export interface Guest {
+  _id: string;
+  name: string;
+  contract: any[];
+  __v: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CommonOption {

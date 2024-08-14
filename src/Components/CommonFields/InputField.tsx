@@ -4,6 +4,7 @@ import {
   SxProps,
   TextField,
   TextFieldProps,
+  Tooltip,
   useTheme,
 } from "@mui/material";
 import { FieldProps, getIn } from "formik";
@@ -21,7 +22,8 @@ interface IInputField {
   maxChar: number;
   isPrice?: boolean;
   renderLabel?: React.ReactNode;
-  sxContainer?: SxProps
+  sxContainer?: SxProps;
+  tooltipLabel?: string;
 }
 
 function InputField(props: IInputField & FieldProps & TextFieldProps) {
@@ -70,85 +72,93 @@ function InputField(props: IInputField & FieldProps & TextFieldProps) {
 
   //! Render
   return (
-    <Box
-      sx={{
-        display: "flex",
-        flexDirection: "column",
-        width: otherProps.fullWidth ? "100%" : "fit-content",
-        ".MuiInputBase-root": {
-          padding: 0,
-          display: "flex",
-          alignItems: otherProps?.multiline ? "end" : "center",
-        },
-        input: {
-          "&:hover": {
-            input: {
-              background: "#fff !important",
+    <Tooltip title={otherProps.tooltipLabel}>
+      <div
+        style={{
+          width: otherProps.fullWidth ? "100%" : "fit-content",
+        }}
+      >
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            width: otherProps.fullWidth ? "100%" : "fit-content",
+            ".MuiInputBase-root": {
+              padding: 0,
+              display: "flex",
+              alignItems: otherProps?.multiline ? "end" : "center",
             },
-          },
-        },
-        ...sxContainer,
-      }}
-    >
-      {(otherProps.renderLabel || otherProps?.label) && (
-        <CommonStyles.Typography type="bold14" my={1}>
-          {otherProps.renderLabel || otherProps?.label}
-          {otherProps?.required && (
-            <span
-              style={{
-                color: theme.colors.custom.colorErrorTypo,
-                marginLeft: "4px",
-              }}
-            >
-              *
-            </span>
+            input: {
+              "&:hover": {
+                input: {
+                  background: "#fff !important",
+                },
+              },
+            },
+            ...sxContainer,
+          }}
+        >
+          {(otherProps.renderLabel || otherProps?.label) && (
+            <CommonStyles.Typography type="bold14" my={1}>
+              {otherProps.renderLabel || otherProps?.label}
+              {otherProps?.required && (
+                <span
+                  style={{
+                    color: theme.colors.custom.colorErrorTypo,
+                    marginLeft: "4px",
+                  }}
+                >
+                  *
+                </span>
+              )}
+            </CommonStyles.Typography>
           )}
-        </CommonStyles.Typography>
-      )}
-      <TextField
-        name={name}
-        value={value}
-        onBlur={onBlur}
-        {...otherProps}
-        error={errMsg}
-        helperText={errMsg}
-        label=""
-        onChange={handleChange}
-        sx={{
-          div: {
-            borderRadius: "10px",
-            background: "#fff",
-          },
+          <TextField
+            name={name}
+            value={value}
+            onBlur={onBlur}
+            {...otherProps}
+            error={errMsg}
+            helperText={errMsg}
+            label=""
+            onChange={handleChange}
+            sx={{
+              div: {
+                borderRadius: "10px",
+                background: "#fff",
+              },
 
-          fieldset: {
-            borderRadius: "10px",
-          },
-        }}
-        inputProps={{
-          style: {
-            padding: "8px 16px",
-          },
-        }}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment
-              position="end"
-              sx={{
-                height: "100%",
-                mr: "5px",
-                mb: otherProps.multiline ? "5px" : 0,
-                fontSize: "10px",
-              }}
-            >
-              <CommonStyles.Typography type="normal12">
-                {maxChar && `${value?.length || 0}/${maxChar}`}
-              </CommonStyles.Typography>
-            </InputAdornment>
-          ),
-          ...otherProps.InputProps,
-        }}
-      />
-    </Box>
+              fieldset: {
+                borderRadius: "10px",
+              },
+            }}
+            inputProps={{
+              style: {
+                padding: "8px 16px",
+              },
+            }}
+            InputProps={{
+              endAdornment: maxChar ? (
+                <InputAdornment
+                  position="end"
+                  sx={{
+                    height: "100%",
+                    mr: "5px",
+                    mb: otherProps.multiline ? "5px" : 0,
+                    fontSize: "10px",
+                  }}
+                >
+                  <CommonStyles.Typography type="normal12">
+                    {`${value?.length || 0}/${maxChar}`}
+                  </CommonStyles.Typography>
+                </InputAdornment>
+              ) : undefined,
+              ...otherProps.InputProps,
+            }}
+          />
+        </Box>
+      </div>
+    </Tooltip>
   );
 }
 

@@ -1,26 +1,27 @@
 export const HouseStatus = [
   {
-    value: "full",
+    value: "FULL",
     label: "Full",
   },
   {
-    value: "available",
+    value: "AVAILABLE",
     label: "Available",
   },
   {
-    value: "inactive",
-    label: "Inactive",
-  },
-  {
-    value: "under_construction",
+    value: "UNDER_CONSTRUCTION",
     label: "Under construction",
   },
 ];
 
 
-export enum HouseStatusEnum {
-  full = "full",
-  available = "available",
-  inactive = "inactive",
-  under_construction = "under_construction",
-}
+
+export const gender = [
+  {
+    value: "male",
+    label: "Male",
+  },
+  {
+    value: "female",
+    label: "Female",
+  },
+];

@@ -8,41 +8,19 @@ import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { FastField, Field, Form, Formik } from "formik";
 import CommonField from "../../CommonFields";
 import { isEmpty } from "lodash";
-import FirebaseServices from "../../../Services/Firebase.service";
 import { toast } from "react-toastify";
 import vietnameCityData from "../../../Constants/vietnam-city.json";
 import { House } from "../../../Pages/Home/interface";
 import { HouseStatus } from "../../../Constants/options";
 import { useGet } from "../../../Stores/useStore";
+import HouseServices, {
+  CreateHouse,
+  HouseStatusEnum,
+} from "../../../Services/House.services";
 
 interface ICreateHouseDialog {
   toggle: () => void;
   data?: House;
-}
-
-export interface HouseInitValues {
-  id?: string;
-  name: string;
-  address: string;
-  city?: {
-    value: string;
-    label: string;
-  };
-  district?: {
-    value: string;
-    label: string;
-    idCity: string;
-  };
-  commune?: {
-    value: string;
-    label: string;
-    idDistrict: string;
-  };
-  status: {
-    value: string;
-    label: string;
-  };
-  rooms: string[] | [] ;
 }
 
 export const CreateHouseDialog = (props: ICreateHouseDialog) => {
@@ -51,18 +29,14 @@ export const CreateHouseDialog = (props: ICreateHouseDialog) => {
   const refetchHouseList = useGet("REFETCH_HOUSE_LIST");
   const isEdit = !!data;
 
-  const initialValues: HouseInitValues = useMemo(() => {
+  const initialValues: CreateHouse = useMemo(() => {
     return {
       address: data?.address ? data.address : "",
       name: data?.name ? data.name : "",
       city: data?.city ? data?.city : undefined,
-
       district: data?.district ? data?.district : undefined,
       commune: data?.commune ? data?.commune : undefined,
-      status: data?.status
-        ? data.status
-        : { value: "available", label: "Available" },
-      rooms: data?.rooms ? data.rooms : [],
+      status: data?.status ? data.status : HouseStatusEnum.AVAILABLE,
     };
   }, [data]);
 
@@ -76,7 +50,7 @@ export const CreateHouseDialog = (props: ICreateHouseDialog) => {
   //! Function
 
   const handleSubmit = useCallback(
-    async (values: HouseInitValues) => {
+    async (values: CreateHouse) => {
       const toastLoadingText = isEdit
         ? `Updating ${data?.name}...`
         : "Creating new house...";
@@ -84,43 +58,32 @@ export const CreateHouseDialog = (props: ICreateHouseDialog) => {
         autoClose: false,
         isLoading: true,
       });
+      try {
+        await HouseServices.createHouse(values);
 
-      const toastFailedText = isEdit
-        ? `Update ${data?.name} failed!`
-        : "Create new house failed!";
-      const onFailed = (err: any) => {
+        await refetchHouseList();
+
+        const toastSuccess = isEdit
+          ? `Update ${data?.name} success!`
+          : `${values.name} created !`;
         toast.update(toastId, {
-          type: "error",
-          render: toastFailedText + err,
+          type: "success",
+          render: toastSuccess,
           autoClose: 3000,
           isLoading: false,
         });
-      };
-
-      if (!isEdit) {
-        await FirebaseServices.createHouse(values, onFailed);
-      } else {
-        await FirebaseServices.updateHouse(
-          {
-            id: data?.id,
-            ...values,
-          },
-          onFailed
-        );
+        toggle();
+      } catch (error: any) {
+        const toastFailedText = isEdit
+          ? `Update ${data?.name} failed!`
+          : "Create new house failed!";
+        toast.update(toastId, {
+          type: "error",
+          render: toastFailedText + error?.message,
+          autoClose: 3000,
+          isLoading: false,
+        });
       }
-
-      await refetchHouseList();
-
-      const toastSuccess = isEdit
-        ? `Update ${data?.name} success!`
-        : `${values.name} created !`;
-      toast.update(toastId, {
-        type: "success",
-        render: toastSuccess,
-        autoClose: 3000,
-        isLoading: false,
-      });
-      toggle();
     },
     [data]
   );

@@ -1,21 +1,25 @@
 import { useCallback, useEffect, useState } from "react";
-import FirebaseServices from "../Services/Firebase.service";
 import { GuestDetail } from "./useGetGuestDetail";
+import GuestService from "../Services/Guest.service";
+import { AxiosResponse } from "axios";
 
-const useGetListGuest = (isTrigger = true) => {
+const useGetListGuest = (houseId: string, isTrigger = true) => {
   const [data, setData] = useState<GuestDetail[] | []>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();
 
   const callApi = useCallback(() => {
-    return FirebaseServices.getGuests();
-  }, []);
+    return GuestService.getGuestByHouse(houseId);
+  }, [houseId]);
 
-  const transformResponse = useCallback((response: any) => {
-    if (response) {
-      setData(response);
-    }
-  }, []);
+  const transformResponse = useCallback(
+    (response: AxiosResponse<GuestDetail[]>) => {
+      if (response) {
+        setData(response.data);
+      }
+    },
+    []
+  );
 
   const refetch = useCallback(async () => {
     try {

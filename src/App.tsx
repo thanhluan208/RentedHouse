@@ -1,14 +1,21 @@
-import { RouterProvider, createBrowserRouter } from "react-router-dom";
+import {
+  RouterProvider,
+  createBrowserRouter,
+  redirect,
+} from "react-router-dom";
 import Home from "./Pages/Home";
-import Users from "./Pages/Users";
 import DefaultLayout from "./Components/DefaultLayout";
-import Routes, { Paths } from "./Constants/routes";
+import { Paths } from "./Constants/routes";
 import HouseDetail from "./Pages/HouseDetail";
 import GuestDetail from "./Pages/GuestDetail";
-
+import Bill from "./Pages/Bill";
+import { useAuth } from "./Providers/AuthenticationProvider";
+import Login from "./Pages/Login";
+import Register from "./Pages/Register";
 
 function App() {
   //! State
+  const { isLogged } = useAuth();
   const router = createBrowserRouter([
     {
       element: <DefaultLayout />,
@@ -21,15 +28,42 @@ function App() {
           path: `${Paths.house}/:id`,
           element: <HouseDetail />,
         },
-        {
-          path: Routes.common.PERSONAL.path,
-          element: <Users />,
-        },
+
         {
           path: `${Paths.guest}/:guestId`,
           element: <GuestDetail />,
-        }
+        },
+        {
+          path: Paths.bill,
+          element: <Bill />,
+        },
       ],
+      loader: () => {
+        if (!isLogged) {
+          return redirect(Paths.login);
+        }
+        return null;
+      },
+    },
+    {
+      path: Paths.login,
+      element: <Login />,
+      loader: () => {
+        if (isLogged) {
+          return redirect(Paths.house);
+        }
+        return null;
+      },
+    },
+    {
+      path: Paths.register,
+      element: <Register />,
+      loader: () => {
+        if (isLogged) {
+          return redirect(Paths.house);
+        }
+        return null;
+      },
     },
   ]);
 

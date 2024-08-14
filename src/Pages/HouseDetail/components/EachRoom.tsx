@@ -1,69 +1,55 @@
 import { Box, Divider } from "@mui/material";
-import useGetRoomDetail from "../../../Hooks/useGetRoomDetail";
 import { useNavigate } from "react-router-dom";
 import CommonStyles from "../../../Components/CommonStyles";
-import { useEffect, useMemo } from "react";
-import { HouseStatusEnum } from "../../../Constants/options";
+import { useMemo } from "react";
 import HouseInfo from "../../Home/components/HouseInfo";
 import { formatDate } from "../../../Helpers";
 import DeleteButton from "./DeleteButton";
 import CommonIcons from "../../../Components/CommonIcons";
 import DeleteGuest from "./DeleteGuest";
-import { useSave } from "../../../Stores/useStore";
 import cachedKeys from "../../../Constants/cachedKeys";
 import AddGuestButton from "../../Guest/components/AddGuestButton";
 import { Paths } from "../../../Constants/routes";
-import { HouseInitValues } from "../../../Components/DefaultLayout/Components/CreateHouseButton";
+import { HouseStatusEnum } from "../../../Services/House.services";
+import { Room } from "../../Home/interface";
 
 interface IEachRoom {
-  id: string;
-  houseData: HouseInitValues;
+  data: Room;
 }
 
 const EachRoom = (props: IEachRoom) => {
   //! State
-  const { id } = props;
+  const { data } = props;
   const navigate = useNavigate();
-  const save = useSave();
-  const { data, isLoading, refetch } = useGetRoomDetail(id);
-
 
   const color = useMemo(() => {
     if (!data) return {};
-    if (data.status.value === HouseStatusEnum.available) {
+    if (data.status === HouseStatusEnum.AVAILABLE) {
       return {
         backgroundColor: "#e8faf3",
         color: "#2dd298",
       };
     }
-    if (data.status.value === HouseStatusEnum.full) {
+    if (data.status === HouseStatusEnum.FULL) {
       return {
         backgroundColor: "#fde8e8",
         color: "#f44336",
       };
     }
-    if (data.status.value === HouseStatusEnum.inactive) {
-      return {
-        backgroundColor: "#f7f8f9",
-        color: "#838698",
-      };
-    }
-    if (data.status.value === HouseStatusEnum.under_construction) {
+
+    if (data.status === HouseStatusEnum.UNDER_CONSTRUCTION) {
       return {
         backgroundColor: "#ffead9",
         color: "#ed6c02",
       };
     }
-  }, [data?.status?.value]);
+  }, [data?.status]);
   //! Function
 
   //! Effect
-  useEffect(() => {
-    save(cachedKeys.REFETCH_ROOM_OVERVIEW, refetch);
-  }, [save, refetch]);
 
   //! Render
-  if (!data?.id) return null;
+  if (!data?._id) return null;
 
   return (
     <Box
@@ -87,8 +73,7 @@ const EachRoom = (props: IEachRoom) => {
         // navigate(`${Paths.house}/${data.id}`);
       }}
     >
-      <CommonStyles.LoadingOverlay isLoading={isLoading} />
-      <CommonStyles.Chip label={data?.status?.label || ""} sx={color} />
+      <CommonStyles.Chip label={data?.status || ""} sx={color} />
       <Box
         sx={{
           padding: "5px 25px",
@@ -103,7 +88,7 @@ const EachRoom = (props: IEachRoom) => {
           }}
         >
           <CommonStyles.Typography type="bold18">
-            Room number: {data.name}
+            Room: {data.name}
           </CommonStyles.Typography>
           <DeleteButton data={data} />
         </Box>
@@ -119,7 +104,7 @@ const EachRoom = (props: IEachRoom) => {
           />
           <HouseInfo
             label="Price"
-            value={`${data.price} VND`}
+            value={`${data.price.toLocaleString("vn-VN")} VND`}
           />
           <HouseInfo label="Room size" value={`${data.size} m²`} />
           <CommonStyles.Typography type="bold14" sx={{ color: "#777575" }}>
@@ -155,11 +140,11 @@ const EachRoom = (props: IEachRoom) => {
                     }}
                     onClick={(e) => {
                       e.stopPropagation();
-                      navigate(`${Paths.guest}/${guest.id}`);
+                      navigate(`${Paths.guest}/${guest._id}`);
                     }}
                   >
                     <CommonIcons.Person />
-                    <CommonStyles.Typography type="bold14" key={guest.id}>
+                    <CommonStyles.Typography type="bold14" key={guest._id}>
                       {guest.name}
                     </CommonStyles.Typography>
                   </Box>
@@ -167,9 +152,9 @@ const EachRoom = (props: IEachRoom) => {
                 </Box>
               );
             })}
-            {data.guests.length < data.maxGuest && data.id && (
+            {data.guests.length < data.maxGuest && data._id && (
               <AddGuestButton
-                refetchKey={cachedKeys.REFETCH_ROOM_OVERVIEW}
+                refetchKey={cachedKeys.REFETCH_HOUST_DETAIL}
                 roomData={data}
                 buttonProps={{
                   startIcon: null,

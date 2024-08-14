@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import FirebaseServices from "../Services/Firebase.service";
 import { House } from "../Pages/Home/interface";
-
-
+import HouseServices from "../Services/House.services";
+import { AxiosResponse } from "axios";
 
 const useGetHouse = (id: string, isTrigger = true) => {
   const [data, setData] = useState<House | null>(null);
@@ -11,12 +10,12 @@ const useGetHouse = (id: string, isTrigger = true) => {
 
   const callApi = useCallback(() => {
     if (!id) return;
-    return FirebaseServices.getHouseDetail(id);
+    return HouseServices.getHouseDetail(id);
   }, [id]);
 
-  const transformResponse = useCallback((response: any) => {
+  const transformResponse = useCallback((response?: AxiosResponse<House>) => {
     if (response) {
-      setData(response);
+      setData(response.data);
     }
   }, []);
 

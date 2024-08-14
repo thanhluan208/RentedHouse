@@ -8,12 +8,12 @@ import CommonIcons from "../../../../Components/CommonIcons";
 import { numberToVietnameseText, removeAllDot } from "../../../../Helpers";
 import { capitalize, isArray } from "lodash";
 import RowPrice from "./RowPrice";
-import { Bill } from "../../../../Interfaces/common";
+import { Bill, BillQuantityType } from "../../../../Interfaces/common";
+import InputQuantity from "./InputQuantity";
 
 const TableBill = () => {
   //! State
   const { values, setFieldValue } = useFormikContext<PDFInitValues>();
-
   //! Function
 
   //! Render
@@ -58,16 +58,7 @@ const TableBill = () => {
       id: "quantity",
       label: "Quantity",
       customRender: (_, rowIndex) => {
-        return (
-          <Box sx={{ pr: "10px" }}>
-            <FastField
-              name={`bill.${rowIndex}.quantity`}
-              placeholder="1000"
-              component={CommonField.InputField}
-              type="number"
-            />
-          </Box>
-        );
+        return <InputQuantity rowIndex={rowIndex} />;
       },
     },
     {
@@ -113,14 +104,13 @@ const TableBill = () => {
     {
       id: "action",
       label: "Action",
-      width: 100,
+      width:100,
       customRender: (_, rowIndex) => {
         return (
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
-              gap: "10px",
             }}
           >
             <CommonStyles.Button
@@ -153,6 +143,24 @@ const TableBill = () => {
             >
               <CommonIcons.Add />
             </CommonStyles.Button>
+            <CommonStyles.Button
+              isIcon
+              onClick={() => {
+                if (values.bill[rowIndex].type === BillQuantityType.MONTH) {
+                  setFieldValue(
+                    `bill.${rowIndex}.type`,
+                    BillQuantityType.START_END
+                  );
+                } else {
+                  setFieldValue(
+                    `bill.${rowIndex}.type`,
+                    BillQuantityType.MONTH
+                  );
+                }
+              }}
+            >
+              <CommonIcons.SyncAlt />
+            </CommonStyles.Button>
           </Box>
         );
       },
@@ -169,36 +177,7 @@ const TableBill = () => {
           );
         }}
       />
-      <CommonStyles.Typography type="bold18" mt={2}>
-        Total:{" "}
-        <CommonStyles.Typography type="normal18" component="span">
-          {isArray(values.bill) &&
-            values.bill
-              .reduce(
-                (total, item) => total + Number(removeAllDot(`${item.price}`)),
-                0
-              )
-              .toLocaleString("vi-VN")}{" "}
-          VND
-        </CommonStyles.Typography>
-        <CommonStyles.Typography type="bold18" mt={2}>
-          In words:{" "}
-          <CommonStyles.Typography type="normal18" component="span">
-            {capitalize(
-              numberToVietnameseText(
-                isArray(values.bill)
-                  ? +values.bill.reduce(
-                      (total, item) =>
-                        total + Number(removeAllDot(`${item.price}`)),
-                      0
-                    )
-                  : 0
-              )
-            )}{" "}
-            đồng.
-          </CommonStyles.Typography>
-        </CommonStyles.Typography>
-      </CommonStyles.Typography>
+      
     </Box>
   );
 };

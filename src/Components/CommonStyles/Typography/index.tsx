@@ -25,6 +25,11 @@ const Typography = (props: ITypography & TypographyProps) => {
       fontSize: "14px",
       fontWeight: 600,
     });
+
+    styles.set("normal16", {
+      fontSize: "16px",
+      fontWeight: 400,
+    });
     
     styles.set("bold16", {
       fontSize: "16px",
@@ -43,6 +48,11 @@ const Typography = (props: ITypography & TypographyProps) => {
 
     styles.set("bold24", {
       fontSize: "24px",
+      fontWeight: 600,
+    });
+
+    styles.set("bold32", {
+      fontSize: "32px",
       fontWeight: 600,
     });
 

@@ -61,7 +61,7 @@ const GuestInput = () => {
                     : ""
                 }
               >
-                <div style={{width:'fit-content', height:'fit-content'}}>
+                <div style={{ width: "fit-content", height: "fit-content" }}>
                   <CommonStyles.Button
                     sx={{
                       mt: 3,

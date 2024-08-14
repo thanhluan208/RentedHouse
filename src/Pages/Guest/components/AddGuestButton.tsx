@@ -4,29 +4,32 @@ import useToggleDialog from "../../../Hooks/useToggleDialog";
 import { useMemo } from "react";
 import * as yup from "yup";
 import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { FastField, Field, Form, Formik } from "formik";
-import { isEmpty } from "lodash";
+import { Form, Formik } from "formik";
+import { capitalize, isEmpty, isString } from "lodash";
 import FirebaseServices from "../../../Services/Firebase.service";
 import { toast } from "react-toastify";
-import vietnameCityData from "../../../Constants/vietnam-city.json";
 import { useGet } from "../../../Stores/useStore";
 import CommonStyles from "../../../Components/CommonStyles";
 import CommonIcons from "../../../Components/CommonIcons";
-import CommonField from "../../../Components/CommonFields";
-import { RoomDetail } from "../../../Hooks/useGetRoomDetail";
+import { GuestDetail } from "../../../Hooks/useGetGuestDetail";
+import PerfectScollBar from "react-perfect-scrollbar";
+import GuestGeneralInfo from "./GuestGeneralInfo";
+import moment, { Moment } from "moment";
+import { Room } from "../../Home/interface";
+import GuestService from "../../../Services/Guest.service";
 
 interface IActionGuestDialog {
   toggle: () => void;
-  data?: any;
+  data?: GuestDetail;
   refetchKey: string;
-  roomData?: RoomDetail;
+  roomData?: Room;
 }
 
 export interface GuestInitValue {
   id?: string;
   address?: string;
   name: string;
-  dob?: string;
+  dob?: Moment;
   city?: {
     value: string;
     label: string;
@@ -34,23 +37,17 @@ export interface GuestInitValue {
   district?: {
     value: string;
     label: string;
-    idCity: string;
   };
   commune?: {
     value: string;
     label: string;
-    idDistrict: string;
   };
-  houseId?: string;
   gender?: string;
-  room?: {
-    id: string;
-    name: string;
-  };
   citizenIdFront?: File | string;
   citizenIdBack?: File | string;
-  contractData?: File[] | string[];
+  contract?: File[] | string[];
   history?: string;
+  phone?: string;
 }
 
 export const ActionGuestDialog = (props: IActionGuestDialog) => {
@@ -63,13 +60,15 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
     return {
       name: data?.name ? data.name : "",
       address: data?.address ? data.address : "",
-      //   dob: data?.dob ? data.dob : undefined,
+      dob: data?.dob ? moment(data.dob) : undefined,
       city: data?.city ? data.city : undefined,
       district: data?.district ? data.district : undefined,
       commune: data?.commune ? data.commune : undefined,
       citizenIdFront: data?.citizenIdFront ? data.citizenIdFront : undefined,
       citizenIdBack: data?.citizenIdBack ? data.citizenIdBack : undefined,
-      contractData: data?.contractData ? data.contractData : [],
+      contract: data?.contract ? data.contract : [],
+      phone: data?.phone ? data.phone : undefined,
+      gender: data?.gender ? capitalize(data?.gender) : undefined,
     };
   }, [data]);
 
@@ -82,11 +81,11 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
   //! Function
 
   const handleSubmit = async (values: GuestInitValue) => {
-    const toastId = toast.loading("Creating new guest...", {
+    const toastMsg = isEdit ? "Updating guest..." : "Creating new guest...";
+    const toastId = toast.loading(toastMsg, {
       isLoading: true,
       autoClose: 0,
     });
-
     const onFailed = (error: any) => {
       toast.update(toastId, {
         isLoading: false,
@@ -96,138 +95,156 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
       });
     };
 
-    const uploadFront = new Promise((res) => {
-      const citizenIdFront = values.citizenIdFront as File;
-      const toastId = toast.loading("Uploading citizen ID (Front)...", {
-        isLoading: true,
-        autoClose: 0,
-      });
-      if (!citizenIdFront) return res(null);
-      FirebaseServices.uploadImage(
-        citizenIdFront as File,
-        { contentType: citizenIdFront.type },
-        onFailed,
-        (url) => {
-          toast.update(toastId, {
-            isLoading: false,
-            type: "success",
-            render: "Upload citizen ID (Front) success!",
-            autoClose: 3000,
-          });
-          res(url);
-        },
-        (progress) => {
-          toast.update(toastId, {
-            isLoading: true,
-            render: `Uploading citizen ID (Front)... ${progress}%`,
-            autoClose: 0,
-          });
-        }
-      );
-    });
-
-    const uploadBack = new Promise((res) => {
-      const citizenBack = values.citizenIdBack as File;
-      const toastId = toast.loading("Uploading citizen ID (Back)...", {
-        isLoading: true,
-        autoClose: 0,
-      });
-      if (!citizenBack) return res(null);
-      FirebaseServices.uploadImage(
-        citizenBack,
-        { contentType: citizenBack.type },
-        onFailed,
-        (url) => {
-          toast.update(toastId, {
-            isLoading: false,
-            type: "success",
-            render: "Upload citizen ID (Back) success!",
-            autoClose: 3000,
-          });
-          res(url);
-        },
-        (progress) => {
-          toast.update(toastId, {
-            isLoading: true,
-            render: `Uploading citizen ID (Back)... ${progress}%`,
-            autoClose: 0,
-          });
-        }
-      );
-    });
-
-    const uploadContracts: Promise<any>[] = [];
-
-    const toastIdContract = toast.loading("Uploading contracts...", {
-      isLoading: true,
-      autoClose: 0,
-    });
-
-    values.contractData?.forEach((file) => {
-      const uploadContract = new Promise((res) => {
-        const contractFile = file as File;
+    try {
+      const uploadFront = new Promise((res) => {
+        const citizenIdFront = values.citizenIdFront as File;
+        if (!citizenIdFront || isString(citizenIdFront)) return res(null);
+        const toastId = toast.loading("Uploading citizen ID (Front)...", {
+          isLoading: true,
+          autoClose: 0,
+        });
         FirebaseServices.uploadImage(
-          contractFile,
-          { contentType: contractFile.type },
+          citizenIdFront as File,
+          { contentType: citizenIdFront.type },
           onFailed,
           (url) => {
+            toast.update(toastId, {
+              isLoading: false,
+              type: "success",
+              render: "Upload citizen ID (Front) success!",
+              autoClose: 3000,
+            });
             res(url);
           },
-          () => {},
-          `contracts/${values.name}`
+          (progress) => {
+            toast.update(toastId, {
+              isLoading: true,
+              render: `Uploading citizen ID (Front)... ${progress}%`,
+              autoClose: 0,
+            });
+          }
         );
       });
-      uploadContracts.push(uploadContract);
-    });
 
-    const citizenId = await Promise.all([
-      uploadFront,
-      uploadBack,
-      ...uploadContracts,
-    ]);
+      const uploadBack = new Promise((res) => {
+        const citizenBack = values.citizenIdBack as File;
+        if (!citizenBack || isString(citizenBack)) return res(null);
+        const toastId = toast.loading("Uploading citizen ID (Back)...", {
+          isLoading: true,
+          autoClose: 0,
+        });
+        FirebaseServices.uploadImage(
+          citizenBack,
+          { contentType: citizenBack.type },
+          onFailed,
+          (url) => {
+            toast.update(toastId, {
+              isLoading: false,
+              type: "success",
+              render: "Upload citizen ID (Back) success!",
+              autoClose: 3000,
+            });
+            res(url);
+          },
+          (progress) => {
+            toast.update(toastId, {
+              isLoading: true,
+              render: `Uploading citizen ID (Back)... ${progress}%`,
+              autoClose: 0,
+            });
+          }
+        );
+      });
 
-    toast.update(toastIdContract, {
-      isLoading: false,
-      type: "success",
-      render: "Upload contracts success!",
-      autoClose: 3000,
-    });
+      const uploadContracts: Promise<any>[] = [];
 
-    const newGuest = {
-      ...values,
-      citizenIdFront: citizenId[0] as string,
-      citizenIdBack: citizenId[1] as string,
-      contractData: citizenId.slice(2) as string[],
-    };
+      let toastIdContract: any;
+      if (!isEmpty(values.contract)) {
+        if (!values.contract?.every((file) => isString(file))) {
+          toastIdContract = toast.loading("Uploading contracts...", {
+            isLoading: true,
+            autoClose: 0,
+          });
+        }
 
-    if (roomData?.id) {
-      newGuest.room = {
-        id: roomData.id,
-        name: roomData.name,
+        values.contract?.forEach((file) => {
+          const uploadContract = new Promise((res) => {
+            const contractFile = file as File;
+            if (isString(file)) {
+              return res(file);
+            } else {
+              FirebaseServices.uploadImage(
+                contractFile,
+                { contentType: contractFile.type },
+                onFailed,
+                (url) => {
+                  res(url);
+                },
+                () => {},
+                `contracts/${values.name}`
+              );
+            }
+          });
+          uploadContracts.push(uploadContract);
+        });
+      }
+
+      const citizenId = await Promise.all([
+        uploadFront,
+        uploadBack,
+        ...uploadContracts,
+      ]);
+
+      if (toastIdContract) {
+        toast.update(toastIdContract, {
+          isLoading: false,
+          type: "success",
+          render: "Upload contracts success!",
+          autoClose: 3000,
+        });
+      }
+
+      const newGuest = {
+        ...values,
+        dob: values?.dob ? new Date(values.dob?.toDate()) : undefined,
+        gender: values?.gender ? values?.gender.toUpperCase() : undefined,
+        room: roomData?._id as string,
       };
+
+      if (citizenId[0]) {
+        newGuest.citizenIdFront = citizenId[0] as string;
+      }
+
+      if (citizenId[1]) {
+        newGuest.citizenIdBack = citizenId[1] as string;
+      }
+
+      if (citizenId[2]) {
+        newGuest.contract = citizenId.slice(2);
+      }
+
+      if (isEdit) {
+        GuestService.updateGuestInfo(data?._id as string, newGuest);
+      } else {
+        await GuestService.createGuest(newGuest);
+      }
+
+      await refetch();
+
+      toast.update(toastId, {
+        isLoading: false,
+        type: "success",
+        render: isEdit
+          ? `Update ${values.name} success!`
+          : `Add ${values.name} success!`,
+        autoClose: 3000,
+      });
+
+      toggle();
+    } catch (error) {
+      console.log("Error", error);
+      onFailed(error);
     }
-
-    const response = await FirebaseServices.addGuest(newGuest, onFailed);
-
-    if (!response) return;
-
-    if (roomData) {
-      const newRoom = {
-        ...roomData,
-        guests: [...roomData.guests, { id: response.id, name: values.name }],
-      };
-
-      await FirebaseServices.updateRoom(newRoom, onFailed);
-    }
-
-    await refetch();
-
-    toast.update(toastId, {
-      isLoading: false,
-      type: "success",
-      render: `Add ${values.name} success!`,
-      autoClose: 3000,
-    });
   };
 
   //! Render
@@ -241,17 +258,6 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
       validateOnMount
     >
       {({ isSubmitting, errors, values, dirty, setFieldValue, submitForm }) => {
-        const districtOption = vietnameCityData?.district?.filter((el) => {
-          if (values.city) {
-            return el.idCity === values.city.value;
-          }
-        });
-
-        const communeOption = vietnameCityData.commune.filter((el) => {
-          if (values.district) {
-            return el.idDistrict === values.district?.value;
-          }
-        });
         return (
           <Form
             style={{
@@ -266,7 +272,6 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
                   display={"flex"}
                   justifyContent={"space-between"}
                   alignItems={"center"}
-                  mb={2}
                 >
                   <CommonStyles.Typography type="bold18">
                     {isEdit ? "Update guest infos" : "Create new guest"}
@@ -283,91 +288,55 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
                 </Box>
               </DialogTitle>
 
-              <DialogContent
-                sx={{
-                  minHeight: "50vh",
-                }}
-              >
-                <FastField
-                  name="name"
-                  component={CommonField.InputField}
-                  fullWidth
-                  label="Guest name"
-                  required
-                  placeholder="Enter guest name"
-                  maxChar={50}
-                />
-                <FastField
-                  name="city"
-                  component={CommonField.MuiSelectField}
-                  fullWidth
-                  options={vietnameCityData.province}
-                  label="City"
-                  placeholder="Select city"
-                />
-                <Field
-                  name="district"
-                  component={CommonField.MuiSelectField}
-                  fullWidth
-                  options={districtOption}
-                  label="District"
-                  placeholder="Select district"
-                />
-                <Field
-                  name="commune"
-                  component={CommonField.MuiSelectField}
-                  fullWidth
-                  options={communeOption}
-                  label="Commune"
-                  placeholder="Select commune"
-                />
-                <FastField
-                  name="address"
-                  component={CommonField.InputField}
-                  fullWidth
-                  label="Address"
-                  placeholder="Enter address"
-                  maxChar={50}
-                />
-                <Box sx={{ display: "flex", gap: "16px" }}>
-                  <CommonStyles.ImageUpload
-                    label="Upload citizen ID (Front)"
-                    dropzoneProps={{
-                      onDrop: (acceptedFile) => {
-                        setFieldValue("citizenIdFront", acceptedFile[0]);
-                      },
-                    }}
-                  />
-                  <CommonStyles.ImageUpload
-                    label="Upload citizen ID (Back)"
-                    dropzoneProps={{
-                      onDrop: (acceptedFile) => {
-                        setFieldValue("citizenIdBack", acceptedFile[0]);
-                      },
-                    }}
-                  />
-                </Box>
+              <PerfectScollBar style={{ maxHeight: "70vh" }}>
+                <DialogContent
+                  sx={{
+                    minHeight: "50vh",
+                  }}
+                >
+                  <GuestGeneralInfo />
+                  <Box sx={{ display: "flex", gap: "16px" }}>
+                    <CommonStyles.ImageUpload
+                      initImage={values.citizenIdFront as string}
+                      label="Upload citizen ID (Front)"
+                      dropzoneProps={{
+                        onDrop: (acceptedFile) => {
+                          setFieldValue("citizenIdFront", acceptedFile[0]);
+                        },
+                      }}
+                    />
+                    <CommonStyles.ImageUpload
+                      initImage={values.citizenIdBack as string}
+                      label="Upload citizen ID (Back)"
+                      dropzoneProps={{
+                        onDrop: (acceptedFile) => {
+                          setFieldValue("citizenIdBack", acceptedFile[0]);
+                        },
+                      }}
+                    />
+                  </Box>
 
-                <CommonStyles.FilesUpload
-                  label="Upload contract"
-                  files={values.contractData}
-                  dropzoneProps={{
-                    onDrop: (acceptedFiles) => {
-                      setFieldValue("contractData", [
-                        ...(values?.contractData as File[]),
-                        ...acceptedFiles,
-                      ]);
-                    },
-                  }}
-                  handleDeleteFile={(index) => {
-                    if (!values.contractData) return;
-                    const newFiles = values.contractData.filter(
-                      (_, i) => i !== index
-                    );
-                    setFieldValue("contractData", newFiles);
-                  }}
-                />
-              </DialogContent>
+                  <CommonStyles.FilesUpload
+                    label="Upload contract"
+                    files={values.contract}
+                    dropzoneProps={{
+                      onDrop: (acceptedFiles) => {
+                        setFieldValue("contract", [
+                          ...(values?.contract as File[]),
+                          ...acceptedFiles,
+                        ]);
+                      },
+                    }}
+                    handleDeleteFile={(index) => {
+                      if (!values.contract) return;
+                      const newFiles = values.contract.filter(
+                        (_, i) => i !== index
+                      );
+                      setFieldValue("contract", newFiles);
+                    }}
+                  />
+                </DialogContent>
+              </PerfectScollBar>
 
               <DialogActions>
                 <Box
@@ -424,12 +393,13 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
 interface IAddGuestButton {
   buttonProps?: any;
   refetchKey: string;
-  roomData?: RoomDetail;
+  roomData?: Room;
+  guestData?: GuestDetail;
 }
 
 function AddGuestButton(props: IAddGuestButton) {
   //! State
-  const { buttonProps, refetchKey, roomData } = props;
+  const { buttonProps, refetchKey, roomData, guestData } = props;
   const { open, shouldRender, toggle } = useToggleDialog();
 
   //! Function
@@ -448,6 +418,7 @@ function AddGuestButton(props: IAddGuestButton) {
             toggle={toggle}
             refetchKey={refetchKey}
             roomData={roomData}
+            data={guestData}
           />
         </CommonStyles.Dialog>
       )}

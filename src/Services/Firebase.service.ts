@@ -35,6 +35,7 @@ import { RoomDetail } from "../Hooks/useGetRoomDetail";
 import { v4 as uuid } from "uuid";
 import { GuestInitValue } from "../Pages/Guest/components/AddGuestButton";
 import { GuestBill } from "../Hooks/useGetBill";
+import { removeNullAndUndefinedFromObject } from "../Helpers";
 
 export type FailureCallback = (error: any) => void;
 
@@ -281,6 +282,24 @@ class FirebaseService {
     }
   };
 
+  updateGuest = async (payload: GuestInitValue, onFailed?: FailureCallback) => {
+    try {
+      if (!payload?.id) return;
+
+      const guestRef = doc(this.db, "guests", payload.id);
+
+      const response = await updateDoc(guestRef, {
+        ...removeNullAndUndefinedFromObject(payload),
+        updatedAt: Timestamp.now(),
+      });
+
+      console.log("response", response);
+    } catch (error) {
+      console.log("Update guest err: ", error);
+      onFailed && onFailed(error);
+    }
+  };
+
   updateGuestBill = async (
     guestId: string,
     bill: GuestBill,
@@ -408,10 +427,7 @@ class FirebaseService {
     folder = "citizenId"
   ) => {
     try {
-      const storageRef = ref(
-        this.storage,
-        `${folder}/${uuid()}.${file.type.replace("image/", "")}`
-      );
+      const storageRef = ref(this.storage, `${folder}/${uuid()}`);
 
       const uploadTask = uploadBytesResumable(storageRef, file, metadata);
 
@@ -458,20 +474,19 @@ class FirebaseService {
         )
       );
 
-      const querySnapShot = await getDocs(q)
+      const querySnapShot = await getDocs(q);
 
       const data = [];
-      for(const doc of querySnapShot.docs) {
+      for (const doc of querySnapShot.docs) {
         data.push({
           ...doc.data(),
-          id: doc.id
-        })
+          id: doc.id,
+        });
       }
 
       return data;
-
     } catch (error) {
-      console.log('Error get bills compare: ', error)
+      console.log("Error get bills compare: ", error);
     }
   };
 }

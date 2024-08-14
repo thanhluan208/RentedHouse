@@ -10,15 +10,14 @@ import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import CommonIcons from "../../../Components/CommonIcons";
 import { isEmpty } from "lodash";
 import { useGet } from "../../../Stores/useStore";
-import FirebaseServices from "../../../Services/Firebase.service";
 import { House } from "../../Home/interface";
 import FormikEffect from "./FormikEffect";
 import RoomInformations from "./AddRoomDialog/RoomInformations";
 import RoomFee from "./AddRoomDialog/RoomFee";
 import PerfectScrollBar from "react-perfect-scrollbar";
-import { Bill } from "../../../Interfaces/common";
 import TableExpenditure from "./AddRoomDialog/TableExpenditure";
 import RoomOverall from "./AddRoomDialog/RoomOverall";
+import RoomServices from "../../../Services/Room.service";
 
 interface IRoomActionDialog {
   toggle: () => void;
@@ -27,24 +26,35 @@ interface IRoomActionDialog {
 }
 
 export interface RoomInitValues {
-  id?: string;
-  house_id: string;
+  house: string;
   name: string;
-  price: number;
+  price: string;
   size: number;
   maxGuest: number;
   status: {
     value: string;
     label: string;
   };
-  guests: GuestInit[] | [];
-  electricityFee: number;
-  waterFee: number;
-  internetFee: number;
-  livingExpense: number;
-  parkingFee: number;
-  expenditures?: Bill[];
+  guests:
+    | {
+        name: string;
+      }[]
+    | [];
+  electricityFee: string;
+  waterFee: string;
+  internetFee: string;
+  livingExpense: string;
+  parkingFee: string;
+  expenditures?: Expenditure[];
 }
+
+type Expenditure = {
+  name: string;
+  price: string;
+  unit: string;
+  unitPrice: string;
+  quantity: string;
+};
 
 export interface GuestInit {
   id: string;
@@ -59,7 +69,7 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
 
   const initialValues: RoomInitValues = useMemo(() => {
     return {
-      house_id: houseData.id,
+      house: houseData._id,
       name: data?.name ? data.name : "",
       price: data?.price ? data.price : 0,
       maxGuest: data?.maxGuest ? data.maxGuest : 0,
@@ -86,7 +96,7 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
             },
           ],
     };
-  }, [data, houseData.id]);
+  }, [data, houseData._id]);
 
   const validationSchema = useMemo(() => {
     return yup.object().shape({
@@ -100,7 +110,9 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
           name: yup.string().required("Name is required field"),
         })
       ),
-      electricityFee: yup.string().required("Electricity fee is required field"),
+      electricityFee: yup
+        .string()
+        .required("Electricity fee is required field"),
       waterFee: yup.string().required("Water fee is required field"),
       internetFee: yup.string().required("Internet fee is required field"),
       livingExpense: yup.string().required("Living expense is required field"),
@@ -122,34 +134,30 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
     async (values: RoomInitValues) => {
       const toastId = toast.loading("Processing...");
 
-      const nextValues = {
-        ...values,
-        guests: values.guests.filter((elm) => elm.name),
-      };
+      try {
+        await RoomServices.createRoom(values);
 
-      await FirebaseServices.addGuests(nextValues.guests);
+        await refetchHouseDetail();
 
-      await FirebaseServices.addRoom(nextValues, (error) => {
+        toggle();
+
         toast.update(toastId, {
-          render: error?.message || "Error!",
+          render: "Success!",
+          type: "success",
+          isLoading: false,
+          autoClose: 2000,
+        });
+      } catch (error) {
+        console.log('error', error);
+        toast.update(toastId, {
+          render: "Failed!",
           type: "error",
           isLoading: false,
           autoClose: 2000,
         });
-      });
-
-      await refetchHouseDetail();
-
-      toggle();
-
-      toast.update(toastId, {
-        render: "Success!",
-        type: "success",
-        isLoading: false,
-        autoClose: 2000,
-      });
+      }
     },
-    [data]
+    [data, houseData]
   );
 
   //! Render

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
-import FirebaseServices from "../Services/Firebase.service";
 import { RoomDetail } from "./useGetRoomDetail";
+import RoomServices from "../Services/Room.service";
+import { AxiosResponse } from "axios";
 
 const useGetRoomsByHouse = (houseId?: string, isTrigger = true) => {
   const [data, setData] = useState<RoomDetail[] | []>([]);
@@ -9,19 +10,22 @@ const useGetRoomsByHouse = (houseId?: string, isTrigger = true) => {
 
   const callApi = useCallback(() => {
     if (!houseId) return Promise.resolve([]);
-    return FirebaseServices.getRoomByHouse(houseId);
-  }, []);
+    return RoomServices.getRoomByHouse(houseId);
+  }, [houseId]);
 
-  const transformResponse = useCallback((response: any) => {
-    if (response) {
-      setData(response);
-    }
-  }, []);
+  const transformResponse = useCallback(
+    (response?: AxiosResponse<RoomDetail[]>) => {
+      if (response) {
+        setData(response.data);
+      }
+    },
+    []
+  );
 
   const refetch = useCallback(async () => {
     try {
       const response = await callApi();
-      transformResponse(response);
+      transformResponse(response as any);
     } catch (error: any) {
       setError(error);
     }
@@ -37,7 +41,7 @@ const useGetRoomsByHouse = (houseId?: string, isTrigger = true) => {
           const response = await callApi();
 
           if (shouldSetData) {
-            transformResponse(response);
+            transformResponse(response as any);
           }
         } catch (error: any) {
           setError(error);

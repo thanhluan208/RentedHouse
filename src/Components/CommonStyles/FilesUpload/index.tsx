@@ -1,9 +1,9 @@
 import { Box } from "@mui/material";
-import { Fragment, useState } from "react";
+import { Fragment, memo, useState } from "react";
 import { DropzoneOptions, useDropzone } from "react-dropzone";
 import CommonIcons from "../../CommonIcons";
 import CommonStyles from "..";
-import { isEmpty } from "lodash";
+import { isEmpty, isString } from "lodash";
 import MuiChip from "../Chip";
 interface IFilesUpload {
   label?: string;
@@ -15,6 +15,8 @@ interface IFilesUpload {
 const FilesUpload = (props: IFilesUpload) => {
   //! State
   const { label, dropzoneProps, files, handleDeleteFile } = props;
+
+  
   const { onDrop, onDragEnter, onDragLeave, ...otherDropzoneProps } =
     dropzoneProps || {};
   const [isDragOver, setIsDragOver] = useState(false);
@@ -75,6 +77,7 @@ const FilesUpload = (props: IFilesUpload) => {
               return (
                 <MuiChip
                   sx={{
+                    maxWidth: "300px",
                     textTransform: "none !important",
                     svg: {
                       margin: "0 !important",
@@ -82,7 +85,18 @@ const FilesUpload = (props: IFilesUpload) => {
                       height: "22px !important",
                     },
                   }}
-                  label={typeof file === 'string' ? file : `${file.name} - ${file.size} bytes`}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    e.stopPropagation()
+                    if (isString(file)) {
+                      window.open(file, "_blank");
+                    }
+                  }}
+                  label={
+                    typeof file === "string"
+                      ? file
+                      : `${file.name} - ${file.size} bytes`
+                  }
                   key={index}
                   onDelete={(e) => {
                     e.stopPropagation();
@@ -111,4 +125,4 @@ const FilesUpload = (props: IFilesUpload) => {
   );
 };
 
-export default FilesUpload;
+export default memo(FilesUpload);

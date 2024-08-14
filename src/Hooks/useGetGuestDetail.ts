@@ -1,11 +1,26 @@
 import { useCallback, useEffect, useState } from "react";
-import FirebaseServices from "../Services/Firebase.service";
-import { Timestamp } from "firebase/firestore";
-import { GuestInitValue } from "../Pages/Guest/components/AddGuestButton";
+import GuestService from "../Services/Guest.service";
+import { AxiosResponse } from "axios";
+import { OptionCommon } from "../Interfaces/common";
 
-export interface GuestDetail extends GuestInitValue {
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+export interface GuestDetail {
+  _id: string;
+  name: string;
+  gender: string;
+  phone: string;
+  dob: Date;
+  city: OptionCommon;
+  commune: OptionCommon;
+  district: OptionCommon;
+  address: string;
+  contract: any[];
+  room: string;
+  house: string;
+  citizenIdFront?: string;
+  citizenIdBack?: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
 }
 
 const useGetGuestDetail = (id: string, isTrigger = true) => {
@@ -15,12 +30,12 @@ const useGetGuestDetail = (id: string, isTrigger = true) => {
 
   const callApi = useCallback(() => {
     if (!id) return;
-    return FirebaseServices.getGuestDetail(id);
+    return GuestService.getGuestDetail(id);
   }, [id]);
 
-  const transformResponse = useCallback((response: any) => {
+  const transformResponse = useCallback((response?: AxiosResponse<any>) => {
     if (response) {
-      setData(response);
+      setData(response.data);
     }
   }, []);
 

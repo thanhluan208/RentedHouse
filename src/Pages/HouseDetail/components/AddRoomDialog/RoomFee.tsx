@@ -73,7 +73,6 @@ const RoomFee = () => {
             isPrice
             label="Internet fee"
             required
-            type="number"
             placeholder="Enter internet fee"
           />
           <FastField
@@ -83,7 +82,6 @@ const RoomFee = () => {
             isPrice
             label="Water fee"
             required
-            type="number"
             placeholder="Enter water fee"
           />
           <FastField
@@ -93,7 +91,6 @@ const RoomFee = () => {
             isPrice
             label="Living expense"
             required
-            type="number"
             placeholder="Enter living expense"
           />
           <FastField
@@ -103,7 +100,6 @@ const RoomFee = () => {
             isPrice
             label="Parking fee"
             required
-            type="number"
             placeholder="Enter parking fee"
           />
         </Box>

@@ -9,7 +9,7 @@ import CommonIcons from "../../Components/CommonIcons";
 import AddRoomButton from "./components/AddRoomButton";
 import EachRoom from "./components/EachRoom";
 import { isEmpty } from "lodash";
-import GenPdfButton from "./components/GenPDF/GenPdfButton";
+import GenPdfButton from "./components/GenBill/GenPdfButton";
 
 const HouseDetail = () => {
   //! State
@@ -50,14 +50,14 @@ const HouseDetail = () => {
             <CommonIcons.ArrowBack />
           </CommonStyles.Button>
           <CommonStyles.Typography type="bold24">
-            {data?.name || `House ${data?.id}`}
+            {data?.name || `House ${data?._id}`}
           </CommonStyles.Typography>
         </Box>
-        {data?.id && (
+        {data?._id && (
           <Box sx={{ display: "flex", gap: "8px" }}>
             <AddRoomButton houseData={data} />
             <GenPdfButton houseData={data} />
-          </Box> 
+          </Box>
         )}
       </Box>
 
@@ -85,8 +85,8 @@ const HouseDetail = () => {
             <CommonStyles.Empty content="No room found, Create one!" />
           </Box>
         )}
-        {data?.rooms?.map((roomId) => {
-          return <EachRoom key={roomId} id={roomId} houseData={data} />;
+        {data?.rooms?.map((room) => {
+          return <EachRoom key={room._id} data={room} />;
         })}
       </Box>
     </Box>

@@ -1,13 +1,10 @@
 import { Box, Divider, useTheme } from "@mui/material";
-import Logo from "./Components/Logo";
-import Name from "./Components/Name";
 import CommonStyles from "../CommonStyles";
 import Routes from "../../Constants/routes";
 import { processNavLabel } from "../../Helpers";
 import { Outlet } from "react-router-dom";
 import { capitalize } from "lodash";
 import NavItem from "./Components/NavItem";
-import UserButton from "./Components/UserButton";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import CreateHouseButton from "./Components/CreateHouseButton";
 
@@ -55,8 +52,7 @@ function DefaultLayout() {
                 alignItems: "center",
               }}
             >
-              <Logo />
-              <Name />
+              <CommonStyles.Typography type="bold24">Dashboard</CommonStyles.Typography>
             </Box>
             <Box sx={{ height: "40px" }}>
               <CreateHouseButton />
@@ -104,12 +100,6 @@ function DefaultLayout() {
               );
             })}
             
-          </Box>
-
-          
-
-          <Box>
-            <UserButton />
           </Box>
         </Box>
       </PerfectScrollbar>

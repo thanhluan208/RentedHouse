@@ -1,6 +1,9 @@
-import { Field } from "formik";
+import { Field, useFormikContext } from "formik";
 import useGetRoomsByHouse from "../../../../Hooks/useGetRoomsByHouse";
 import CommonField from "../../../../Components/CommonFields";
+import { useMemo } from "react";
+import { cloneDeep } from "lodash";
+import { PDFInitValues } from "./GenPdfButton";
 
 interface IRoomSelect {
   houseId: string;
@@ -9,13 +12,22 @@ interface IRoomSelect {
 const RoomSelect = (props: IRoomSelect) => {
   //! State
   const { houseId } = props;
+  const { values } = useFormikContext<PDFInitValues>();
   const { data, isLoading } = useGetRoomsByHouse(houseId, !!houseId);
+  const { guest } = values;
 
-  const options = data.map((room) => ({
-    value: room.id,
-    label: room.name,
-    ...room,
-  }));
+  const options = useMemo(() => {
+    const nextOptions = cloneDeep(data).map((room) => ({
+      value: room._id,
+      label: room.name,
+      ...room,
+    }));
+
+    return nextOptions.filter((room) => {
+      if (!guest?.id) return true;
+      return room.guests.some((elm) => elm._id === guest.id);
+    });
+  }, [data, guest]);
   //! Function
 
   //! Render

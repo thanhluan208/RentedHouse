@@ -1,11 +1,60 @@
 import { useCallback, useEffect, useState } from "react";
 import FirebaseServices from "../Services/Firebase.service";
-import { RoomInitValues } from "../Pages/HouseDetail/components/AddRoomButton";
-import { Timestamp } from "firebase/firestore";
+import { HouseStatusEnum } from "../Services/House.services";
 
-export interface RoomDetail extends RoomInitValues {
-  createdAt: Timestamp;
-  updatedAt: Timestamp;
+export interface RoomDetail {
+  _id: string;
+  name: string;
+  status: HouseStatusEnum;
+  price: number;
+  size: number;
+  maxGuest: number;
+  guests: Guest[];
+  electricityFee: number;
+  internetFee: number;
+  waterFee: number;
+  livingExpense: number;
+  parkingFee: number;
+  expenditure: Expenditure[];
+  house: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+}
+
+export interface Expenditure {
+  name: string;
+  unit: string;
+  unitPrice: number;
+  quantity: number;
+  price: number;
+  _id: string;
+}
+
+export interface Guest {
+  _id: string;
+  name: string;
+  gender: string;
+  phone: string;
+  dob: Date;
+  city: City;
+  commune: City;
+  district: City;
+  address: string;
+  contract: string[];
+  room: string;
+  house: string;
+  createdAt: Date;
+  updatedAt: Date;
+  __v: number;
+  citizenIdBack: string;
+  citizenIdFront: string;
+}
+
+export interface City {
+  value: string;
+  label: string;
+  _id: string;
 }
 
 const useGetRoomDetail = (id: string, isTrigger = true) => {

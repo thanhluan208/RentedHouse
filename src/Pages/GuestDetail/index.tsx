@@ -1,16 +1,16 @@
-import { Box } from "@mui/material";
+import { Box, Tooltip } from "@mui/material";
 import { useParams } from "react-router-dom";
 import useGetGuestDetail from "../../Hooks/useGetGuestDetail";
 import CommonStyles from "../../Components/CommonStyles";
 import HouseInfo from "../Home/components/HouseInfo";
 import { formatDate } from "../../Helpers";
-import { Timestamp } from "firebase/firestore";
 import moment from "moment";
 import CommonIcons from "../../Components/CommonIcons";
 import { useSave } from "../../Stores/useStore";
 import { useEffect } from "react";
 import cachedKeys from "../../Constants/cachedKeys";
-
+import AddGuestButton from "../Guest/components/AddGuestButton";
+import { capitalize } from "lodash";
 
 const GuestDetail = () => {
   //! State
@@ -39,7 +39,6 @@ const GuestDetail = () => {
   }
 
   if (!data?.name && !isLoading) {
-    console.log("hehe");
     return (
       <Box sx={{ width: "100%", height: "100%", position: "relative" }}>
         <CommonStyles.Empty content="Guest not found !" />
@@ -47,7 +46,7 @@ const GuestDetail = () => {
     );
   }
   return (
-    <Box sx={{ width: "100%", height: "100%" }}>
+    <Box sx={{ width: "100%", height: "100%", marginBottom: "40px" }}>
       <CommonStyles.LoadingOverlay isLoading={isLoading} />
       <Box
         sx={{
@@ -73,12 +72,21 @@ const GuestDetail = () => {
             }}
           />
         </Box>
+        <Box>
+          <AddGuestButton
+            refetchKey={cachedKeys.REFETCH_GUEST_DETAIL}
+            buttonProps={{
+              content: "Edit profile",
+            }}
+            guestData={data}
+          />
+        </Box>
       </Box>
 
       <Box
         sx={{
           padding: "0 20px",
-          maxWidth: "800px",
+          maxWidth: "1200px",
           margin: "0 auto",
         }}
       >
@@ -102,23 +110,27 @@ const GuestDetail = () => {
               padding: "0px 20px",
             }}
           >
-            <HouseInfo label="Room" value={data.room?.name || "-"} />
-            <HouseInfo label="House" value={data.houseId || "-"} />
             <HouseInfo
               label="Date of birth"
-              value={data.dob || moment().format("Do MMM YYYY")}
+              value={
+                moment(data.dob).format("Do MMM YYYY") ||
+                moment().format("Do MMM YYYY")
+              }
             />
-            <HouseInfo label="Gender" value={data?.gender || "-"} />
+            <HouseInfo label="Gender" value={capitalize(data?.gender) || "-"} />
+            <HouseInfo
+              label="Phone"
+              value={data?.phone ? data.phone + "" : "-"}
+            />
             <HouseInfo
               label="Adress"
-              value={
-                `${data?.address}, ${data?.commune?.label} ${data?.district?.label} ${data?.city?.label}` ||
-                "-"
-              }
+              value={`${data?.address || ""} ${data?.commune?.label || ""} ${
+                data?.district?.label || ""
+              } ${data?.city?.label || "-"}`}
             />
             <HouseInfo
               label="Created At"
-              value={formatDate(data?.createdAt as Timestamp) || "-"}
+              value={formatDate(data?.createdAt) || "-"}
             />
           </Box>
           <Box
@@ -135,24 +147,32 @@ const GuestDetail = () => {
             </CommonStyles.Typography>
             <Box
               sx={{
-                display: "grid",
-                gridTemplateColumns: "1fr 1fr",
+                display: "flex",
+                flexWrap: "wrap",
                 gap: "10px",
                 padding: "0 10px",
               }}
             >
-              <img
-                src={(data?.citizenIdFront as string) || ""}
-                alt="citizenIdFront"
-                width="100%"
-                style={{ borderRadius: "8px" }}
-              />
-              <img
-                src={(data?.citizenIdBack as string) || ""}
-                alt="citizenIdBack"
-                width="100%"
-                style={{ borderRadius: "8px" }}
-              />
+              {data?.citizenIdFront ? (
+                <img
+                  src={(data?.citizenIdFront as string) || ""}
+                  alt="citizenIdFront"
+                  width="100%"
+                  style={{ borderRadius: "8px", maxWidth: "400px" }}
+                />
+              ) : (
+                <Box></Box>
+              )}
+              {data?.citizenIdBack ? (
+                <img
+                  src={(data?.citizenIdBack as string) || ""}
+                  alt="citizenIdBack"
+                  width="100%"
+                  style={{ borderRadius: "8px", maxWidth: "400px" }}
+                />
+              ) : (
+                <Box></Box>
+              )}
             </Box>
             <CommonStyles.Typography type="bold14" sx={{ color: "#777575" }}>
               Contract:
@@ -160,6 +180,39 @@ const GuestDetail = () => {
                 <CommonIcons.Download />
               </CommonStyles.Button>
             </CommonStyles.Typography>
+            <Box
+              sx={{
+                display: "flex",
+                gap: "20px",
+                flexWrap: "wrap",
+              }}
+            >
+              {data.contract?.map((file, index) => {
+                return (
+                  <Tooltip title={file} key={`${file}_${index}`}>
+                    <div>
+                      <CommonStyles.Chip
+                        sx={{
+                          maxWidth: "300px",
+                          textTransform: "none !important",
+                          svg: {
+                            margin: "0 !important",
+                            width: "22px !important",
+                            height: "22px !important",
+                          },
+                        }}
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          window.open(file as string, "_blank");
+                        }}
+                        label={file as string}
+                      />
+                    </div>
+                  </Tooltip>
+                );
+              })}
+            </Box>
           </Box>
         </Box>
       </Box>

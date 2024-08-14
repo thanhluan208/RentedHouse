@@ -6,28 +6,31 @@ import { cloneDeep, isString } from "lodash";
 import useGetListGuest from "../../../../Hooks/useGetListGuest";
 import { RoomDetail } from "../../../../Hooks/useGetRoomDetail";
 
-const GuestSelect = () => {
+interface IGuestSelect {
+  houseId: string;
+}
+
+const GuestSelect = (props: IGuestSelect) => {
   //! State
+  const { houseId } = props;
   const { values, setFieldValue } = useFormikContext<PDFInitValues>();
-  const { data } = useGetListGuest();
+  const { data, isLoading } = useGetListGuest(houseId, !!houseId);
 
   const options = useMemo(() => {
     const nextOptions = cloneDeep(data).map((elm) => {
       return {
-        value: elm.id,
+        value: elm._id,
         label: elm.name,
         ...elm,
       };
     });
 
-    if (!values?.room) {
-      return nextOptions;
-    }
     return nextOptions.filter((elm) => {
       const room: RoomDetail = values.room as RoomDetail;
-      return room.guests.some((guest) => guest.id === elm.id);
+      if (!room) return true;
+      return room.guests.some((guest) => guest._id === elm._id);
     });
-  }, [values.room]);
+  }, [values.room, data]);
 
   //! Function
 
@@ -50,6 +53,7 @@ const GuestSelect = () => {
       sxContainer={{
         width: "150px",
       }}
+      disabled={isLoading}
       placeholder={"Select Guest"}
     />
   );

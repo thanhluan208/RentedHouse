@@ -4,13 +4,12 @@ import CommonStyles from "../../../Components/CommonStyles";
 import MoreButton from "./MoreButton";
 import HouseInfo from "./HouseInfo";
 import { useMemo } from "react";
-import { HouseStatusEnum } from "../../../Constants/options";
 import { useNavigate } from "react-router-dom";
 import { Paths } from "../../../Constants/routes";
 import { useGet } from "../../../Stores/useStore";
-import useGetListRoomOfHouse from "../../../Hooks/useGetListRoomOfHouse";
-import { isEmpty } from "lodash";
+import { capitalize } from "lodash";
 import { formatDate } from "../../../Helpers";
+import { HouseStatusEnum } from "../../../Services/House.services";
 
 interface IEachHouse {
   data: House;
@@ -21,18 +20,14 @@ const EachHouse = (props: IEachHouse) => {
   const { data } = props;
   const navigate = useNavigate();
   const dialogOpen = useGet("DIALOG_OPEN");
-  const { data: roomData, isLoading } = useGetListRoomOfHouse(
-    data.rooms,
-    !isEmpty(data.rooms)
-  );
 
   const roomInfo = useMemo(() => {
     let active = 0;
     let count = 0;
     let guests = 0;
 
-    if (!roomData) return { active, count, guests };
-    roomData.forEach((room) => {
+    if (!data.rooms) return { active, count, guests };
+    data.rooms.forEach((room) => {
       if (room?.guests?.length > 0) {
         active++;
         guests += room?.guests?.length;
@@ -44,34 +39,29 @@ const EachHouse = (props: IEachHouse) => {
       count,
       guests,
     };
-  }, [roomData]);
+  }, [data.rooms]);
 
   const color = useMemo(() => {
-    if (data.status.value === HouseStatusEnum.available) {
+    if (data.status === HouseStatusEnum.AVAILABLE) {
       return {
         backgroundColor: "#e8faf3",
         color: "#2dd298",
       };
     }
-    if (data.status.value === HouseStatusEnum.full) {
+    if (data.status === HouseStatusEnum.FULL) {
       return {
         backgroundColor: "#fde8e8",
         color: "#f44336",
       };
     }
-    if (data.status.value === HouseStatusEnum.inactive) {
-      return {
-        backgroundColor: "#f7f8f9",
-        color: "#838698",
-      };
-    }
-    if (data.status.value === HouseStatusEnum.under_construction) {
+
+    if (data.status === HouseStatusEnum.UNDER_CONSTRUCTION) {
       return {
         backgroundColor: "#ffead9",
         color: "#ed6c02",
       };
     }
-  }, [data.status.value]);
+  }, [data.status]);
 
   //! Function
 
@@ -95,11 +85,13 @@ const EachHouse = (props: IEachHouse) => {
         if (dialogOpen) return;
         e.preventDefault();
         e.stopPropagation();
-        navigate(`${Paths.house}/${data.id}`);
+        navigate(`${Paths.house}/${data._id}`);
       }}
     >
-      <CommonStyles.LoadingOverlay isLoading={isLoading} />
-      <CommonStyles.Chip label={data.status.label || ""} sx={color} />
+      <CommonStyles.Chip
+        label={capitalize(data.status?.toLowerCase()) || ""}
+        sx={color}
+      />
       <Box
         sx={{
           padding: "5px 25px",

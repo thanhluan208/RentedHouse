@@ -1,7 +1,12 @@
-import { capitalize, isString } from "lodash";
-import { numberToVietnameseText, removeAllDot } from "../Helpers";
-import { PDFInitValues } from "../Pages/HouseDetail/components/GenPDF/GenPdfButton";
+import { capitalize, cloneDeep, isString } from "lodash";
+import {
+  convertFileToBase64,
+  numberToVietnameseText,
+  removeAllDot,
+} from "../Helpers";
+import { PDFInitValues } from "../Pages/HouseDetail/components/GenBill/GenPdfButton";
 import moment from "moment";
+import { BillQuantityType } from "../Interfaces/common";
 
 export const monthlyBill = (values: PDFInitValues) => {
   const dd = {
@@ -150,13 +155,13 @@ export const monthlyBill = (values: PDFInitValues) => {
               "",
               "",
               {
-                text: `${values.bill
-                  .reduce(
+                text: `${Math.round(
+                  values.bill.reduce(
                     (total, item) =>
                       total + Number(removeAllDot(`${item.price}`)),
                     0
                   )
-                  .toLocaleString("vi-VN")} VND`,
+                ).toLocaleString("vi-VN")} VND`,
                 style: "subheader",
                 fillColor: "#eeffee",
                 alignment: "right",
@@ -170,9 +175,12 @@ export const monthlyBill = (values: PDFInitValues) => {
           "Tổng tiền bằng chữ: " +
           `${capitalize(
             numberToVietnameseText(
-              +values.bill.reduce(
-                (total, item) => total + Number(removeAllDot(`${item.price}`)),
-                0
+              Math.round(
+                +values.bill.reduce(
+                  (total, item) =>
+                    total + Number(removeAllDot(`${item.price}`)),
+                  0
+                )
               )
             )
           )} đồng.`,
@@ -211,11 +219,13 @@ export const monthlyBill = (values: PDFInitValues) => {
   return dd;
 };
 
-export const compareBill = (
-  currentMonth: PDFInitValues,
-  lastMonth: PDFInitValues
-) => {
-  console.log("data", { currentMonth, lastMonth });
+export const compareBill = async (bill: PDFInitValues) => {
+  const billMonthly = cloneDeep(bill.bill).filter(
+    (elm) => elm.type === BillQuantityType.MONTH
+  );
+  const billStartEnd = cloneDeep(bill.bill).filter(
+    (elm) => elm.type === BillQuantityType.START_END
+  );
   const dd = {
     content: [
       {
@@ -229,23 +239,19 @@ export const compareBill = (
             width: "*",
             text: [
               {
-                text: `Từ ngày: ${currentMonth.fromDate?.format(
+                text: `Từ ngày: ${bill.fromDate?.format(
                   "DD/MM/YYYY"
-                )} đến ${currentMonth.toDate?.format("DD/MM/YYYY")} \n`,
+                )} đến ${bill.toDate?.format("DD/MM/YYYY")} \n`,
                 style: "subheader",
               },
               {
                 text: `Phòng: ${
-                  isString(currentMonth?.room)
-                    ? currentMonth?.room
-                    : currentMonth?.room?.name
+                  isString(bill?.room) ? bill?.room : bill?.room?.name
                 } \n`,
                 style: "subheader",
               },
               {
-                text: `Khách hàng: ${
-                  currentMonth?.guest ? currentMonth?.guest?.name : ""
-                } \n`,
+                text: `Khách hàng: ${bill?.guest ? bill?.guest?.name : ""} \n`,
                 style: "subheader",
               },
               {
@@ -275,6 +281,7 @@ export const compareBill = (
         ],
       },
       {
+        id: "billMonthly",
         style: "tableExample",
         table: {
           widths: [30, 150, "*", "*", "*", 100],
@@ -323,7 +330,7 @@ export const compareBill = (
                 color: "#fff",
               },
             ],
-            ...currentMonth.bill.map((elm, index) => {
+            ...billMonthly.map((elm, index) => {
               return [
                 {
                   text: index + 1,
@@ -364,13 +371,13 @@ export const compareBill = (
               "",
               "",
               {
-                text: `${currentMonth.bill
-                  .reduce(
+                text: `${Math.round(
+                  billMonthly.reduce(
                     (total, item) =>
                       total + Number(removeAllDot(`${item.price}`)),
                     0
                   )
-                  .toLocaleString("vi-VN")} VND`,
+                ).toLocaleString("vi-VN")} VND`,
                 style: "subheader",
                 fillColor: "#eeffee",
                 alignment: "right",
@@ -380,22 +387,10 @@ export const compareBill = (
         },
       },
       {
-        text:
-          "Tổng tiền bằng chữ: " +
-          `${capitalize(
-            numberToVietnameseText(
-              +currentMonth.bill.reduce(
-                (total, item) => total + Number(removeAllDot(`${item.price}`)),
-                0
-              )
-            )
-          )} đồng.`,
-        style: "subheader",
-      },
-      {
+        id: "billStartEnd",
         style: "tableExample",
         table: {
-          widths: [30, "*", 50, 45, 45, "*", 65, 65],
+          widths: [30, "*", 50, 45, 45, "*", "*"],
           body: [
             [
               {
@@ -445,48 +440,31 @@ export const compareBill = (
                 fillColor: "#1b752f",
                 alignment: "center",
                 color: "#fff",
-                colSpan: 2,
+                rowSpan: 2,
               },
-              "",
             ],
             [
               "",
               "",
               "",
               {
-                text: `${lastMonth?.fromDate?.format("T MM/YYYY")}`,
+                text: "Đầu kỳ",
                 style: "tableHeader",
                 fillColor: "#1b752f",
                 alignment: "center",
                 color: "#fff",
               },
               {
-                text: `${currentMonth?.fromDate?.format("T MM/YYYY")}`,
+                text: "Cuối kỳ",
                 style: "tableHeader",
                 fillColor: "#1b752f",
                 alignment: "center",
                 color: "#fff",
               },
               "",
-              {
-                text: `${lastMonth?.fromDate?.format("T MM/YYYY")}`,
-                style: "tableHeader",
-                fillColor: "#1b752f",
-                alignment: "center",
-                color: "#fff",
-              },
-              {
-                text: `${currentMonth?.fromDate?.format("T MM/YYYY")}`,
-                style: "tableHeader",
-                fillColor: "#1b752f",
-                alignment: "center",
-                color: "#fff",
-              },
+              "",
             ],
-            ...currentMonth.bill.map((elm, index) => {
-              const elmLastMonth = lastMonth.bill.find(
-                (item) => item.name === elm.name
-              );
+            ...billStartEnd.map((elm, index) => {
               return [
                 {
                   text: index + 1,
@@ -501,12 +479,12 @@ export const compareBill = (
                   alignment: "center",
                 },
                 {
-                  text: elmLastMonth?.quantity || "0",
+                  text: elm?.startMonthQuantity || "0",
                   alignment: "center",
                   fillColor: "#c7f6ff",
                 },
                 {
-                  text: elm?.quantity || "0",
+                  text: elm?.endMonthQuantity || "0",
                   alignment: "center",
                   fillColor: "#c7ffd0",
                 },
@@ -515,19 +493,66 @@ export const compareBill = (
                   alignment: "center",
                 },
                 {
-                  text: elmLastMonth?.price || "0",
-                  alignment: "center",
-                  fillColor: "#c7f6ff",
-                },
-                {
                   text: elm.price,
                   alignment: "right",
-                  fillColor: "#c7ffd0",
                 },
               ];
             }),
+            [
+              {
+                text: "Tổng cộng",
+                colSpan: 6,
+                style: "subheader",
+                fillColor: "#eeffee",
+                alignment: "center",
+              },
+              "",
+              "",
+              "",
+              "",
+              "",
+              {
+                text: `${Math.round(
+                  billStartEnd.reduce(
+                    (total, item) =>
+                      total + Number(removeAllDot(`${item.price}`)),
+                    0
+                  )
+                ).toLocaleString("vi-VN")} VND`,
+                style: "subheader",
+                fillColor: "#eeffee",
+                alignment: "right",
+              },
+            ],
           ],
         },
+      },
+      {
+        text:
+          "Tổng tiền: " +
+          `${Math.round(
+            bill.bill.reduce(
+              (total, item) => total + Number(removeAllDot(`${item.price}`)),
+              0
+            )
+          ).toLocaleString("vi-VN")} VND`,
+        style: "subheader",
+      },
+      {
+        text:
+          "Tổng tiền bằng chữ: " +
+          `${capitalize(
+            numberToVietnameseText(
+              Math.round(
+                +bill.bill.reduce(
+                  (total, item) =>
+                    total + Number(removeAllDot(`${item.price}`)),
+                  0
+                )
+              )
+            )
+          )} đồng.`,
+        style: "subheader",
       },
     ],
     styles: {
@@ -556,8 +581,54 @@ export const compareBill = (
         fontSize: 13,
         color: "black",
       },
+      imageCol: {
+        margin: [0, 10, 0, 10],
+      },
+    },
+    defaultStyle: {
+      columnGap: 20,
     },
   };
+
+  if (billMonthly.length === 0) {
+    dd.content = dd.content.filter((elm) => elm.id !== "billMonthly");
+  }
+
+  if (billStartEnd.length === 0) {
+    dd.content = dd.content.filter((elm) => elm.id !== "billStartEnd");
+  }
+
+  if (bill?.images?.length && bill?.images?.length > 0) {
+    const listImgsPromise: any[] = [];
+    bill.images.forEach((img: File) => {
+      listImgsPromise.push(convertFileToBase64(img));
+    });
+    const listImgs = await Promise.all(listImgsPromise);
+
+    for (let i = 0; i < listImgs.length; i += 2) {
+      const imgCol: any = {
+        alignment: "justify",
+        columns: [],
+        style: "imageCol",
+      };
+
+      if (listImgs[i]) {
+        imgCol.columns.push({
+          image: listImgs[i],
+          width: 250,
+        });
+      }
+
+      if (listImgs[i + 1]) {
+        imgCol.columns.push({
+          image: listImgs[i + 1],
+          width: 250,
+        });
+      }
+
+      dd.content.push(imgCol);
+    }
+  }
 
   return dd;
 };

@@ -4,25 +4,25 @@ import CommonStyles from "../../../Components/CommonStyles";
 import ConfirmDialog from "../../../Components/CommonStyles/ConfirmDialog";
 import { toast } from "react-toastify";
 import CommonIcons from "../../../Components/CommonIcons";
-import FirebaseServices from "../../../Services/Firebase.service";
 import { useGet } from "../../../Stores/useStore";
-import { GuestInit } from "./AddRoomButton";
-import { RoomDetail } from "../../../Hooks/useGetRoomDetail";
+
+import { Guest, Room } from "../../Home/interface";
+import RoomServices from "../../../Services/Room.service";
 
 interface IDeleteGuest {
-  data: GuestInit;
-  roomData: RoomDetail;
+  data: Guest;
+  roomData: Room;
 }
 
 function DeleteGuest(props: IDeleteGuest) {
   //! State
   const { data, roomData } = props;
   const { open, shouldRender, toggle } = useToggleDialog();
-  const refetchRoomOverView = useGet("REFETCH_ROOM_OVERVIEW");
+  const refetchListRoom = useGet("REFETCH_HOUST_DETAIL");
 
   //! Function
   const handleDelete = async () => {
-    if (!data?.id) return;
+    if (!data?._id) return;
 
     const toastId = toast.loading(
       `Removing ${data.name} from ${roomData.name}...`,
@@ -32,27 +32,28 @@ function DeleteGuest(props: IDeleteGuest) {
       }
     );
 
-    const onFailed = (err: any) => {
+    try {
+      await RoomServices.removeGuest(roomData._id, data._id);
+
+      await refetchListRoom();
+
       toast.update(toastId, {
-        render: `Remove ${data.name} failed: ` + err,
+        render: `Remove ${data.name} successfully`,
+        type: "success",
+        autoClose: 3000,
+        isLoading: false,
+      });
+
+      toggle();
+    } catch (error: any) {
+      console.log("error", error);
+      toast.update(toastId, {
+        render: `Remove ${data.name} failed: ` + error.message,
         type: "error",
         autoClose: 3000,
         isLoading: false,
       });
-    };
-
-    await FirebaseServices.removeGuestFromRoom(data.id, roomData, onFailed);
-
-    await refetchRoomOverView();
-
-    toast.update(toastId, {
-      render: `Remove ${data.name} successfully`,
-      type: "success",
-      autoClose: 3000,
-      isLoading: false,
-    });
-
-    toggle();
+    }
   };
 
   //! Render
