@@ -6,7 +6,7 @@ import * as yup from "yup";
 import { Formik, Form, FastField, FormikHelpers } from "formik";
 import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import CommonIcons from "../../../../Components/CommonIcons";
-import { capitalize, isArray, isEmpty, isString } from "lodash";
+import { capitalize, isArray, isEmpty, } from "lodash";
 import { House } from "../../../Home/interface";
 import RoomSelect from "./RoomSelect";
 import GuestSelect from "./GuestSelect";
@@ -23,7 +23,8 @@ import { compareBill } from "../../../../Constants/PDF.templates";
 import { generatePDF } from "../../../../Helpers/PDF";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import { v4 as uuid } from "uuid";
-import { GuestBill } from "../../../../Hooks/useGetBill";
+import BillServices from "../../../../Services/Bill.service";
+import { GuestDetail } from "../../../../Hooks/useGetGuestDetail";
 
 interface IPDFActionDialog {
   toggle: () => void;
@@ -32,12 +33,7 @@ interface IPDFActionDialog {
 
 export interface PDFInitValues {
   room: RoomDetail | undefined;
-  guest:
-    | {
-        id: string;
-        name: string;
-      }
-    | undefined;
+  guest: GuestDetail | undefined;
   bill: Bill[];
   fromDate: Moment | undefined;
   toDate: Moment | undefined;
@@ -122,97 +118,82 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
       values: PDFInitValues,
       formikHelpers?: FormikHelpers<PDFInitValues>
     ) => {
-      if (!values.guest?.id || isString(values.room) || !values?.room?._id)
-        return;
-
+      
       if (!formikHelpers) return;
 
       const toastID = toast.loading("Creating new bill...", {
         isLoading: true,
         autoClose: false,
       });
-      const finalBill: GuestBill = {
-        id: uuid(),
-        billDetails: values.bill,
-        fromDate: values.fromDate?.startOf("day").valueOf(),
-        toDate: values.toDate?.endOf("day").valueOf(),
-        guest: values.guest.id,
-        guestName: values.guest.name,
-        house: houseData?._id,
-        houseName: houseData?.name,
-        roomName: values.room.name,
-        room: values.room._id,
-        total: values.bill.reduce(
-          (acc, cur) => acc + +removeAllDot(`${cur.price}`),
-          0
-        ),
-      };
 
-      if (values.images && values.images?.length > 0) {
-        const toastUploadImg = toast.loading("Uploading images...", {
-          isLoading: true,
-          autoClose: false,
-        });
-        const uploadImgsPromise: any[] = [];
-
-        const onFailed = () => {
-          toast.update(toastUploadImg, {
-            render: "Failed to upload images!",
-            type: "error",
-            isLoading: false,
-            autoClose: 3000,
-          });
+      try {
+        const finalBill = {
+          ...values,
         };
 
-        values.images.forEach((img) => {
-          const promise = new Promise((res) => {
-            FirebaseServices.uploadImage(
-              img,
-              {
-                contentType: img.type,
-              },
-              onFailed,
-              (url) => res(url),
-              () => {},
-              `bills/house_${houseData._id}/room_${finalBill.room}/guest_${finalBill.guest}/${finalBill.id}`
-            );
+        if (values.images && values.images?.length > 0) {
+          const toastUploadImg = toast.loading("Uploading images...", {
+            isLoading: true,
+            autoClose: false,
           });
 
-          uploadImgsPromise.push(promise);
-        });
+          const onFailed = () => {
+            toast.update(toastUploadImg, {
+              render: "Failed to upload images!",
+              type: "error",
+              isLoading: false,
+              autoClose: 3000,
+            });
+          };
+          const uploadImgsPromise: any[] = [];
 
-        const uploadImgResponse = await Promise.all(uploadImgsPromise);
-        finalBill.images = uploadImgResponse;
+          values.images.forEach((img) => {
+            const promise = new Promise((res) => {
+              FirebaseServices.uploadImage(
+                img,
+                {
+                  contentType: img.type,
+                },
+                onFailed,
+                (url) => res(url),
+                () => {},
+                `bills/house_${houseData._id}/room_${finalBill.room}/guest_${finalBill.guest}/${uuid()}`
+              );
+            });
 
-        toast.update(toastUploadImg, {
-          render: "Images uploaded successfully!",
-          type: "success",
-          isLoading: false,
-          autoClose: 3000,
-        });
-      }
+            uploadImgsPromise.push(promise);
+          });
 
-      await FirebaseServices.updateGuestBill(
-        values.guest?.id,
-        finalBill,
-        () => {
-          toast.update(toastID, {
-            render: "Failed to create bill!",
-            type: "error",
+          const uploadImgResponse = await Promise.all(uploadImgsPromise);
+          finalBill.images = uploadImgResponse;
+
+          toast.update(toastUploadImg, {
+            render: "Images uploaded successfully!",
+            type: "success",
             isLoading: false,
             autoClose: 3000,
           });
         }
-      );
 
-      toast.update(toastID, {
-        render: "Bill created successfully!",
-        type: "success",
-        isLoading: false,
-        autoClose: 3000,
-      });
+        await BillServices.createBill(finalBill);
 
-      toggle();
+        toast.update(toastID, {
+          render: "Bill created successfully!",
+          type: "success",
+          isLoading: false,
+          autoClose: 3000,
+        });
+
+        toggle();
+      } catch (error) {
+        console.log("err", error);
+        toast.update(toastID, {
+          render: "Failed to create bill!",
+          type: "error",
+          isLoading: false,
+          autoClose: 3000,
+        });
+      }
     },
     [toggle]
   );
@@ -280,7 +261,7 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
                     sx={{ display: "flex", gap: "8px", marginBottom: "20px" }}
                   >
                     <RoomSelect houseId={houseData?._id} />
-                    <GuestSelect houseId={houseData?._id}/>
+                    <GuestSelect houseId={houseData?._id} />
                     <FastField
                       name="fromDate"
                       component={CommonField.DatePickerField}

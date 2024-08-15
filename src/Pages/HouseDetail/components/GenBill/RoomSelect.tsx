@@ -24,8 +24,8 @@ const RoomSelect = (props: IRoomSelect) => {
     }));
 
     return nextOptions.filter((room) => {
-      if (!guest?.id) return true;
-      return room.guests.some((elm) => elm._id === guest.id);
+      if (!guest?._id) return true;
+      return room.guests.some((elm) => elm._id === guest._id);
     });
   }, [data, guest]);
   //! Function

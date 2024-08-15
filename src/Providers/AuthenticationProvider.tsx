@@ -50,7 +50,6 @@ const AuthenticationProvider = ({
   const [isLogged, setIsLogged] = React.useState<boolean>(!!accessToken);
 
   const signIn = async (payload: SignInPayload) => {
-    console.log('submit', payload);
     const toastId = toast.loading("Logging in...", {
       isLoading: true,
       autoClose: false,
