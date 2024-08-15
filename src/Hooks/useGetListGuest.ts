@@ -3,12 +3,13 @@ import { GuestDetail } from "./useGetGuestDetail";
 import GuestService from "../Services/Guest.service";
 import { AxiosResponse } from "axios";
 
-const useGetListGuest = (houseId: string, isTrigger = true) => {
+const useGetListGuest = (houseId?: string, isTrigger = true) => {
   const [data, setData] = useState<GuestDetail[] | []>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();
 
   const callApi = useCallback(() => {
+    if(!houseId) return GuestService.getListGuest();
     return GuestService.getGuestByHouse(houseId);
   }, [houseId]);
 

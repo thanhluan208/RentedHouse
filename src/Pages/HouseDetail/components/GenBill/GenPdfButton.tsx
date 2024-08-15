@@ -1,12 +1,12 @@
 import { Fragment } from "react/jsx-runtime";
 import useToggleDialog from "../../../../Hooks/useToggleDialog";
 import CommonStyles from "../../../../Components/CommonStyles";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import * as yup from "yup";
 import { Formik, Form, FastField, FormikHelpers } from "formik";
 import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import CommonIcons from "../../../../Components/CommonIcons";
-import { capitalize, isArray, isEmpty, } from "lodash";
+import { capitalize, isArray, isEmpty, isString } from "lodash";
 import { House } from "../../../Home/interface";
 import RoomSelect from "./RoomSelect";
 import GuestSelect from "./GuestSelect";
@@ -14,7 +14,11 @@ import { RoomDetail } from "../../../../Hooks/useGetRoomDetail";
 import TableBill from "./TableBill";
 import CommonField from "../../../../Components/CommonFields";
 import moment, { Moment } from "moment";
-import { Bill, BillQuantityType } from "../../../../Interfaces/common";
+import {
+  Bill,
+  BillQuantityType,
+  BillStatus,
+} from "../../../../Interfaces/common";
 import FormikEffectPDF from "./FormikEffectPDF";
 import { numberToVietnameseText, removeAllDot } from "../../../../Helpers";
 import { toast } from "react-toastify";
@@ -25,30 +29,39 @@ import PerfectScrollbar from "react-perfect-scrollbar";
 import { v4 as uuid } from "uuid";
 import BillServices from "../../../../Services/Bill.service";
 import { GuestDetail } from "../../../../Hooks/useGetGuestDetail";
+import { useGet, useSave } from "../../../../Stores/useStore";
+import cachedKeys from "../../../../Constants/cachedKeys";
 
-interface IPDFActionDialog {
+interface IBillActionDialog {
   toggle: () => void;
-  houseData: House;
+  houseData?: House;
+  refetchKey?: string;
 }
 
 export interface PDFInitValues {
+  id?: string;
   room: RoomDetail | undefined;
   guest: GuestDetail | undefined;
   bill: Bill[];
   fromDate: Moment | undefined;
   toDate: Moment | undefined;
-  images?: File[];
+  images?: File[] | string[];
+  status?: BillStatus;
 }
 
-export const PDFActionDialog = (props: IPDFActionDialog) => {
+export const BillActionDialog = (props: IBillActionDialog) => {
   //! State
-  const { toggle, houseData } = props;
+  const { toggle, houseData, refetchKey } = props;
+  const save = useSave();
+  const dataBill: PDFInitValues = useGet("BILL_DETAIL");
+  const refetch = useGet(refetchKey as any);
 
   const initialValues: PDFInitValues = useMemo(() => {
     return {
-      room: undefined,
-      guest: undefined,
-      bill: [
+      id: dataBill?.id || undefined,
+      room: dataBill?.room || undefined,
+      guest: dataBill?.guest || undefined,
+      bill: dataBill?.bill || [
         {
           id: "1",
           name: "Tiền điện",
@@ -60,11 +73,11 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
           type: BillQuantityType.MONTH,
         },
       ],
-      fromDate: moment(),
-      toDate: moment().add(1, "month"),
-      images: [],
+      fromDate: dataBill?.fromDate || moment(),
+      toDate: dataBill?.toDate || moment().add(1, "month"),
+      images: dataBill?.images || [],
     };
-  }, []);
+  }, [dataBill]);
 
   const validationSchema = useMemo(() => {
     return yup.object().shape({
@@ -118,10 +131,13 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
       values: PDFInitValues,
       formikHelpers?: FormikHelpers<PDFInitValues>
     ) => {
-      
       if (!formikHelpers) return;
+      const isUpdate = !!dataBill;
 
-      const toastID = toast.loading("Creating new bill...", {
+      const toastLoadingText = isUpdate
+        ? "Updating bill..."
+        : "Creating new bill...";
+      const toastID = toast.loading(toastLoadingText, {
         isLoading: true,
         autoClose: false,
       });
@@ -147,7 +163,10 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
           };
           const uploadImgsPromise: any[] = [];
 
-          values.images.forEach((img) => {
+          values.images.forEach((img: any) => {
+            if (isString(img)) {
+              return;
+            }
             const promise = new Promise((res) => {
               FirebaseServices.uploadImage(
                 img,
@@ -157,7 +176,9 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
                 onFailed,
                 (url) => res(url),
                 () => {},
-                `bills/house_${houseData._id}/room_${finalBill.room}/guest_${finalBill.guest}/${uuid()}`
+                `bills/house_${houseData?._id || dataBill?.room?.house}/room_${
+                  finalBill.room
+                }/guest_${finalBill.guest}/${uuid()}`
               );
             });
 
@@ -175,7 +196,13 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
           });
         }
 
-        await BillServices.createBill(finalBill);
+        if (isUpdate) {
+          await BillServices.updateBill(finalBill);
+        } else {
+          await BillServices.createBill(finalBill);
+        }
+
+        refetch && (await refetch());
 
         toast.update(toastID, {
           render: "Bill created successfully!",
@@ -195,8 +222,17 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
         });
       }
     },
-    [toggle]
+    [toggle, refetch]
   );
+
+  const unpaidBill = useCallback(() => {}, []);
+
+  //! Effect
+  useEffect(() => {
+    return () => {
+      save(cachedKeys.BILL_DETAIL, undefined);
+    };
+  }, [save]);
 
   //! Render
   return (
@@ -207,6 +243,7 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
       validateOnChange
       validateOnBlur
       validateOnMount
+      enableReinitialize
     >
       {({
         isSubmitting,
@@ -235,8 +272,34 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
                   <Box
                     sx={{ display: "flex", gap: "10px", alignItems: "center" }}
                   >
-                    <CommonStyles.Typography type="bold18">
-                      Generate bill
+                    <CommonStyles.Typography
+                      type="bold18"
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: "8px",
+                      }}
+                    >
+                      {dataBill ? (
+                        <Fragment>
+                          Update bill{" "}
+                          <CommonStyles.Chip
+                            label={dataBill?.status || ""}
+                            color={
+                              dataBill?.status?.toLowerCase() === "paid"
+                                ? "success"
+                                : "warning"
+                            }
+                            onDelete={
+                              dataBill?.status?.toLowerCase() === "unpaid"
+                                ? undefined
+                                : unpaidBill
+                            }
+                          />
+                        </Fragment>
+                      ) : (
+                        "Generate bill"
+                      )}
                     </CommonStyles.Typography>
                   </Box>
                   <CommonStyles.Button
@@ -260,8 +323,12 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
                   <Box
                     sx={{ display: "flex", gap: "8px", marginBottom: "20px" }}
                   >
-                    <RoomSelect houseId={houseData?._id} />
-                    <GuestSelect houseId={houseData?._id} />
+                    <RoomSelect
+                      houseId={houseData?._id || dataBill?.room?.house || ""}
+                    />
+                    <GuestSelect
+                      houseId={houseData?._id || dataBill?.room?.house || ""}
+                    />
                     <FastField
                       name="fromDate"
                       component={CommonField.DatePickerField}
@@ -380,7 +447,7 @@ export const PDFActionDialog = (props: IPDFActionDialog) => {
                     isLoading={isSubmitting}
                     disabled={isSubmitting || !isEmpty(errors) || !dirty}
                   >
-                    Confirm
+                    {dataBill ? "Update" : "Create"}
                   </CommonStyles.Button>
                 </Box>
               </DialogActions>
@@ -413,7 +480,7 @@ const GenPdfButton = (props: IGenPdfButton) => {
           maxWidth="lg"
           fullWidth
         >
-          <PDFActionDialog toggle={toggle} houseData={houseData} />
+          <BillActionDialog toggle={toggle} houseData={houseData} />
         </CommonStyles.Dialog>
       )}
       <CommonStyles.Button variant="outlined" onClick={toggle}>

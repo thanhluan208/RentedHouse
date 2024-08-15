@@ -1,8 +1,8 @@
 import { Field, useFormikContext } from "formik";
 import CommonField from "../../../../Components/CommonFields";
 import { PDFInitValues } from "./GenPdfButton";
-import { useEffect, useMemo } from "react";
-import { cloneDeep, isString } from "lodash";
+import { useMemo } from "react";
+import { cloneDeep } from "lodash";
 import useGetListGuest from "../../../../Hooks/useGetListGuest";
 import { RoomDetail } from "../../../../Hooks/useGetRoomDetail";
 
@@ -13,8 +13,8 @@ interface IGuestSelect {
 const GuestSelect = (props: IGuestSelect) => {
   //! State
   const { houseId } = props;
-  const { values, setFieldValue } = useFormikContext<PDFInitValues>();
-  const { data, isLoading } = useGetListGuest(houseId, !!houseId);
+  const { values } = useFormikContext<PDFInitValues>();
+  const { data, isLoading } = useGetListGuest(houseId);
 
   const options = useMemo(() => {
     const nextOptions = cloneDeep(data).map((elm) => {
@@ -28,19 +28,13 @@ const GuestSelect = (props: IGuestSelect) => {
     return nextOptions.filter((elm) => {
       const room: RoomDetail = values.room as RoomDetail;
       if (!room) return true;
-      return room.guests.some((guest) => guest._id === elm._id);
+      return room.guests.some(
+        (guest) => guest._id === elm._id || String(guest) === elm._id
+      );
     });
   }, [values.room, data]);
 
   //! Function
-
-  useEffect(() => {
-    if (isString(values.room)) {
-      setFieldValue("guest", "");
-    } else {
-      setFieldValue("guest", undefined);
-    }
-  }, [JSON.stringify(values.room)]);
 
   //! Render
   return (

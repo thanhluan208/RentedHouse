@@ -7,7 +7,6 @@ import { GlobalStyles } from "@mui/material";
 import cachedKeys from "../Constants/cachedKeys";
 import { useSave } from "../Stores/useStore";
 
-
 const lightTheme: any = createTheme({
   breakpoints: {
     values: {
@@ -85,8 +84,12 @@ const lightTheme: any = createTheme({
       light: "#4d53e826",
     },
     success: {
-      main: '#e8faf3',
-      contrastText: '#2dd298',
+      main: "#e8faf3",
+      contrastText: "#2dd298",
+    },
+    warning: {
+      main: "#fff7e6",
+      contrastText: "#ff9e43",
     }
   },
   colors: {

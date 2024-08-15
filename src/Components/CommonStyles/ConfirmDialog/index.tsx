@@ -1,19 +1,29 @@
 import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { ReactNode } from "react";
+import { ReactNode, useEffect } from "react";
 import CommonStyles from "..";
 import CommonIcons from "../../CommonIcons";
+import { useSave } from "../../../Stores/useStore";
+import cachedKeys from "../../../Constants/cachedKeys";
 
 interface IConfirmDialog {
   handleConfirm: () => void;
   toggle: () => void;
   content: ReactNode | string;
+  title?: ReactNode | string;
 }
 
 const ConfirmDialog = (props: IConfirmDialog) => {
   //! State
-  const { toggle, handleConfirm, content } = props;
-
+  const { toggle, handleConfirm, content, title = "Confirm delete" } = props;
+  const save = useSave();
   //! Function
+  useEffect(() => {
+    save(cachedKeys.DIALOG_OPEN, true);
+
+    return () => {
+      save(cachedKeys.DIALOG_OPEN, false);
+    };
+  }, []);
 
   //! Render
   return (
@@ -26,9 +36,15 @@ const ConfirmDialog = (props: IConfirmDialog) => {
           mb={2}
         >
           <CommonStyles.Typography type="bold18">
-            Confirm delete
+            {title}
           </CommonStyles.Typography>
-          <CommonStyles.Button isIcon onClick={toggle}>
+          <CommonStyles.Button
+            isIcon
+            onClick={(e) => {
+              e.stopPropagation();
+              toggle();
+            }}
+          >
             <CommonIcons.Clear />
           </CommonStyles.Button>
         </Box>
@@ -73,7 +89,10 @@ const ConfirmDialog = (props: IConfirmDialog) => {
             }}
             type="submit"
             color="error"
-            onClick={handleConfirm}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleConfirm();
+            }}
           >
             Confirm
           </CommonStyles.Button>

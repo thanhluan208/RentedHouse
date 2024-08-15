@@ -10,11 +10,10 @@ const FormikEffectPDF = () => {
   const { room } = values;
   //! Function
   useEffect(() => {
-    const newBill = []
     if (!isString(room) && room?.price) {
-      if (room.price) {
-        newBill.push({
-          id: `${newBill.length + 1}`,
+      if (room.price && values.bill.every((item) => item.name !== "Tiền phòng")) {
+        values.bill.push({
+          id: `${values.bill.length + 1}`,
           name: "Tiền phòng",
           price: room.price,
           quantity: 1,
@@ -25,9 +24,9 @@ const FormikEffectPDF = () => {
         });
       }
 
-      if (room.electricityFee) {
-        newBill.push({
-          id: `${newBill.length + 1}`,
+      if (room.electricityFee && values.bill.every((item) => item.name !== "Tiền điện")) {
+        values.bill.push({
+          id: `${values.bill.length + 1}`,
           name: "Tiền điện",
           price: room.electricityFee,
           quantity: 1,
@@ -38,9 +37,9 @@ const FormikEffectPDF = () => {
         });
       }
 
-      if (room.internetFee) {
-        newBill.push({
-          id: `${newBill.length + 1}`,
+      if (room.internetFee && values.bill.every((item) => item.name !== "Tiền internet")) {
+        values.bill.push({
+          id: `${values.bill.length + 1}`,
           name: "Tiền internet",
           price: room.internetFee,
           quantity: 1,
@@ -51,9 +50,9 @@ const FormikEffectPDF = () => {
         });
       }
 
-      if (room.waterFee) {
-        newBill.push({
-          id: `${newBill.length + 1}`,
+      if (room.waterFee && values.bill.every((item) => item.name !== "Tiền nước")) {
+        values.bill.push({
+          id: `${values.bill.length + 1}`,
           name: "Tiền nước",
           price: room.waterFee,
           quantity: 1,
@@ -64,9 +63,9 @@ const FormikEffectPDF = () => {
         });
       }
 
-      if (room.livingExpense) {
-        newBill.push({
-          id: `${newBill.length + 1}`,
+      if (room.livingExpense && values.bill.every((item) => item.name !== "Phí sinh hoạt")) {
+        values.bill.push({
+          id: `${values.bill.length + 1}`,
           name: "Phí sinh hoạt",
           price: room.livingExpense,
           quantity: 1,
@@ -77,9 +76,9 @@ const FormikEffectPDF = () => {
         });
       }
 
-      if (room.parkingFee) {
-        newBill.push({
-          id: `${newBill.length + 1}`,
+      if (room.parkingFee && values.bill.every((item) => item.name !== "Tiền đỗ xe")) {
+        values.bill.push({
+          id: `${values.bill.length + 1}`,
           name: "Tiền đỗ xe",
           price: room.parkingFee,
           quantity: 1,
@@ -90,7 +89,7 @@ const FormikEffectPDF = () => {
         });
       }
 
-      setFieldValue("bill", newBill);
+      setFieldValue("bill", values.bill);
     }
   }, [room]);
 

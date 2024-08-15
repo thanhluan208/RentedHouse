@@ -28,12 +28,15 @@ export type Bill = {
   type: BillQuantityType;
 };
 
-
 export enum BillQuantityType {
   MONTH = "MONTH",
   START_END = "START_END",
 }
 
+export enum BillStatus {
+  PAID = "paid",
+  UNPAID = "unpaid",
+}
 
 export interface OptionCommon {
   value: string;

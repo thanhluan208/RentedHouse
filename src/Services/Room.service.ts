@@ -27,9 +27,9 @@ class roomServices {
       expenditure: room.expenditures?.map((expenditure) => {
         return {
           name: expenditure.name,
-          price: removeAllDot(expenditure.price + ''),
+          price: removeAllDot(expenditure.price + ""),
           unit: expenditure.unit,
-          unitPrice: removeAllDot(expenditure.unitPrice + ''),
+          unitPrice: removeAllDot(expenditure.unitPrice + ""),
           quantity: expenditure.quantity,
         };
       }),
@@ -59,6 +59,10 @@ class roomServices {
 
   getRoomByHouse(houseId: string) {
     return httpServices.axios.get(`${baseRoomApi}?house=${houseId}`);
+  }
+
+  getListRoom() {
+    return httpServices.axios.get(baseRoomApi);
   }
 }
 

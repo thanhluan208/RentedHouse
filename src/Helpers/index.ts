@@ -99,3 +99,21 @@ export function convertFileToBase64(file: File) {
     reader.readAsDataURL(file);
   });
 }
+
+export const isDefined = (value: any) => {
+  return value !== null && value !== undefined;
+};
+
+export function urlToBase64(url: string, callback: any) {
+  const xhr = new XMLHttpRequest();
+  xhr.open("GET", url, true);
+  xhr.responseType = "blob";
+  xhr.onload = function () {
+    const reader = new FileReader();
+    reader.onloadend = function () {
+      callback(reader.result);
+    };
+    reader.readAsDataURL(xhr.response);
+  };
+  xhr.send();
+}

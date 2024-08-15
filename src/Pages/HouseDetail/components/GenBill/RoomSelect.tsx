@@ -13,7 +13,7 @@ const RoomSelect = (props: IRoomSelect) => {
   //! State
   const { houseId } = props;
   const { values } = useFormikContext<PDFInitValues>();
-  const { data, isLoading } = useGetRoomsByHouse(houseId, !!houseId);
+  const { data, isLoading } = useGetRoomsByHouse(houseId);
   const { guest } = values;
 
   const options = useMemo(() => {

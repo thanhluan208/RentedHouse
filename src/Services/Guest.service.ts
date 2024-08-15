@@ -23,6 +23,10 @@ class guestService {
   getGuestByHouse(houseId: string) {
     return httpServices.axios.get(`${baseGuestApi}?house=${houseId}`);
   }
+
+  getListGuest() {
+    return httpServices.axios.get(baseGuestApi);
+  }
 }
 
 const GuestService = new guestService();

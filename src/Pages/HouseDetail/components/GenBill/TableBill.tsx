@@ -9,9 +9,11 @@ import RowPrice from "./RowPrice";
 import { Bill, BillQuantityType } from "../../../../Interfaces/common";
 import InputQuantity from "./InputQuantity";
 
+
 const TableBill = () => {
   //! State
   const { values, setFieldValue } = useFormikContext<PDFInitValues>();
+
   //! Function
 
   //! Render
@@ -102,7 +104,7 @@ const TableBill = () => {
     {
       id: "action",
       label: "Action",
-      width:100,
+      width: 100,
       customRender: (_, rowIndex) => {
         return (
           <Box
@@ -175,7 +177,6 @@ const TableBill = () => {
           );
         }}
       />
-      
     </Box>
   );
 };

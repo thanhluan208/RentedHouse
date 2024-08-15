@@ -1,38 +1,56 @@
 import { useCallback, useEffect, useState } from "react";
-import { Bill } from "../Interfaces/common";
-import FirebaseServices from "../Services/Firebase.service";
+import BillServices from "../Services/Bill.service";
+import { BillQuantityType, BillStatus } from "../Interfaces/common";
+import { AxiosResponse } from "axios";
+import { Guest, RoomDetail } from "./useGetRoomDetail";
+import { CommonFilter } from "../Pages/Home/interface";
 
-export interface GuestBill {
-  id?: string;
-  billDetails: Bill[];
-  fromDate?: number;
-  toDate?: number;
-  guest: string;
-  guestName?: string;
-  room: string;
-  roomName?: string;
-  house: string;
-  houseName: string;
-  total?: number;
-  images?: string[];
+export interface BillResponse {
+  _id: string;
+  status: BillStatus;
+  room: RoomDetail;
+  guest: Guest;
+  startDate: Date;
+  endDate: Date;
+  contents: Content[];
+  images: string[];
+  owner: string;
+  createdAt: Date;
+  updatedAt: Date;
+  proves?: string[];
+  payDate?: Date;
+  __v: number;
 }
 
+export interface Content {
+  name: string;
+  unit: string;
+  unitPrice: number;
+  quantity: number;
+  type: BillQuantityType;
+  price: number;
+  _id: string;
+  quantityStart?: number;
+  quantityEnd?: number;
+}
 
-const useGetHouse = (id: string, isTrigger = true) => {
-  const [data, setData] = useState<GuestBill | null>(null);
+const useGetListBill = (params: CommonFilter, isTrigger = true) => {
+  const [data, setData] = useState<BillResponse[] | []>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();
 
   const callApi = useCallback(() => {
-    if (!id) return;
-    return FirebaseServices.getHouseDetail(id);
-  }, [id]);
+    return BillServices.getListBill(params);
+  }, [params]);
 
-  const transformResponse = useCallback((response: any) => {
-    if (response) {
-      setData(response);
-    }
-  }, []);
+  const transformResponse = useCallback(
+    (response?: AxiosResponse<BillResponse[]>) => {
+      if (response) {
+        setData(response.data);
+      }
+    },
+    []
+  );
 
   const refetch = useCallback(async () => {
     try {
@@ -66,7 +84,7 @@ const useGetHouse = (id: string, isTrigger = true) => {
         shouldSetData = false;
       };
     }
-  }, [isTrigger]);
+  }, [isTrigger,callApi]);
 
   return {
     data,
@@ -76,4 +94,4 @@ const useGetHouse = (id: string, isTrigger = true) => {
   };
 };
 
-export default useGetHouse;
+export default useGetListBill;

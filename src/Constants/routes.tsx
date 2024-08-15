@@ -25,6 +25,7 @@ export const Paths = {
   house: "/house",
   guest: "/guest",
   bill: "/bill",
+  room: "/room",
   login: "/login",
   register: "/register",
 };

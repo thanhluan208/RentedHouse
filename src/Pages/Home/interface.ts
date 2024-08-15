@@ -70,3 +70,8 @@ export interface District {
   idCity: string;
   value: string;
 }
+
+export interface CommonFilter  {
+  page: number;
+  pageSize: number;
+}

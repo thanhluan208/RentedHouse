@@ -33,9 +33,8 @@ import {
 import { RoomDetail } from "../Hooks/useGetRoomDetail";
 import { v4 as uuid } from "uuid";
 import { GuestInitValue } from "../Pages/Guest/components/AddGuestButton";
-import { GuestBill } from "../Hooks/useGetBill";
 import { removeNullAndUndefinedFromObject } from "../Helpers";
-import { House } from "../Pages/Home/interface";
+import { Guest, House } from "../Pages/Home/interface";
 
 export type FailureCallback = (error: any) => void;
 
@@ -302,7 +301,7 @@ class FirebaseService {
 
   updateGuestBill = async (
     guestId: string,
-    bill: GuestBill,
+    bill: Guest,
     onFailed?: FailureCallback
   ) => {
     try {

@@ -3,6 +3,7 @@ import {
   convertFileToBase64,
   numberToVietnameseText,
   removeAllDot,
+  urlToBase64,
 } from "../Helpers";
 import { PDFInitValues } from "../Pages/HouseDetail/components/GenBill/GenPdfButton";
 import moment from "moment";
@@ -600,8 +601,16 @@ export const compareBill = async (bill: PDFInitValues) => {
 
   if (bill?.images?.length && bill?.images?.length > 0) {
     const listImgsPromise: any[] = [];
-    bill.images.forEach((img: File) => {
-      listImgsPromise.push(convertFileToBase64(img));
+    bill.images.forEach((img: File | string) => {
+      if (isString(img)) {
+        listImgsPromise.push(
+          new Promise((res) => {
+            urlToBase64(img, res);
+          })
+        );
+      } else {
+        listImgsPromise.push(convertFileToBase64(img));
+      }
     });
     const listImgs = await Promise.all(listImgsPromise);
 

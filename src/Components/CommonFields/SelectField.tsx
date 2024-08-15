@@ -24,8 +24,8 @@ interface IMuiSelectField {
   options: any[];
   renderOption: (options: any) => React.ReactNode;
   customRenderValue: (value: any) => React.ReactNode;
-  renderLabel?:React.ReactNode;
-  sxContainer?: SxProps
+  renderLabel?: React.ReactNode;
+  sxContainer?: SxProps;
 }
 
 function MuiSelectField(props: IMuiSelectField & SelectProps & FieldProps) {
@@ -130,7 +130,7 @@ function MuiSelectField(props: IMuiSelectField & SelectProps & FieldProps) {
                 ""
               );
             }
-            return selectedValue?.label || selectedValue || "";
+            return selectedValue?.label || selectedValue?.name || selectedValue || "";
           }
         }}
       >

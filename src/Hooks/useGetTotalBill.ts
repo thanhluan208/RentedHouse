@@ -1,31 +1,26 @@
 import { useCallback, useEffect, useState } from "react";
-import { RoomDetail } from "./useGetRoomDetail";
-import RoomServices from "../Services/Room.service";
+import BillServices from "../Services/Bill.service";
 import { AxiosResponse } from "axios";
 
-const useGetRoomsByHouse = (houseId?: string, isTrigger = true) => {
-  const [data, setData] = useState<RoomDetail[] | []>([]);
+const useGetTotalBill = (isTrigger = true) => {
+  const [data, setData] = useState<number>(0);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();
 
   const callApi = useCallback(() => {
-    if (!houseId) return RoomServices.getListRoom();
-    return RoomServices.getRoomByHouse(houseId);
-  }, [houseId]);
+    return BillServices.getTotalBill();
+  }, []);
 
-  const transformResponse = useCallback(
-    (response?: AxiosResponse<RoomDetail[]>) => {
-      if (response) {
-        setData(response.data);
-      }
-    },
-    []
-  );
+  const transformResponse = useCallback((response?: AxiosResponse<number>) => {
+    if (response) {
+      setData(response.data);
+    }
+  }, []);
 
   const refetch = useCallback(async () => {
     try {
       const response = await callApi();
-      transformResponse(response as any);
+      transformResponse(response);
     } catch (error: any) {
       setError(error);
     }
@@ -41,7 +36,7 @@ const useGetRoomsByHouse = (houseId?: string, isTrigger = true) => {
           const response = await callApi();
 
           if (shouldSetData) {
-            transformResponse(response as any);
+            transformResponse(response);
           }
         } catch (error: any) {
           setError(error);
@@ -64,4 +59,4 @@ const useGetRoomsByHouse = (houseId?: string, isTrigger = true) => {
   };
 };
 
-export default useGetRoomsByHouse;
+export default useGetTotalBill;

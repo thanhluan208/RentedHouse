@@ -3,6 +3,16 @@ import { baseBillApi } from "../Constants/api";
 import { removeAllDot } from "../Helpers";
 import { PDFInitValues } from "../Pages/HouseDetail/components/GenBill/GenPdfButton";
 import httpServices from "./http.services";
+import { BillResponse } from "../Hooks/useGetBill";
+import moment from "moment";
+import { BillQuantityType } from "../Interfaces/common";
+import { CommonFilter } from "../Pages/Home/interface";
+import queryString from "query-string";
+
+export interface PayBill {
+  proves: string[];
+  payDate: Date;
+}
 
 class billServices {
   parsePayloadCreateBill = (payload: PDFInitValues) => {
@@ -27,10 +37,66 @@ class billServices {
     };
   };
 
+  parseResponseBill = (response: BillResponse) => {
+    return {
+      id: response._id,
+      room: response.room,
+      guest: response.guest,
+      fromDate: moment(response.startDate),
+      toDate: moment(response.endDate),
+      images: response.images,
+      status: response.status,
+      bill: response.contents.map((item, index) => {
+        if (item.type === BillQuantityType.MONTH) {
+          return {
+            id: index + 1,
+            name: item.name,
+            unit: item.unit,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            price: item.price,
+          };
+        } else {
+          return {
+            id: index + 1,
+            name: item.name,
+            unit: item.unit,
+            startMonthQuantity: item.quantityStart,
+            endMonthQuantity: item.quantityEnd,
+            unitPrice: item.unitPrice,
+            price: item.price,
+          };
+        }
+      }),
+    };
+  };
+
   createBill = (payload: PDFInitValues) => {
-    console.log("Bill created", this.parsePayloadCreateBill(cloneDeep(payload)));
     const billPayload = this.parsePayloadCreateBill(cloneDeep(payload));
     return httpServices.post(baseBillApi, billPayload);
+  };
+
+  updateBill = (payload: PDFInitValues) => {
+    const billPayload = this.parsePayloadCreateBill(cloneDeep(payload));
+    return httpServices.put(`${baseBillApi}/${payload?.id}`, billPayload);
+  };
+
+  getListBill = (filters: CommonFilter) => {
+    return httpServices.axios.get(
+      `${baseBillApi}?${queryString.stringify(filters)}`
+    );
+  };
+
+  payBill = (billId: string, payload: PayBill) => {
+    return httpServices.post(`${baseBillApi}/${billId}/pay`, payload);
+  };
+
+  deleteBill = (billId: string) => {
+    return httpServices.delete(`${baseBillApi}/${billId}`);
+  };
+
+  getTotalBill = () => {
+    return httpServices.get(`${baseBillApi}/total`);
   };
 }
 
