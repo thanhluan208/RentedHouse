@@ -18,6 +18,7 @@ import PerfectScrollBar from "react-perfect-scrollbar";
 import TableExpenditure from "./AddRoomDialog/TableExpenditure";
 import RoomOverall from "./AddRoomDialog/RoomOverall";
 import RoomServices from "../../../Services/Room.service";
+import { Expenditure } from "../../../Hooks/useGetRoomDetail";
 
 interface IRoomActionDialog {
   toggle: () => void;
@@ -48,13 +49,7 @@ export interface RoomInitValues {
   expenditures?: Expenditure[];
 }
 
-type Expenditure = {
-  name: string;
-  price: string;
-  unit: string;
-  unitPrice: string;
-  quantity: string;
-};
+
 
 export interface GuestInit {
   id: string;

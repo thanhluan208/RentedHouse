@@ -5,8 +5,6 @@ import { Column } from "../../../../Components/CommonStyles/Table";
 import CommonField from "../../../../Components/CommonFields";
 import { Box } from "@mui/material";
 import CommonIcons from "../../../../Components/CommonIcons";
-import { numberToVietnameseText, removeAllDot } from "../../../../Helpers";
-import { capitalize, isArray } from "lodash";
 import RowPrice from "./RowPrice";
 import { Bill, BillQuantityType } from "../../../../Interfaces/common";
 import InputQuantity from "./InputQuantity";

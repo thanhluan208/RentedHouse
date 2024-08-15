@@ -26,7 +26,6 @@ import {
   ref,
   uploadBytesResumable,
 } from "firebase/storage";
-import { HouseInitValues } from "../Components/DefaultLayout/Components/CreateHouseButton";
 import {
   GuestInit,
   RoomInitValues,
@@ -36,6 +35,7 @@ import { v4 as uuid } from "uuid";
 import { GuestInitValue } from "../Pages/Guest/components/AddGuestButton";
 import { GuestBill } from "../Hooks/useGetBill";
 import { removeNullAndUndefinedFromObject } from "../Helpers";
+import { House } from "../Pages/Home/interface";
 
 export type FailureCallback = (error: any) => void;
 
@@ -85,7 +85,7 @@ class FirebaseService {
   };
 
   createHouse = async (
-    payload: HouseInitValues,
+    payload: House,
     onFailed?: FailureCallback
   ) => {
     try {
@@ -114,12 +114,12 @@ class FirebaseService {
   };
 
   updateHouse = async (
-    payload: HouseInitValues,
+    payload: House,
     onFailed?: FailureCallback
   ) => {
     try {
-      if (!payload?.id) return;
-      const houseRef = doc(this.db, "houses", payload.id);
+      if (!payload?._id) return;
+      const houseRef = doc(this.db, "houses", payload._id);
       if (houseRef) {
         return await updateDoc(houseRef, {
           ...payload,
@@ -220,7 +220,7 @@ class FirebaseService {
         updatedAt: Timestamp.now(),
       });
 
-      const houseRef = doc(this.db, "houses", payload.house_id);
+      const houseRef = doc(this.db, "houses", payload.house);
       if (houseRef) {
         await updateDoc(houseRef, {
           rooms: arrayUnion(response.id),
@@ -370,14 +370,14 @@ class FirebaseService {
     onFailed?: FailureCallback
   ) => {
     try {
-      if (!roomData?.id) return;
-      const roomRef = doc(this.db, "rooms", roomData.id);
+      if (!roomData?._id) return;
+      const roomRef = doc(this.db, "rooms", roomData._id);
 
       if (!roomRef) return;
 
       const newRoom = {
         ...roomData,
-        guests: roomData.guests.filter((elm) => elm.id !== guestId),
+        guests: roomData.guests.filter((elm) => elm._id !== guestId),
         updatedAt: Timestamp.now(),
       };
 
@@ -398,12 +398,12 @@ class FirebaseService {
       if (!guestRef) return;
       await deleteDoc(guestRef);
 
-      if (roomData?.id) {
-        const roomRef = doc(this.db, "rooms", roomData.id);
+      if (roomData?._id) {
+        const roomRef = doc(this.db, "rooms", roomData._id);
 
         const newRoom = {
           ...roomData,
-          guests: roomData.guests.filter((elm) => elm.id !== id),
+          guests: roomData.guests.filter((elm) => elm._id !== id),
           updatedAt: Timestamp.now(),
           status: {
             value: "available",

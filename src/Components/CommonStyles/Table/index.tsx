@@ -1,12 +1,10 @@
 import { Box, SxProps } from "@mui/material";
 import { isArray } from "lodash";
-import {  useMemo } from "react";
+import { useMemo } from "react";
 
-type BaseRow = {
-  id: string;
-};
+export type BaseRow = {};
 
-interface ITable<T extends BaseRow> {
+interface ITable<T> {
   columns: Column<T>[];
   sxContainer?: SxProps;
   sxHeader?: SxProps;
@@ -28,7 +26,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
   const gridTemplateColumns = useMemo(() => {
     if (!isArray(columns)) return "";
     return columns.reduce((acc, columns) => {
-      return acc + `${columns.width ? columns?.width + 'px ' : '1fr '}`;
+      return acc + `${columns.width ? columns?.width + "px " : "1fr "}`;
     }, "");
   }, [columns]);
 
@@ -70,7 +68,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
         data.map((row, rowIndex) => {
           return (
             <Box
-              key={row.id || `row_${rowIndex}`}
+              key={`row_${rowIndex}`}
               sx={{
                 display: "grid",
                 gridTemplateColumns: gridTemplateColumns,
@@ -92,7 +90,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
                 return (
                   <Box
                     sx={{ display: "flex", alignItems: "center", ...sxRow }}
-                    key={`${row.id}_${column.id as string}`}
+                    key={`${rowIndex}_${column.id as string}`}
                   >
                     {row[column.id as keyof typeof row] as string}
                   </Box>

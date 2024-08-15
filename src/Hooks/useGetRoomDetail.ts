@@ -28,7 +28,7 @@ export interface Expenditure {
   unitPrice: number;
   quantity: number;
   price: number;
-  _id: string;
+  _id?: string;
 }
 
 export interface Guest {

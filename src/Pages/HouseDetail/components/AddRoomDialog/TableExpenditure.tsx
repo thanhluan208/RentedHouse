@@ -6,8 +6,8 @@ import { Box } from "@mui/material";
 import CommonIcons from "../../../../Components/CommonIcons";
 
 import { RoomInitValues } from "../AddRoomButton";
-import { Bill } from "../../../../Interfaces/common";
 import RowPriceExpenditure from "./RowPriceExpenditure";
+import { Expenditure } from "../../../../Hooks/useGetRoomDetail";
 
 const TableExpenditure = () => {
   //! State
@@ -17,7 +17,7 @@ const TableExpenditure = () => {
 
   //! Render
 
-  const columns: Column<Bill>[] = [
+  const columns: Column<Expenditure>[] = [
     {
       id: "id",
       label: "STT",

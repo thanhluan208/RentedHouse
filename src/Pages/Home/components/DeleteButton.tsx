@@ -21,7 +21,7 @@ function DeleteButton(props: IDeleteButton) {
 
   //! Function
   const handleDelete = async () => {
-    if (!data?.id) return;
+    if (!data?._id) return;
 
     const toastId = toast.loading(`Deleting ${data.name}...`, {
       isLoading: true,
@@ -37,7 +37,7 @@ function DeleteButton(props: IDeleteButton) {
       });
     };
 
-    await FirebaseServices.deleteHouse(data.id, onFailed);
+    await FirebaseServices.deleteHouse(data._id, onFailed);
 
     await refetchHouseList();
 

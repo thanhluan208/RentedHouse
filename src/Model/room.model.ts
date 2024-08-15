@@ -8,7 +8,6 @@ class roomModel {
     houseRef: DocumentReference
   ) {
     return removeNullAndUndefinedFromObject({
-        id: payload.id,
         house: houseRef,
         name: payload.name,
         price: payload.price,

@@ -17,11 +17,11 @@ const RowPriceExpenditure = (props: IRowPriceExpenditure) => {
   useEffect(() => {
     if (!values.expenditures) return;
     const price =
-      values.expenditures[rowIndex].quantity *
+      +values.expenditures[rowIndex].quantity *
       +removeAllDot(`${values.expenditures[rowIndex].unitPrice}`);
     setFieldValue(
       `expenditures.${rowIndex}.price`,
-      price.toLocaleString("vi-VN")
+      Math.round(price).toLocaleString("vi-VN")
     );
   }, [
     values?.expenditures?.[rowIndex].quantity,
