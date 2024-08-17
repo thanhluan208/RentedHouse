@@ -23,6 +23,7 @@ import FormikEffectPDF from "./FormikEffectPDF";
 import { numberToVietnameseText, removeAllDot } from "../../../../Helpers";
 import { toast } from "react-toastify";
 import { compareBill } from "../../../../Constants/PDF.templates";
+// @ts-ignore
 import { generatePDF } from "../../../../Helpers/PDF";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import BillServices from "../../../../Services/Bill.service";
