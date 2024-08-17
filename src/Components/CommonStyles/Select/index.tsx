@@ -33,7 +33,6 @@ const CommonSelect = (props: ISelect & SelectProps) => {
 
   const theme: any = useTheme();
 
-  console.log("values", value);
   //! Function
 
   //! Render

@@ -23,7 +23,7 @@ export type Bill = {
     id: string;
     name: string;
   };
-  status: "paid" | "unpaid";
+  status?: "paid" | "unpaid";
   paidDate?: number;
   type: BillQuantityType;
 };

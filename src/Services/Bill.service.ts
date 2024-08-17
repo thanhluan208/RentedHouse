@@ -113,6 +113,10 @@ class billServices {
       headers: { "Content-Type": "multipart/form-data" },
     });
   };
+
+  genPDf = (billId: string) => {
+    return httpServices.get(`${baseBillApi}/${billId}/generatePdf`);
+  };
 }
 
 const BillServices = new billServices();

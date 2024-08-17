@@ -48,7 +48,6 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
     styleBody,
   } = props;
   const { page, pageSize } = filters || {};
-  console.log('data',data)
 
   const gridTemplateColumns = useMemo(() => {
     if (!isArray(columns)) return "";

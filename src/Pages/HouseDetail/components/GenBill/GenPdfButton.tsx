@@ -29,7 +29,7 @@ import BillServices from "../../../../Services/Bill.service";
 import { GuestDetail } from "../../../../Hooks/useGetGuestDetail";
 import { useGet, useSave } from "../../../../Stores/useStore";
 import cachedKeys from "../../../../Constants/cachedKeys";
-import { AxiosResponse } from "axios";
+import FirebaseServices from "../../../../Services/Firebase.service";
 
 interface IBillActionDialog {
   toggle: () => void;
@@ -89,7 +89,6 @@ export const BillActionDialog = (props: IBillActionDialog) => {
           name: yup.string().required("Name is required"),
           unit: yup.string().required("Unit is required"),
           unitPrice: yup.string().required("Unit price is required"),
-          status: yup.string().required("Status is required"),
           type: yup.string().required("Type is required"),
           quantity: yup.number().when("type", {
             is: BillQuantityType.MONTH,
@@ -117,9 +116,16 @@ export const BillActionDialog = (props: IBillActionDialog) => {
   ) => {
     setSubmitting(true);
     try {
-      const dd = await compareBill(values);
+      if (dataBill?.id) {
+        console.log("dataBill", dataBill.id);
+        const response = await BillServices.genPDf(dataBill.id);
 
-      generatePDF(dd as any);
+        generatePDF(response.data.template)
+      } else {
+        const dd = await compareBill(values);
+
+        generatePDF(dd as any);
+      }
     } catch (error) {
       console.log("err", error);
     }
@@ -151,17 +157,36 @@ export const BillActionDialog = (props: IBillActionDialog) => {
             return !isString(item);
           });
 
-          const uploadedImages: AxiosResponse<{
-            urls: string[];
-          }> =
-            await BillServices.uploadImage(needUploadImages as File[]);
-          console.log("uploadedImages", uploadedImages);
+          const uploadList: any[] = [];
+
+          needUploadImages.forEach((item) => {
+            const promise = new Promise((res) => {
+              FirebaseServices.uploadImage(
+                item as File,
+                {
+                  contentType: "image/*",
+                },
+                (error) => {
+                  console.log("err", error);
+                },
+                (url) => res(url),
+                (progress) => {
+                  toast.info(`Uploading ${progress}%`);
+                },
+                `bills/${values.room?.house}/${values.room?._id}/${values.guest?._id}`
+              );
+            });
+
+            uploadList.push(promise);
+          });
+
+          const uploadedImages = await Promise.all(uploadList);
 
           finalBill.images = [
             ...values.images
               .filter((item) => isString(item))
               .map((item) => item as string),
-            ...uploadedImages.data.urls,
+            ...uploadedImages,
           ];
         }
 

@@ -211,7 +211,7 @@ const BillTable = (props: IBillTable) => {
           onClose={toggle}
           maxWidth="lg"
         >
-          <BillActionDialog toggle={toggle} />
+          <BillActionDialog toggle={toggle} refetchKey={cachedKeys.REFETCH_BILL_LIST}/>
         </CommonStyles.Dialog>
       )}
       <Box sx={{ width: "100%" }}>

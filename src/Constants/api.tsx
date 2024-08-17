@@ -1,4 +1,4 @@
-const base = "http://localhost:3000";
+const base = "rentedhousebe-production.up.railway.app";
 
 //! House
 export const baseHouseApi = `${base}/house`;
