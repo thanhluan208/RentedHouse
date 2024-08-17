@@ -1,4 +1,4 @@
-const base = "https://rentedhousebe-production.up.railway.app/";
+const base = "https://rentedhousebe-production.up.railway.app";
 // const base = "localhost:3000";
 
 //! House
