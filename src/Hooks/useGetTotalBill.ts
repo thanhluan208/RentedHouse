@@ -2,14 +2,19 @@ import { useCallback, useEffect, useState } from "react";
 import BillServices from "../Services/Bill.service";
 import { AxiosResponse } from "axios";
 
-const useGetTotalBill = (isTrigger = true) => {
+const useGetTotalBill = (filters: any, isTrigger = true) => {
   const [data, setData] = useState<number>(0);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();
 
   const callApi = useCallback(() => {
-    return BillServices.getTotalBill();
-  }, []);
+    const nextFiters = {
+      ...filters,
+      startDate: filters.startDate?.toDate() || undefined,
+      endDate: filters.endDate?.toDate() || undefined,
+    }
+    return BillServices.getTotalBill(nextFiters);
+  }, [filters]);
 
   const transformResponse = useCallback((response?: AxiosResponse<number>) => {
     if (response) {
@@ -24,7 +29,7 @@ const useGetTotalBill = (isTrigger = true) => {
     } catch (error: any) {
       setError(error);
     }
-  }, []);
+  }, [callApi]);
 
   useEffect(() => {
     let shouldSetData = true;
@@ -49,7 +54,7 @@ const useGetTotalBill = (isTrigger = true) => {
         shouldSetData = false;
       };
     }
-  }, [isTrigger]);
+  }, [isTrigger, callApi]);
 
   return {
     data,

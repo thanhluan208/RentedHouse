@@ -74,4 +74,5 @@ export interface District {
 export interface CommonFilter  {
   page: number;
   pageSize: number;
+  [key: string]: any;
 }

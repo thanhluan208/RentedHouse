@@ -4,6 +4,7 @@ import {
   MenuItem,
   Select,
   SelectProps,
+  SxProps,
   useTheme,
 } from "@mui/material";
 import CommonStyles from "..";
@@ -15,6 +16,7 @@ interface ISelect {
   renderOption?: (options: any) => React.ReactNode;
   customRenderValue?: (value: any) => React.ReactNode;
   handleChange?: (value: any) => void;
+  sxContainer?: SxProps;
 }
 
 const CommonSelect = (props: ISelect & SelectProps) => {
@@ -25,11 +27,13 @@ const CommonSelect = (props: ISelect & SelectProps) => {
     customRenderValue,
     handleChange,
     value,
+    sxContainer,
     ...otherProps
   } = props;
 
   const theme: any = useTheme();
 
+  console.log("values", value);
   //! Function
 
   //! Render
@@ -47,6 +51,7 @@ const CommonSelect = (props: ISelect & SelectProps) => {
         ".MuiSelect-select": {
           padding: "8px 16px",
         },
+        ...sxContainer,
       }}
     >
       {otherProps?.label && (
@@ -69,6 +74,7 @@ const CommonSelect = (props: ISelect & SelectProps) => {
         label=""
         value={value}
         onChange={handleChange}
+        displayEmpty={true}
         sx={{
           padding: "8px 16px",
 
@@ -85,14 +91,22 @@ const CommonSelect = (props: ISelect & SelectProps) => {
           style: {},
         }}
         renderValue={(selectedValue) => {
-          console.log(selectedValue);
+          const renderValue = selectedValue || value;
+          if (!renderValue) {
+            return <em>{props.placeholder}</em>;
+          }
           if (customRenderValue) {
             return customRenderValue(value);
           } else {
-            return options.find((op) => op.value === selectedValue)?.label;
+            return options.find((op) => op.value === renderValue)?.label;
           }
         }}
       >
+        {props?.placeholder && (
+          <MenuItem disabled value={""}>
+            <em>{props?.placeholder}</em>
+          </MenuItem>
+        )}
         {options.map((op: { value: string; label: string; group?: string }) => {
           if (renderOption) {
             return <Fragment key={op?.value}>{renderOption(op)}</Fragment>;

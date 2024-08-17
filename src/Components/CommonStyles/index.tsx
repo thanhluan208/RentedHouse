@@ -2,6 +2,7 @@ import MuiButton from "./Button";
 import MuiChip from "./Chip";
 import Collapse from "./Collapse";
 import ConfirmDialog from "./ConfirmDialog";
+import DatePickerCommon from "./DatePicker";
 import MUIDialog from "./Dialog";
 import Empty from "./Empty/Empty";
 import FilesUpload from "./FilesUpload";
@@ -23,7 +24,8 @@ const CommonStyles = {
   Table,
   Collapse,
   ConfirmDialog,
-  CommonSelect
+  CommonSelect,
+  DatePickerCommon
 };
 
 export default CommonStyles;

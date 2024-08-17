@@ -9,7 +9,6 @@ import RowPrice from "./RowPrice";
 import { Bill, BillQuantityType } from "../../../../Interfaces/common";
 import InputQuantity from "./InputQuantity";
 
-
 const TableBill = () => {
   //! State
   const { values, setFieldValue } = useFormikContext<PDFInitValues>();
@@ -173,7 +172,13 @@ const TableBill = () => {
         name="bill"
         render={() => {
           return (
-            <CommonStyles.Table columns={columns} data={values.bill || []} />
+            <CommonStyles.Table
+              columns={columns}
+              data={values.bill || []}
+              styleBody={{
+                minHeight: "unset",
+              }}
+            />
           );
         }}
       />

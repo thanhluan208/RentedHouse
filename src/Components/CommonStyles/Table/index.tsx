@@ -1,5 +1,5 @@
 import { Box, SxProps } from "@mui/material";
-import { isArray } from "lodash";
+import { isArray, isEmpty } from "lodash";
 import { Fragment, useMemo } from "react";
 import CommonStyles from "..";
 import PaginationButton from "./component/PaginationButton";
@@ -8,7 +8,10 @@ import CommonIcons from "../../CommonIcons";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import { pageSizeOption } from "../../../Constants/options";
 
-export type BaseRow = {};
+export type BaseRow = {
+  _id?: string;
+  [key: string]: any;
+};
 
 interface ITable<T> {
   columns: Column<T>[];
@@ -21,6 +24,7 @@ interface ITable<T> {
   total?: number;
   changePage?: (page: number) => void;
   changePageSize?: (pageSize: number) => void;
+  styleBody?: any;
 }
 
 export type Column<T> = {
@@ -33,9 +37,18 @@ export type Column<T> = {
 
 const Table = <T extends BaseRow>(props: ITable<T>) => {
   //! State
-  const { columns, sxContainer, sxHeader, data, sxRow, filters, total } = props;
+  const {
+    columns,
+    sxContainer,
+    sxHeader,
+    data,
+    sxRow,
+    filters,
+    total,
+    styleBody,
+  } = props;
   const { page, pageSize } = filters || {};
-  console.log("filters", filters);
+  console.log('data',data)
 
   const gridTemplateColumns = useMemo(() => {
     if (!isArray(columns)) return "";
@@ -119,14 +132,17 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
         style={{
           minHeight: "480px",
           maxHeight: `${pageSize > 10 ? pageSize * 48 : 480}px`,
+          ...styleBody,
         }}
       >
+        {isEmpty(data) && <CommonStyles.Empty content="No house found!" />}
+
         {isArray(data) &&
           data.map((row, rowIndex) => {
             return (
               <Box
                 onClick={() => props.onClickRow && props.onClickRow(row)}
-                key={`row_${rowIndex}_${JSON.stringify(row)}`}
+                key={`row_${row?._id}`}
                 sx={{
                   display: "grid",
                   alignItems: "center",
@@ -145,7 +161,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
                 {columns.map((column) => {
                   if (column.customRender) {
                     return (
-                      <Fragment key={`${rowIndex}_${column.id as string}`}>
+                      <Fragment key={`${row._id}_${column.id as string}`}>
                         {column.customRender(row, rowIndex)}
                       </Fragment>
                     );
@@ -153,7 +169,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
                   return (
                     <Box
                       sx={{ display: "flex", alignItems: "center", ...sxRow }}
-                      key={`${rowIndex}_${column.id as string}`}
+                      key={`${row._id}_${column.id as string}`}
                     >
                       {row[column.id as keyof typeof row] as string}
                     </Box>
@@ -222,8 +238,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
               options={pageSizeOption}
               value={pageSize}
               handleChange={(value) => {
-                props.changePageSize &&
-                  props.changePageSize(value as number);
+                props.changePageSize && props.changePageSize(value as number);
               }}
             />
           </Box>

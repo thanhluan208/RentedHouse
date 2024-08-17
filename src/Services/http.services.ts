@@ -1,7 +1,6 @@
 import axios, { AxiosInstance, AxiosRequestConfig } from "axios";
 import { ACCESS_TOKEN_KEY } from "../Providers/AuthenticationProvider";
 
-
 export const REFRESH_TOKEN_KEY = "refreshToken";
 export const USER_KEY = "user";
 
@@ -38,6 +37,10 @@ class Services {
         return config;
       },
       async (error) => {
+        console.log("error", error);
+        if (error.response.status === 401) {
+          localStorage.clear();
+        }
         //! Handling retry when token expired
         // if (
         //   error.response.data?.statusCode === 401 &&

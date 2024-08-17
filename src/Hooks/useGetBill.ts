@@ -40,7 +40,12 @@ const useGetListBill = (params: CommonFilter, isTrigger = true) => {
   const [error, setError] = useState();
 
   const callApi = useCallback(() => {
-    return BillServices.getListBill(params);
+    const nextparams = {
+      ...params, 
+      startDate: params.startDate?.toDate() || undefined,
+      endDate: params.endDate?.toDate() || undefined,
+    }
+    return BillServices.getListBill(nextparams);
   }, [params]);
 
   const transformResponse = useCallback(
@@ -59,7 +64,7 @@ const useGetListBill = (params: CommonFilter, isTrigger = true) => {
     } catch (error: any) {
       setError(error);
     }
-  }, []);
+  }, [callApi]);
 
   useEffect(() => {
     let shouldSetData = true;

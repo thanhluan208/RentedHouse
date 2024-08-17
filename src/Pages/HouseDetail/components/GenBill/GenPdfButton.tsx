@@ -22,15 +22,14 @@ import {
 import FormikEffectPDF from "./FormikEffectPDF";
 import { numberToVietnameseText, removeAllDot } from "../../../../Helpers";
 import { toast } from "react-toastify";
-import FirebaseServices from "../../../../Services/Firebase.service";
 import { compareBill } from "../../../../Constants/PDF.templates";
 import { generatePDF } from "../../../../Helpers/PDF";
 import PerfectScrollbar from "react-perfect-scrollbar";
-import { v4 as uuid } from "uuid";
 import BillServices from "../../../../Services/Bill.service";
 import { GuestDetail } from "../../../../Hooks/useGetGuestDetail";
 import { useGet, useSave } from "../../../../Stores/useStore";
 import cachedKeys from "../../../../Constants/cachedKeys";
+import { AxiosResponse } from "axios";
 
 interface IBillActionDialog {
   toggle: () => void;
@@ -148,52 +147,22 @@ export const BillActionDialog = (props: IBillActionDialog) => {
         };
 
         if (values.images && values.images?.length > 0) {
-          const toastUploadImg = toast.loading("Uploading images...", {
-            isLoading: true,
-            autoClose: false,
+          const needUploadImages = values.images.filter((item) => {
+            return !isString(item);
           });
 
-          const onFailed = () => {
-            toast.update(toastUploadImg, {
-              render: "Failed to upload images!",
-              type: "error",
-              isLoading: false,
-              autoClose: 3000,
-            });
-          };
-          const uploadImgsPromise: any[] = [];
+          const uploadedImages: AxiosResponse<{
+            urls: string[];
+          }> =
+            await BillServices.uploadImage(needUploadImages as File[]);
+          console.log("uploadedImages", uploadedImages);
 
-          values.images.forEach((img: any) => {
-            if (isString(img)) {
-              return;
-            }
-            const promise = new Promise((res) => {
-              FirebaseServices.uploadImage(
-                img,
-                {
-                  contentType: img.type,
-                },
-                onFailed,
-                (url) => res(url),
-                () => {},
-                `bills/house_${houseData?._id || dataBill?.room?.house}/room_${
-                  finalBill.room
-                }/guest_${finalBill.guest}/${uuid()}`
-              );
-            });
-
-            uploadImgsPromise.push(promise);
-          });
-
-          const uploadImgResponse = await Promise.all(uploadImgsPromise);
-          finalBill.images = uploadImgResponse;
-
-          toast.update(toastUploadImg, {
-            render: "Images uploaded successfully!",
-            type: "success",
-            isLoading: false,
-            autoClose: 3000,
-          });
+          finalBill.images = [
+            ...values.images
+              .filter((item) => isString(item))
+              .map((item) => item as string),
+            ...uploadedImages.data.urls,
+          ];
         }
 
         if (isUpdate) {

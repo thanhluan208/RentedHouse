@@ -38,12 +38,12 @@ function App() {
           element: <Bill />,
         },
       ],
-      // loader: () => {
-      //   if (!isLogged) {
-      //     return redirect(Paths.login);
-      //   }
-      //   return null;
-      // },
+      loader: () => {
+        if (!isLogged) {
+          return redirect(Paths.login);
+        }
+        return null;
+      },
     },
     {
       path: Paths.login,

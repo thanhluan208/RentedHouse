@@ -1,23 +1,30 @@
 import { Box } from "@mui/material";
 import CommonStyles from "../../Components/CommonStyles";
 import useGetListBill from "../../Hooks/useGetBill";
-import { isEmpty } from "lodash";
 import BillTable from "./components/BillTable";
-import { useCallback, useEffect } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useSave } from "../../Stores/useStore";
 import cachedKeys from "../../Constants/cachedKeys";
 import AddBillButton from "./components/AddBillButton";
 import useFilters from "../../Hooks/useFilters";
 import useGetTotalBill from "../../Hooks/useGetTotalBill";
+import FilterBill from "./components/FilterBill";
 
 const Bill = () => {
   //! State
-  const { filters, changePage, changePageSize } = useFilters({
-    page: 0,
-    pageSize: 10,
-  });
+  const { filters, changePage, changePageSize, setFilters, resetFilter } =
+    useFilters({
+      page: 0,
+      pageSize: 10,
+    });
+
+  const totalFilters = useMemo(() => {
+    const { page, pageSize, ...rest } = filters;
+    return rest;
+  }, [filters]);
+
   const { data, isLoading, refetch } = useGetListBill(filters);
-  const { data: total, refetch: refetchTotal } = useGetTotalBill();
+  const { data: total, refetch: refetchTotal } = useGetTotalBill(totalFilters);
   const save = useSave();
 
   const refetchBill = useCallback(async () => {
@@ -49,20 +56,7 @@ const Bill = () => {
           <AddBillButton />
         </Box>
       </Box>
-      {isEmpty(data) && !isLoading && (
-        <Box
-          sx={{
-            width: "100%",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "600px",
-            position: "relative",
-          }}
-        >
-          <CommonStyles.Empty content="No house found!" />
-        </Box>
-      )}
+
       <Box
         sx={{
           padding: "20px",
@@ -72,6 +66,11 @@ const Bill = () => {
           rowGap: "10px",
         }}
       >
+        <FilterBill
+          filters={filters}
+          setFilter={setFilters}
+          resetFilter={resetFilter}
+        />
         <BillTable
           data={data || []}
           filters={filters}

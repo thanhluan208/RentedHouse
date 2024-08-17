@@ -55,6 +55,7 @@ class billServices {
             quantity: item.quantity,
             unitPrice: item.unitPrice,
             price: item.price,
+            type: item.type,
           };
         } else {
           return {
@@ -65,6 +66,7 @@ class billServices {
             endMonthQuantity: item.quantityEnd,
             unitPrice: item.unitPrice,
             price: item.price,
+            type: item.type,
           };
         }
       }),
@@ -95,8 +97,21 @@ class billServices {
     return httpServices.delete(`${baseBillApi}/${billId}`);
   };
 
-  getTotalBill = () => {
-    return httpServices.get(`${baseBillApi}/total`);
+  getTotalBill = (filters: any) => {
+    return httpServices.get(
+      `${baseBillApi}/total?${queryString.stringify(filters)}`
+    );
+  };
+
+  uploadImage = (files: File[]) => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    return httpServices.post(`${baseBillApi}/upload`, formData, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
   };
 }
 

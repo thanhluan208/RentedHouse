@@ -200,7 +200,7 @@ const BillTable = (props: IBillTable) => {
         },
       },
     ];
-  }, [onClickGuest, onClickRoom, props.filters?.page, props.filters?.pageSize]);
+  }, [onClickGuest, onClickRoom, props.filters?.page, props.filters?.pageSize, data]);
 
   return (
     <Fragment>
