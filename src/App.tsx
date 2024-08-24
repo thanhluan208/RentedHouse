@@ -12,6 +12,7 @@ import Bill from "./Pages/Bill";
 import { useAuth } from "./Providers/AuthenticationProvider";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
+import GuestList from "./Pages/Guest";
 
 function App() {
   //! State
@@ -36,6 +37,10 @@ function App() {
         {
           path: Paths.bill,
           element: <Bill />,
+        },
+        {
+          path: Paths.guest,
+          element: <GuestList />,
         },
       ],
       loader: () => {

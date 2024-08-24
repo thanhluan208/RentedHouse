@@ -11,6 +11,8 @@ import { useEffect } from "react";
 import cachedKeys from "../../Constants/cachedKeys";
 import AddGuestButton from "../Guest/components/AddGuestButton";
 import { capitalize } from "lodash";
+import { toast } from "react-toastify";
+import GuestService from "../../Services/Guest.service";
 
 const GuestDetail = () => {
   //! State
@@ -23,6 +25,39 @@ const GuestDetail = () => {
   );
 
   //! Function
+  const downloadContract = async () => {
+    if (!guestId) return;
+    const toastId = toast.loading("Downloading contract ...", {
+      isLoading: true,
+      autoClose: false,
+    });
+
+    try {
+      const res = await GuestService.downloadContract(guestId as string);
+
+      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "contract.pdf");
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      toast.update(toastId, {
+        render: "Downloaded contract successfully",
+        type: toast.TYPE.SUCCESS,
+        isLoading: false,
+        autoClose: 2000,
+      });
+    } catch (error) {
+      toast.update(toastId, {
+        render: "Failed to download contract",
+        type: toast.TYPE.ERROR,
+        isLoading: false,
+        autoClose: 2000,
+      });
+    }
+  };
 
   //! Effect
   useEffect(() => {
@@ -176,7 +211,11 @@ const GuestDetail = () => {
             </Box>
             <CommonStyles.Typography type="bold14" sx={{ color: "#777575" }}>
               Contract:
-              <CommonStyles.Button isIcon sx={{ color: "#000" }}>
+              <CommonStyles.Button
+                isIcon
+                sx={{ color: "#000" }}
+                onClick={downloadContract}
+              >
                 <CommonIcons.Download />
               </CommonStyles.Button>
             </CommonStyles.Typography>

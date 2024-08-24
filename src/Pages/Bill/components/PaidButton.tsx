@@ -43,6 +43,10 @@ const PaybillDialog = memo((props: IPayBillDialog) => {
     const { files } = values;
     const { setSubmitting } = formikHelper;
     setSubmitting(true);
+    const toastId = toast.loading("Uploading...", {
+      autoClose: false,
+      isLoading: true,
+    });
 
     try {
       const listPromise: any[] = [];
@@ -66,6 +70,13 @@ const PaybillDialog = memo((props: IPayBillDialog) => {
       }
 
       const listFile = await Promise.all(listPromise);
+
+      toast.update(toastId, {
+        render: "Upload successfully!",
+        type: "success",
+        isLoading: false,
+        autoClose: 3000,
+      });
       onConfirm({
         proves: listFile,
         payDate: values.paidDate.toDate(),
@@ -80,7 +91,11 @@ const PaybillDialog = memo((props: IPayBillDialog) => {
     <Formik initialValues={initialValue} onSubmit={handleSubmit}>
       {({ values, setFieldValue, isSubmitting }) => {
         return (
-          <Form>
+          <Form
+            onClick={(e) => {
+              e.stopPropagation();
+            }}
+          >
             <DialogTitle>
               <Box
                 display={"flex"}
@@ -214,7 +229,6 @@ const PaidButton = (props: IPaidButton) => {
         autoClose: 3000,
       });
     } catch (error) {
-      console.log(error);
       toast.update(toastId, {
         render: "Paid failed!",
         type: "error",
@@ -230,14 +244,23 @@ const PaidButton = (props: IPaidButton) => {
       {shouldRender && (
         <CommonStyles.Dialog
           open={open}
-          onClose={toggle}
+          onClose={(e: any) => {
+            e.stopPropagation();
+            toggle();
+          }}
           maxWidth="sm"
           toggle={toggle}
         >
           <PaybillDialog onConfirm={onClick} data={data} toggle={toggle} />
         </CommonStyles.Dialog>
       )}
-      <CommonStyles.Button variant="outlined" onClick={toggle}>
+      <CommonStyles.Button
+        variant="outlined"
+        onClick={(e) => {
+          e.stopPropagation();
+          toggle();
+        }}
+      >
         Pay bill
       </CommonStyles.Button>
     </Fragment>

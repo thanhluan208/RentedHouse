@@ -2,6 +2,8 @@ import { useCallback, useEffect, useState } from "react";
 import GuestService from "../Services/Guest.service";
 import { AxiosResponse } from "axios";
 import { OptionCommon } from "../Interfaces/common";
+import { RoomDetail } from "./useGetRoomDetail";
+import { BillResponse } from "./useGetBill";
 
 export interface GuestDetail {
   _id: string;
@@ -14,12 +16,13 @@ export interface GuestDetail {
   district: OptionCommon;
   address: string;
   contract: any[];
-  room: string;
+  room: RoomDetail;
   house: string;
   citizenIdFront?: string;
   citizenIdBack?: string;
   createdAt: Date;
   updatedAt: Date;
+  bills?: BillResponse[]
   __v: number;
 }
 

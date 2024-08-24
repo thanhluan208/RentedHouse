@@ -27,6 +27,12 @@ class guestService {
   getListGuest() {
     return httpServices.axios.get(baseGuestApi);
   }
+
+  downloadContract(id: string) {
+    return httpServices.axios.get(`${baseGuestApi}/${id}/download-contract`, {
+      responseType: "blob",
+    });
+  }
 }
 
 const GuestService = new guestService();
