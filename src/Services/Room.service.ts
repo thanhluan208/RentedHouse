@@ -37,7 +37,6 @@ class roomServices {
   }
 
   createRoom(room: RoomInitValues) {
-    console.log("Room created", this.parsePayloadCreateRoom(room));
     const payload = this.parsePayloadCreateRoom(room);
     return httpServices.axios.post(baseRoomApi, payload);
   }

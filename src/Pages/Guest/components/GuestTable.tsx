@@ -9,6 +9,8 @@ import { BillActionDialog } from "../../HouseDetail/components/GenBill/GenPdfBut
 import { CommonFilter } from "../../Home/interface";
 import { GuestDetail } from "../../../Hooks/useGetGuestDetail";
 import { Column } from "../../../Components/CommonStyles/Table";
+import DeleteGuest from "./DeleteGuest";
+import moment from "moment";
 
 interface IGuestTable {
   data: GuestDetail[];
@@ -59,7 +61,24 @@ const GuestTable = (props: IGuestTable) => {
       {
         id: "dob",
         label: "Date of Birth",
+        customRender: (row) => {
+          return (
+            <CommonStyles.Typography>
+              {row?.dob ? moment(row.dob).format('DD/MM/YYYY') : ''}
+            </CommonStyles.Typography>
+          )
+        }
       },
+      {
+        id:'action',
+        label: '',
+        customRender: (row) => {
+          return(
+            <DeleteGuest data={row} />
+          )
+        },
+        width:50
+      }
     ];
   }, []);
 

@@ -174,6 +174,9 @@ const TableExpenditure = () => {
             <CommonStyles.Table
               columns={columns}
               data={values.expenditures || []}
+              styleBody={{
+                minHeight: 'unset'
+              }}
             />
           );
         }}

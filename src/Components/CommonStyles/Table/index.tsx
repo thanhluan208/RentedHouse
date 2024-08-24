@@ -109,7 +109,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
           gap: 1,
           padding: 1,
           backgroundColor: "white",
-          borderRadius: 1,
+          borderRadius: '4px 4px 0 0 ',
         }}
       >
         {isArray(columns) &&
@@ -148,7 +148,6 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
                   gridTemplateColumns: gridTemplateColumns,
                   gap: 1,
                   padding: 1,
-                  borderRadius: 1,
                   backgroundColor: rowIndex % 2 === 0 ? "#f9f9f9" : "white",
                   transition: "all 0.3s",
                   "&:hover": {

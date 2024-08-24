@@ -10,7 +10,7 @@ import { useSave } from "../../Stores/useStore";
 import { useEffect } from "react";
 import cachedKeys from "../../Constants/cachedKeys";
 import AddGuestButton from "../Guest/components/AddGuestButton";
-import { capitalize } from "lodash";
+import { capitalize, isEmpty } from "lodash";
 import { toast } from "react-toastify";
 import GuestService from "../../Services/Guest.service";
 
@@ -26,7 +26,7 @@ const GuestDetail = () => {
 
   //! Function
   const downloadContract = async () => {
-    if (!guestId) return;
+    if (!guestId || isEmpty(data?.contract)) return;
     const toastId = toast.loading("Downloading contract ...", {
       isLoading: true,
       autoClose: false,
@@ -215,6 +215,7 @@ const GuestDetail = () => {
                 isIcon
                 sx={{ color: "#000" }}
                 onClick={downloadContract}
+                disabled={isEmpty(data.contract)}
               >
                 <CommonIcons.Download />
               </CommonStyles.Button>

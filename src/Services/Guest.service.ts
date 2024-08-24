@@ -33,6 +33,10 @@ class guestService {
       responseType: "blob",
     });
   }
+
+  deleteGuest(id: string) {
+    return httpServices.axios.delete(`${baseGuestApi}/${id}`)
+  }
 }
 
 const GuestService = new guestService();
