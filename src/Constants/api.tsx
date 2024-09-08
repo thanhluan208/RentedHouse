@@ -1,5 +1,5 @@
-const base = "https://rentedhousebe-production.up.railway.app";
-// const base = "http://localhost:3000";
+// const base = "https://rentedhousebe-production.up.railway.app";
+const base = "http://localhost:3000";
 
 //! House
 export const baseHouseApi = `${base}/house`;

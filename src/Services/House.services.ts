@@ -30,6 +30,10 @@ class houseServices {
   getHouseDetail(id: string) {
     return httpServices.axios.get(`${baseHouseApi}/${id}`);
   }
+
+  getHouseMoneyFlow(id: string) {
+    return httpServices.axios.get(`${baseHouseApi}/${id}/money-flow`);
+  }
 }
 
 const HouseServices = new houseServices();

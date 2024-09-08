@@ -122,6 +122,7 @@ const EachRoom = (props: IEachRoom) => {
             {data.guests.map((guest) => {
               return (
                 <Box
+                  key={guest._id}
                   sx={{
                     display: "flex",
                     alignItems: "center",

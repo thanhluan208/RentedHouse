@@ -22,6 +22,9 @@ const TableBill = () => {
       id: "id",
       label: "STT",
       width: 50,
+      customRender: (_, rowIndex) => {
+        return <CommonStyles.Typography type="bold14">{rowIndex + 1}</CommonStyles.Typography>;
+      }
     },
     {
       id: "name",

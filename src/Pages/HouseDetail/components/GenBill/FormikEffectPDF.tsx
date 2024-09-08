@@ -1,19 +1,28 @@
 import { useFormikContext } from "formik";
 import { PDFInitValues } from "./GenPdfButton";
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 import { isString } from "lodash";
 import { BillQuantityType } from "../../../../Interfaces/common";
+import { v4 as uuid } from "uuid";
 
 const FormikEffectPDF = () => {
   //! State
   const { values, setFieldValue } = useFormikContext<PDFInitValues>();
+  const isFirst = useRef(true);
   const { room } = values;
   //! Function
   useEffect(() => {
+    if (isFirst.current) {
+      isFirst.current = false;
+      return;
+    }
     if (!isString(room) && room?.price) {
-      if (room.price && values.bill.every((item) => item.name !== "Tiền phòng")) {
+      if (
+        room.price &&
+        values.bill.every((item) => item.name !== "Tiền phòng")
+      ) {
         values.bill.push({
-          id: `${values.bill.length + 1}`,
+          id: uuid(),
           name: "Tiền phòng",
           price: room.price,
           quantity: 1,
@@ -24,9 +33,12 @@ const FormikEffectPDF = () => {
         });
       }
 
-      if (room.electricityFee && values.bill.every((item) => item.name !== "Tiền điện")) {
+      if (
+        room.electricityFee &&
+        values.bill.every((item) => item.name !== "Tiền điện")
+      ) {
         values.bill.push({
-          id: `${values.bill.length + 1}`,
+          id: uuid(),
           name: "Tiền điện",
           price: room.electricityFee,
           quantity: 1,
@@ -37,9 +49,12 @@ const FormikEffectPDF = () => {
         });
       }
 
-      if (room.internetFee && values.bill.every((item) => item.name !== "Tiền internet")) {
+      if (
+        room.internetFee &&
+        values.bill.every((item) => item.name !== "Tiền internet")
+      ) {
         values.bill.push({
-          id: `${values.bill.length + 1}`,
+          id: uuid(),
           name: "Tiền internet",
           price: room.internetFee,
           quantity: 1,
@@ -50,9 +65,12 @@ const FormikEffectPDF = () => {
         });
       }
 
-      if (room.waterFee && values.bill.every((item) => item.name !== "Tiền nước")) {
+      if (
+        room.waterFee &&
+        values.bill.every((item) => item.name !== "Tiền nước")
+      ) {
         values.bill.push({
-          id: `${values.bill.length + 1}`,
+          id: uuid(),
           name: "Tiền nước",
           price: room.waterFee,
           quantity: 1,
@@ -63,9 +81,12 @@ const FormikEffectPDF = () => {
         });
       }
 
-      if (room.livingExpense && values.bill.every((item) => item.name !== "Phí sinh hoạt")) {
+      if (
+        room.livingExpense &&
+        values.bill.every((item) => item.name !== "Phí sinh hoạt")
+      ) {
         values.bill.push({
-          id: `${values.bill.length + 1}`,
+          id: uuid(),
           name: "Phí sinh hoạt",
           price: room.livingExpense,
           quantity: 1,
@@ -76,9 +97,12 @@ const FormikEffectPDF = () => {
         });
       }
 
-      if (room.parkingFee && values.bill.every((item) => item.name !== "Tiền đỗ xe")) {
+      if (
+        room.parkingFee &&
+        values.bill.every((item) => item.name !== "Tiền đỗ xe")
+      ) {
         values.bill.push({
-          id: `${values.bill.length + 1}`,
+          id: uuid(),
           name: "Tiền đỗ xe",
           price: room.parkingFee,
           quantity: 1,

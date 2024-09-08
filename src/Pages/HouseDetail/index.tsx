@@ -1,15 +1,15 @@
 import { Box, CircularProgress } from "@mui/material";
-import CommonStyles from "../../Components/CommonStyles";
-import useGetHouse from "../../Hooks/useGetHouse";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
-import { useSave } from "../../Stores/useStore";
-import cachedKeys from "../../Constants/cachedKeys";
-import CommonIcons from "../../Components/CommonIcons";
 import AddRoomButton from "./components/AddRoomButton";
-import EachRoom from "./components/EachRoom";
-import { isEmpty } from "lodash";
 import GenPdfButton from "./components/GenBill/GenPdfButton";
+import { useSave } from "@/Stores/useStore";
+import useGetHouse from "@/Hooks/useGetHouse";
+import cachedKeys from "@/Constants/cachedKeys";
+import CommonStyles from "@/Components/CommonStyles";
+import CommonIcons from "@/Components/CommonIcons";
+import RoomList from "./RoomList";
+import IncomeAndExpense from "./components/IncomeAndExpense";
 
 const HouseDetail = () => {
   //! State
@@ -25,8 +25,13 @@ const HouseDetail = () => {
   }, [refetch]);
 
   //! Render
+
   if (isLoading) {
     return <CircularProgress />;
+  }
+
+  if (!data) {
+    return null;
   }
 
   return (
@@ -63,32 +68,13 @@ const HouseDetail = () => {
 
       <Box
         sx={{
-          padding: "20px",
-          maxWidth: "1400px",
-          display: "flex",
-          gap: "20px",
-          flexWrap: "wrap",
-          rowGap: "10px",
+          padding: "0 20px",
         }}
       >
-        {isEmpty(data?.rooms) && (
-          <Box
-            sx={{
-              width: "100%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "600px",
-              position: "relative",
-            }}
-          >
-            <CommonStyles.Empty content="No room found, Create one!" />
-          </Box>
-        )}
-        {data?.rooms?.map((room) => {
-          return <EachRoom key={room._id} data={room} />;
-        })}
+        <IncomeAndExpense />
       </Box>
+
+      <Box padding="0 20px">{data && <RoomList data={data} />}</Box>
     </Box>
   );
 };

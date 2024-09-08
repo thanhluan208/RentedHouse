@@ -118,7 +118,6 @@ export const BillActionDialog = (props: IBillActionDialog) => {
     setSubmitting(true);
     try {
       if (dataBill?.id) {
-        console.log("dataBill", dataBill.id);
         const response = await BillServices.genPDf(dataBill.id);
 
         generatePDF(response.data.template)
@@ -132,6 +131,7 @@ export const BillActionDialog = (props: IBillActionDialog) => {
     }
     setSubmitting(false);
   };
+
   const handleSubmit = useCallback(
     async (
       values: PDFInitValues,

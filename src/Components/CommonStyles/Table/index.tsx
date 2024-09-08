@@ -141,7 +141,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
             return (
               <Box
                 onClick={() => props.onClickRow && props.onClickRow(row)}
-                key={`row_${row?._id}`}
+                key={`row_${row?._id || row?.id}`}
                 sx={{
                   display: "grid",
                   alignItems: "center",

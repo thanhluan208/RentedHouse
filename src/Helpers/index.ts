@@ -25,7 +25,7 @@ export const formatDate = (date: Date, format = "Do MMMM YYYY") => {
 
 export const removeAllDot = (str: string) => {
   if(!str) return 0
-  return str.replace(/\./g, "");
+  return `${str}`.replace(/\./g, "");
 };
 
 export function numberToVietnameseText(number: number) {

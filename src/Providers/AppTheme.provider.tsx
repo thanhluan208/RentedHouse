@@ -20,7 +20,6 @@ const lightTheme: any = createTheme({
 
   typography: {
     // fontFamily: ['Epilogue, sans-serif'].join(','),
-    fontFamily: "SegoeUI",
   },
   components: {
     MuiCssBaseline: {

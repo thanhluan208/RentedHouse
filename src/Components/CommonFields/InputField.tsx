@@ -54,7 +54,10 @@ function InputField(props: IInputField & FieldProps & TextFieldProps) {
         onChangeCustomize(event);
         return;
       } else if (isPrice) {
-        const value = removeAllDot(event.target.value).replace(/[^0-9]/g, "");
+        const value = `${removeAllDot(event.target.value)}`.replace(
+          /[^0-9]/g,
+          ""
+        );
         setFieldValue(name, Number(value).toLocaleString("vi-VN"));
       } else {
         if (maxChar && event?.target?.value?.length >= maxChar) {

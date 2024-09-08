@@ -31,6 +31,7 @@ const Typography = (props: ITypography & TypographyProps) => {
       fontWeight: 400,
     });
     
+    
     styles.set("bold16", {
       fontSize: "16px",
       fontWeight: 600,
