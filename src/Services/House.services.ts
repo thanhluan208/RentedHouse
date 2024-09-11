@@ -31,8 +31,8 @@ class houseServices {
     return httpServices.axios.get(`${baseHouseApi}/${id}`);
   }
 
-  getHouseMoneyFlow(id: string) {
-    return httpServices.axios.get(`${baseHouseApi}/${id}/money-flow`);
+  getHouseMoneyFlow(id: string, year: string) {
+    return httpServices.axios.get(`${baseHouseApi}/${id}/money-flow?year=${year}`);
   }
 }
 

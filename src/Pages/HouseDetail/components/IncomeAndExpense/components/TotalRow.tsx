@@ -57,6 +57,7 @@ const TotalRow = (props: ITotalRow) => {
           alignItems: "center",
           justifyContent: "center",
           position: "sticky",
+          background: "#363636",
           left: 0,
           zIndex: 1000,
           borderRadius: "0 0 8x 8px",

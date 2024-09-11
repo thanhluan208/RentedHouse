@@ -7,14 +7,21 @@ import { capitalize } from "lodash";
 import NavItem from "./Components/NavItem";
 import PerfectScrollbar from "react-perfect-scrollbar";
 import CreateHouseButton from "./Components/CreateHouseButton";
-
-export const sidebarWidth = 232;
+import CommonIcons from "../CommonIcons";
+import { useGet, useSave } from "@/Stores/useStore";
 
 function DefaultLayout() {
   //! State
   const theme: any = useTheme();
+  const save = useSave();
+
+  const open = useGet("OPEN_SIDEBAR");
+  const sidebarWidth = open ? 232 : 0;
 
   //! Function
+  const setOpen = (value: boolean) => {
+    save("OPEN_SIDEBAR", value);
+  };
 
   //! Render
   return (
@@ -23,8 +30,35 @@ function DefaultLayout() {
         height: "100vh",
         width: "100vw",
         display: "flex",
+        position: "relative",
       }}
     >
+      {!open && (
+        <Box
+          sx={{
+            position: "absolute",
+            height: "100%",
+            zIndex: 10000,
+            left: 0,
+            top: 0,
+            opacity: 0,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            transition: "all 0.3s",
+            "&:hover": {
+              opacity: 1,
+              background: 'rgba(0, 0, 0, 0.6)',
+            },
+            background: 'rgba(0, 0, 0, 0.3)',
+            borderRadius: '0 10px 10px 0',
+            cursor: 'pointer'
+          }}
+          onClick={() => setOpen(true)}
+        >
+            <CommonIcons.KeyboardDoubleArrowRight />
+        </Box>
+      )}
       <PerfectScrollbar
         style={{
           maxHeight: "100vh",
@@ -34,7 +68,8 @@ function DefaultLayout() {
           sx={{
             width: sidebarWidth,
             height: "100%",
-            padding: "24px 16px",
+            padding: open ? "24px 16px" : "0",
+            transition: "all 0.3s",
           }}
         >
           <Box
@@ -50,9 +85,20 @@ function DefaultLayout() {
                 gap: "8px",
                 height: "40px",
                 alignItems: "center",
+                justifyContent: "space-between",
               }}
             >
-              <CommonStyles.Typography type="bold24">Dashboard</CommonStyles.Typography>
+              <CommonStyles.Typography type="bold24">
+                Dashboard
+              </CommonStyles.Typography>
+              <CommonStyles.Button
+                isIcon
+                onClick={() => {
+                  setOpen(false);
+                }}
+              >
+                <CommonIcons.KeyboardDoubleArrowLeft />
+              </CommonStyles.Button>
             </Box>
             <Box sx={{ height: "40px" }}>
               <CreateHouseButton />
@@ -99,7 +145,6 @@ function DefaultLayout() {
                 </Box>
               );
             })}
-            
           </Box>
         </Box>
       </PerfectScrollbar>
@@ -109,6 +154,7 @@ function DefaultLayout() {
           height: "100vh",
           overflowY: "auto",
           backgroundColor: theme.colors.custom.backgroundSecondary,
+          transition: "all 0.3s",
         }}
       >
         <Outlet />

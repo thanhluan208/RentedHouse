@@ -23,12 +23,11 @@ const RoomList = (props: IRoomList) => {
   return (
     <Box
       sx={{
-        maxWidth: "1400px",
         display: "flex",
         gap: "20px",
         flexDirection: "column",
         borderRadius: "12px",
-        marginTop: "30px",
+        margin:"30px auto",
         [theme.breakpoints.down("md")]: {
           background: "transparent",
         },

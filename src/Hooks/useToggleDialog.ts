@@ -29,6 +29,10 @@ const useToggleDialog = () => {
 
   useEffect(() => {
     save(cachedKeys.DIALOG_OPEN, open);
+
+    return () => {
+      save(cachedKeys.DIALOG_OPEN, false);
+    };
   }, [open]);
 
   return { open, toggle, shouldRender, setStateDialog };

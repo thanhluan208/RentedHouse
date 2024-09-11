@@ -123,17 +123,9 @@ const EachRow = (props: IEachRow) => {
                 padding: col.shouldDisplay ? "15px 10px" : "0",
               }}
             >
-              {isEditing ? (
-                <FastField
-                  name={`${name}.${col.id}.income`}
-                  component={CommonField.InputField}
-                  isPrice
-                />
-              ) : (
-                <CommonStyles.Typography type="bold16">
+              <CommonStyles.Typography type="bold16">
                   {income.toLocaleString("vi-VN")}
                 </CommonStyles.Typography>
-              )}
             </Box>
             <Box
               key={col.id + row.content}

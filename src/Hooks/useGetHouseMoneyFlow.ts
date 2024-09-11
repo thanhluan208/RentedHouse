@@ -25,15 +25,15 @@ export interface MonthData {
   expense: number;
 }
 
-const useGetHouseMoneyFlow = (id: string, isTrigger = true) => {
+const useGetHouseMoneyFlow = (id: string, year: string, isTrigger = true) => {
   const [data, setData] = useState<MoneyFlowResponse[] | null>(null);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();
 
   const callApi = useCallback(() => {
     if (!id) return;
-    return HouseServices.getHouseMoneyFlow(id);
-  }, [id]);
+    return HouseServices.getHouseMoneyFlow(id, year);
+  }, [id, year]);
 
   const transformResponse = useCallback(
     (response?: AxiosResponse<MoneyFlowResponse[]>) => {
@@ -51,7 +51,7 @@ const useGetHouseMoneyFlow = (id: string, isTrigger = true) => {
     } catch (error: any) {
       setError(error);
     }
-  }, []);
+  }, [callApi]);
 
   useEffect(() => {
     let shouldSetData = true;
@@ -76,7 +76,7 @@ const useGetHouseMoneyFlow = (id: string, isTrigger = true) => {
         shouldSetData = false;
       };
     }
-  }, [isTrigger]);
+  }, [isTrigger,callApi]);
 
   return {
     data,

@@ -2,6 +2,7 @@ import { useCallback, useEffect } from "react";
 import { IncomeAndExpenseColumn } from "./type";
 import { cloneDeep } from "lodash";
 import { MoneyFlowResponse } from "@/Hooks/useGetHouseMoneyFlow";
+import { useGet } from "@/Stores/useStore";
 
 const minWidthCell = 200;
 
@@ -9,12 +10,13 @@ const useCalculateTable = (
   columns: IncomeAndExpenseColumn[],
   data: MoneyFlowResponse[]
 ) => {
+  const sideBarOpen = useGet("OPEN_SIDEBAR");
   const calculateTable = useCallback(() => {
     const activeCol =
       cloneDeep(columns).filter((col) => col.shouldDisplay).length - 1;
 
     const windowWidth = window.innerWidth;
-    const maxWidthTable = windowWidth - 232 - 40;
+    const maxWidthTable = windowWidth - (sideBarOpen ? 232 : 0) - 40;
 
     const widthCell = Math.max((maxWidthTable - 250) / activeCol, minWidthCell);
 
@@ -69,7 +71,7 @@ const useCalculateTable = (
         }
       }
     }
-  }, [columns, JSON.stringify(data)]);
+  }, [columns, JSON.stringify(data), sideBarOpen]);
 
   useEffect(() => {
     calculateTable();

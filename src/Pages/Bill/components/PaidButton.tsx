@@ -126,7 +126,6 @@ const PaybillDialog = memo((props: IPayBillDialog) => {
               <FastField
                 name="paidDate"
                 component={CommonField.DatePickerField}
-                disableFuture
                 label="Pay date"
               />
               <CommonStyles.FilesUpload

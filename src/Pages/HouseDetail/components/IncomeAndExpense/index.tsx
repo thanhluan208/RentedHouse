@@ -22,6 +22,8 @@ import useGetHouseMoneyFlow, {
   MoneyFlowResponse,
 } from "@/Hooks/useGetHouseMoneyFlow";
 import TotalRow from "./components/TotalRow";
+import moment from "moment";
+import Chart from "./components/Chart";
 
 const columns = [
   {
@@ -208,6 +210,7 @@ const IncomeAndExpense = () => {
   const [column, setColumn] = useState<IncomeAndExpenseColumn[]>(
     isString(columnLocal) ? JSON.parse(columnLocal) : columns
   );
+  const [year, setYear] = useState(moment());
   const arrayHelperRef = useRef<any>(null);
   const formikRef = useRef<any>(null);
   const save = useSave();
@@ -215,7 +218,10 @@ const IncomeAndExpense = () => {
   const params = useParams();
   const houseId = params.id;
 
-  const { data, refetch } = useGetHouseMoneyFlow(houseId as string);
+  const { data, refetch } = useGetHouseMoneyFlow(
+    houseId as string,
+    year.format("YYYY")
+  );
 
   const initialValues: {
     incomeAndExpenses: MoneyFlowResponse[];
@@ -238,7 +244,8 @@ const IncomeAndExpense = () => {
     try {
       const payload = HouseModel.parsedPayloadAddRoom(
         houseId as string,
-        values
+        values,
+        cloneDeep(year).format("YYYY")
       );
 
       await httpServices.post(`${baseHouseApi}/update-money-flow`, payload);
@@ -272,7 +279,7 @@ const IncomeAndExpense = () => {
         ...values.incomeAndExpenses,
         {
           id: uuid(),
-          ...cloneDeep(initvalueDefault)
+          ...cloneDeep(initvalueDefault),
         },
       ]);
     }
@@ -314,6 +321,13 @@ const IncomeAndExpense = () => {
         <CommonStyles.Typography type="bold24">
           Income & Expense
         </CommonStyles.Typography>
+        <CommonStyles.DatePickerCommon
+          value={year}
+          views={["year"]}
+          handleChange={(value) => {
+            setYear(value);
+          }}
+        />
         <Box
           sx={{
             display: "flex",
@@ -453,7 +467,7 @@ const IncomeAndExpense = () => {
                           return (
                             <EachRow
                               name={`incomeAndExpenses.${index}`}
-                              key={(row._id ?? row?.id) + index}
+                              key={(row._id ?? row?.id) + `index${index}`}
                               column={column}
                               row={row}
                               borderRadius={borderRadius}
@@ -478,6 +492,18 @@ const IncomeAndExpense = () => {
       </Box>
 
       <AddRowButton handleAddRow={handleAddRow} />
+
+      <Box
+        sx={{
+          marginTop: "40px",
+          display: "flex",
+          div: {
+            borderRadius: "8px",
+          },
+        }}
+      >
+        {data && <Chart data={data} />}
+      </Box>
     </Box>
   );
 };

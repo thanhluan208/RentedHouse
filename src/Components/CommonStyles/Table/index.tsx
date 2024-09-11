@@ -134,14 +134,14 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
           ...styleBody,
         }}
       >
-        {isEmpty(data) && <CommonStyles.Empty content="No house found!" />}
+        {isEmpty(data) && <CommonStyles.Empty content="No data found!" />}
 
         {isArray(data) &&
           data.map((row, rowIndex) => {
             return (
               <Box
                 onClick={() => props.onClickRow && props.onClickRow(row)}
-                key={`row_${row?._id || row?.id}`}
+                key={`row_${row?._id || row?.id || rowIndex}`}
                 sx={{
                   display: "grid",
                   alignItems: "center",

@@ -24,7 +24,7 @@ export const formatDate = (date: Date, format = "Do MMMM YYYY") => {
 };
 
 export const removeAllDot = (str: string) => {
-  if(!str) return 0
+  if (!str) return 0;
   return `${str}`.replace(/\./g, "");
 };
 
@@ -118,3 +118,34 @@ export function urlToBase64(url: string, callback: any) {
   };
   xhr.send();
 }
+
+export const monthTextToNum = (month: string) => {
+  switch (month) {
+    case "January":
+      return 1;
+    case "February":
+      return 2;
+    case "March":
+      return 3;
+    case "April":
+      return 4;
+    case "May":
+      return 5;
+    case "June":
+      return 6;
+    case "July":
+      return 7;
+    case "August":
+      return 8;
+    case "September":
+      return 9;
+    case "October":
+      return 10;
+    case "November":
+      return 11;
+    case "December":
+      return 12;
+    default:
+      return 1;
+  }
+};

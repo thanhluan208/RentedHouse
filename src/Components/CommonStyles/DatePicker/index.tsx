@@ -1,4 +1,4 @@
-import { Box, useTheme } from "@mui/material";
+import { Box, SxProps, useTheme } from "@mui/material";
 import { DatePicker, DatePickerProps } from "@mui/x-date-pickers/DatePicker";
 import CommonStyles from "..";
 import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
@@ -10,11 +10,12 @@ interface IDatePickerCommon {
   label?: string;
   required?: boolean;
   handleChange: (value: any, context: PickerChangeHandlerContext<DateValidationError>) => void
+  sxContainer?: SxProps;
 }
 
 const DatePickerCommon = (props: IDatePickerCommon & DatePickerProps<any>) => {
   //! State
-  const { label, required, value, handleChange, ...otherProps } = props;
+  const { label, required, value, handleChange,sxContainer ,...otherProps } = props;
   const theme: any = useTheme();
   //! Function
 
@@ -26,6 +27,7 @@ const DatePickerCommon = (props: IDatePickerCommon & DatePickerProps<any>) => {
         input: {
           padding: "8px 32px 8px 16px",
         },
+        ...sxContainer
       }}
     >
       {label && (
