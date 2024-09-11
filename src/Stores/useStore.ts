@@ -4,7 +4,9 @@ import cachedKeys from "../Constants/cachedKeys";
 export type AllQueryKeys = keyof typeof cachedKeys;
 
 const useStore = create<{ [key: string]: any }>((set) => ({
-  state: {},
+  state: {
+    [cachedKeys.OPEN_SIDEBAR]: true,
+  },
   save: (key: AllQueryKeys, value: any, isFunction: boolean) => {
     if (isFunction) {
       return set((rootState) => ({
