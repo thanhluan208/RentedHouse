@@ -12,6 +12,7 @@ import AddGuestButton from "../../Guest/components/AddGuestButton";
 import { Paths } from "../../../Constants/routes";
 import { HouseStatusEnum } from "../../../Services/House.services";
 import { Room } from "../../Home/interface";
+import EditButton from "./EditButton";
 
 interface IEachRoom {
   data: Room;
@@ -90,7 +91,13 @@ const EachRoom = (props: IEachRoom) => {
           <CommonStyles.Typography type="bold18">
             Room: {data.name}
           </CommonStyles.Typography>
-          <DeleteButton data={data} />
+          <Box sx={{
+            display:'flex',
+            gap:'8px'
+          }}>
+            <EditButton data={data} />
+            <DeleteButton data={data} />
+          </Box>
         </Box>
         <Divider />
         <Box

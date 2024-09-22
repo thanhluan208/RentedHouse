@@ -7,11 +7,12 @@ import { PDFInitValues } from "./GenPdfButton";
 
 interface IRoomSelect {
   houseId: string;
+  disabled?: boolean;
 }
 
 const RoomSelect = (props: IRoomSelect) => {
   //! State
-  const { houseId } = props;
+  const { houseId, disabled } = props;
   const { values } = useFormikContext<PDFInitValues>();
   const { data, isLoading } = useGetRoomsByHouse(houseId);
   const { guest } = values;
@@ -39,7 +40,7 @@ const RoomSelect = (props: IRoomSelect) => {
       required
       options={options}
       placeholder={"Select Room"}
-      disabled={isLoading}
+      disabled={isLoading || disabled}
     />
   );
 };

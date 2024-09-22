@@ -1,4 +1,4 @@
-import { Box, } from "@mui/material";
+import { Box } from "@mui/material";
 import { FastField, useFormikContext } from "formik";
 import CommonField from "../../../../Components/CommonFields";
 import { BillQuantityType } from "../../../../Interfaces/common";
@@ -6,11 +6,12 @@ import { PDFInitValues } from "./GenPdfButton";
 
 interface IInputQuantity {
   rowIndex: number;
+  disabled?: boolean;
 }
 
 const InputQuantity = (props: IInputQuantity) => {
   //! State
-  const { rowIndex } = props;
+  const { rowIndex, disabled } = props;
   const { values } = useFormikContext<PDFInitValues>();
   //! Function
 
@@ -24,6 +25,7 @@ const InputQuantity = (props: IInputQuantity) => {
           component={CommonField.InputField}
           tooltipLabel="Start month quantity"
           type="number"
+          disabled={disabled}
         />
         <FastField
           name={`bill.${rowIndex}.endMonthQuantity`}
@@ -31,6 +33,7 @@ const InputQuantity = (props: IInputQuantity) => {
           component={CommonField.InputField}
           tooltipLabel="End month quantity"
           type="number"
+          disabled={disabled}
         />
       </Box>
     );
@@ -43,6 +46,7 @@ const InputQuantity = (props: IInputQuantity) => {
         placeholder="1000"
         component={CommonField.InputField}
         type="number"
+        disabled={disabled}
       />
     </Box>
   );

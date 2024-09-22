@@ -328,17 +328,22 @@ const IncomeAndExpense = () => {
             setYear(value);
           }}
         />
-        <Box
-          sx={{
-            display: "flex",
-            gap: "8px",
-            alignItems: "center",
-          }}
-        >
-          <EditColumnButton column={column} setColumn={setColumn} />
-          <EditButton />
-        </Box>
+       
       </Box>
+
+      <Box
+        sx={{
+          marginTop: "40px",
+          display: "flex",
+          div: {
+            borderRadius: "8px",
+          },
+        }}
+      >
+        {data && <Chart data={data} />}
+      </Box>
+
+      
 
       <Box
         sx={{
@@ -348,6 +353,19 @@ const IncomeAndExpense = () => {
           marginTop: "20px",
         }}
       >
+        <Box
+          sx={{
+            display: "flex",
+            gap: "8px",
+            alignItems: "center",
+            marginBottom: "20px",
+            justifyContent: "flex-end",
+          }}
+        >
+          <EditColumnButton column={column} setColumn={setColumn} />
+          <EditButton />
+        </Box>
+
         <Box
           id="header-grid"
           className="table-width "
@@ -493,17 +511,7 @@ const IncomeAndExpense = () => {
 
       <AddRowButton handleAddRow={handleAddRow} />
 
-      <Box
-        sx={{
-          marginTop: "40px",
-          display: "flex",
-          div: {
-            borderRadius: "8px",
-          },
-        }}
-      >
-        {data && <Chart data={data} />}
-      </Box>
+      
     </Box>
   );
 };

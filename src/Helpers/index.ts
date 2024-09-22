@@ -23,7 +23,7 @@ export const formatDate = (date: Date, format = "Do MMMM YYYY") => {
   return moment(date).format(format);
 };
 
-export const removeAllDot = (str: string) => {
+export const removeAllDot = (str: string | number) => {
   if (!str) return 0;
   return `${str}`.replace(/\./g, "");
 };

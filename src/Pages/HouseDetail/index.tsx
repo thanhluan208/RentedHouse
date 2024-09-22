@@ -60,7 +60,7 @@ const HouseDetail = () => {
         </Box>
         {data?._id && (
           <Box sx={{ display: "flex", gap: "8px" }}>
-            <AddRoomButton houseData={data} />
+            <AddRoomButton houseId={data._id} />
             <GenPdfButton houseData={data} />
           </Box>
         )}

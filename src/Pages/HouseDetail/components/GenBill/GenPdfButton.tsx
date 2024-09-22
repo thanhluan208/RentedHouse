@@ -56,6 +56,10 @@ export const BillActionDialog = (props: IBillActionDialog) => {
   const dataBill: PDFInitValues = useGet("BILL_DETAIL");
   const refetch = useGet(refetchKey as any);
 
+  const isPaid = useMemo(() => {
+    return dataBill?.status?.toLowerCase() === "paid";
+  }, [dataBill]);
+
   const initialValues: PDFInitValues = useMemo(() => {
     return {
       id: dataBill?.id || undefined,
@@ -120,7 +124,7 @@ export const BillActionDialog = (props: IBillActionDialog) => {
       if (dataBill?.id) {
         const response = await BillServices.genPDf(dataBill.id);
 
-        generatePDF(response.data.template)
+        generatePDF(response.data.template);
       } else {
         const dd = await compareBill(values);
 
@@ -137,7 +141,7 @@ export const BillActionDialog = (props: IBillActionDialog) => {
       values: PDFInitValues,
       formikHelpers?: FormikHelpers<PDFInitValues>
     ) => {
-      if (!formikHelpers) return;
+      if (!formikHelpers || isPaid) return;
       const isUpdate = !!dataBill;
 
       const toastLoadingText = isUpdate
@@ -217,10 +221,8 @@ export const BillActionDialog = (props: IBillActionDialog) => {
         });
       }
     },
-    [toggle, refetch]
+    [toggle, refetch, isPaid]
   );
-
-  const unpaidBill = useCallback(() => {}, []);
 
   //! Effect
   useEffect(() => {
@@ -285,11 +287,6 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                                 ? "success"
                                 : "warning"
                             }
-                            onDelete={
-                              dataBill?.status?.toLowerCase() === "unpaid"
-                                ? undefined
-                                : unpaidBill
-                            }
                           />
                         </Fragment>
                       ) : (
@@ -320,27 +317,32 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                   >
                     <RoomSelect
                       houseId={houseData?._id || dataBill?.room?.house || ""}
+                      disabled={isPaid}
                     />
                     <GuestSelect
                       houseId={houseData?._id || dataBill?.room?.house || ""}
+                      disabled={isPaid}
                     />
                     <FastField
                       name="fromDate"
                       component={CommonField.DatePickerField}
                       label="From Date"
+                      disabled={isPaid}
                     />
                     <FastField
                       name="toDate"
                       component={CommonField.DatePickerField}
                       label="To Date"
+                      disabled={isPaid}
                     />
                   </Box>
-                  <TableBill />
+                  <TableBill disabled={isPaid} />
                   <CommonStyles.FilesUpload
                     label="Upload Images"
                     files={values.images}
                     dropzoneProps={{
                       onDrop: (acceptedFiles) => {
+                        if (isPaid) return;
                         const newImages = values.images?.concat(acceptedFiles);
                         setFieldValue("images", newImages);
                       },
@@ -350,7 +352,7 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                       maxFiles: 10,
                     }}
                     handleDeleteFile={(index) => {
-                      if (!values.images) return;
+                      if (!values.images || isPaid) return;
                       const newFiles = values.images.filter(
                         (_, i) => i !== index
                       );
@@ -433,17 +435,19 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                   >
                     Cancel
                   </CommonStyles.Button>
-                  <CommonStyles.Button
-                    variant="contained"
-                    sx={{
-                      color: "#fff",
-                    }}
-                    type="submit"
-                    isLoading={isSubmitting}
-                    disabled={isSubmitting || !isEmpty(errors) || !dirty}
-                  >
-                    {dataBill ? "Update" : "Create"}
-                  </CommonStyles.Button>
+                  {!isPaid && (
+                    <CommonStyles.Button
+                      variant="contained"
+                      sx={{
+                        color: "#fff",
+                      }}
+                      type="submit"
+                      isLoading={isSubmitting}
+                      disabled={isSubmitting || !isEmpty(errors) || !dirty}
+                    >
+                      {dataBill ? "Update" : "Create"}
+                    </CommonStyles.Button>
+                  )}
                 </Box>
               </DialogActions>
             </Box>

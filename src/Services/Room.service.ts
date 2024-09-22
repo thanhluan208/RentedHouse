@@ -1,3 +1,4 @@
+import { isString } from "lodash";
 import { baseRoomApi } from "../Constants/api";
 import { removeAllDot } from "../Helpers";
 import { GuestInitValue } from "../Pages/Guest/components/AddGuestButton";
@@ -14,22 +15,24 @@ class roomServices {
     return {
       house: room.house,
       name: room.name,
-      price: removeAllDot(room.price),
+      price: Number(removeAllDot(room.price)),
       maxGuest: room.maxGuest,
       size: room.size,
-      status: room.status.value.toUpperCase(),
+      status: isString(room?.status)
+        ? room?.status.toUpperCase()
+        : room?.status?.value?.toUpperCase(),
       guests: room.guests,
-      electricityFee: removeAllDot(room.electricityFee),
-      waterFee: removeAllDot(room.waterFee),
-      internetFee: removeAllDot(room.internetFee),
-      livingExpense: removeAllDot(room.livingExpense),
-      parkingFee: removeAllDot(room.parkingFee),
+      electricityFee: Number(removeAllDot(room.electricityFee)),
+      waterFee: Number(removeAllDot(room.waterFee)),
+      internetFee: Number(removeAllDot(room.internetFee)),
+      livingExpense: Number(removeAllDot(room.livingExpense)),
+      parkingFee: Number(removeAllDot(room.parkingFee)),
       expenditure: room.expenditures?.map((expenditure) => {
         return {
           name: expenditure.name,
-          price: removeAllDot(expenditure.price + ""),
+          price: Number(removeAllDot(expenditure.price + "")),
           unit: expenditure.unit,
-          unitPrice: removeAllDot(expenditure.unitPrice + ""),
+          unitPrice: Number(removeAllDot(expenditure.unitPrice + "")),
           quantity: expenditure.quantity,
         };
       }),
@@ -62,6 +65,12 @@ class roomServices {
 
   getListRoom() {
     return httpServices.axios.get(baseRoomApi);
+  }
+
+  updateRoom(id: string, room: RoomInitValues) {
+    if (!id) return;
+    const payload = this.parsePayloadCreateRoom(room);
+    return httpServices.axios.patch(`${baseRoomApi}/${id}`, payload);
   }
 }
 

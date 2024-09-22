@@ -39,7 +39,8 @@ class Services {
       async (error) => {
         console.log("error", error);
         if (error.response.status === 401) {
-          localStorage.clear();
+          localStorage.removeItem(ACCESS_TOKEN_KEY);
+          window.location.reload();
         }
         //! Handling retry when token expired
         // if (

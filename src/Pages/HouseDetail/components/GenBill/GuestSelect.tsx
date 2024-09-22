@@ -8,11 +8,12 @@ import { RoomDetail } from "../../../../Hooks/useGetRoomDetail";
 
 interface IGuestSelect {
   houseId: string;
+  disabled?: boolean;
 }
 
 const GuestSelect = (props: IGuestSelect) => {
   //! State
-  const { houseId } = props;
+  const { houseId, disabled } = props;
   const { values } = useFormikContext<PDFInitValues>();
   const { data, isLoading } = useGetListGuest(houseId);
 
@@ -47,7 +48,7 @@ const GuestSelect = (props: IGuestSelect) => {
       sxContainer={{
         width: "150px",
       }}
-      disabled={isLoading}
+      disabled={isLoading || disabled}
       placeholder={"Select Guest"}
     />
   );

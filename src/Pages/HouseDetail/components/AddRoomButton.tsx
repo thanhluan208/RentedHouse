@@ -10,7 +10,7 @@ import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import CommonIcons from "../../../Components/CommonIcons";
 import { isEmpty } from "lodash";
 import { useGet } from "../../../Stores/useStore";
-import { House } from "../../Home/interface";
+import { Room } from "../../Home/interface";
 import FormikEffect from "./FormikEffect";
 import RoomInformations from "./AddRoomDialog/RoomInformations";
 import RoomFee from "./AddRoomDialog/RoomFee";
@@ -22,34 +22,34 @@ import { Expenditure } from "../../../Hooks/useGetRoomDetail";
 
 interface IRoomActionDialog {
   toggle: () => void;
-  houseData: House;
-  data?: any;
+  houseId: string;
+  data?: Room;
 }
 
 export interface RoomInitValues {
   house: string;
   name: string;
-  price: string;
+  price: string | number;
   size: number;
   maxGuest: number;
-  status: {
-    value: string;
-    label: string;
-  };
+  status:
+    | {
+        value: string;
+        label: string;
+      }
+    | string;
   guests:
     | {
         name: string;
       }[]
     | [];
-  electricityFee: string;
-  waterFee: string;
-  internetFee: string;
-  livingExpense: string;
-  parkingFee: string;
+  electricityFee: string | number;
+  waterFee: string | number;
+  internetFee: string | number;
+  livingExpense: string | number;
+  parkingFee: string | number;
   expenditures?: Expenditure[];
 }
-
-
 
 export interface GuestInit {
   id: string;
@@ -58,13 +58,14 @@ export interface GuestInit {
 
 export const RoomActionDialog = (props: IRoomActionDialog) => {
   //! State
-  const { toggle, data, houseData } = props;
+  const { toggle, data, houseId } = props;
   const isEdit = !!data;
   const refetchHouseDetail = useGet("REFETCH_HOUST_DETAIL");
+  const refetchListRoom = useGet("REFETCH_HOUST_DETAIL");
 
   const initialValues: RoomInitValues = useMemo(() => {
     return {
-      house: houseData._id,
+      house: houseId,
       name: data?.name ? data.name : "",
       price: data?.price ? data.price : 0,
       maxGuest: data?.maxGuest ? data.maxGuest : 0,
@@ -78,8 +79,8 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
       internetFee: data?.internetFee ? data.internetFee : 0,
       livingExpense: data?.livingExpense ? data.livingExpense : 0,
       parkingFee: data?.parkingFee ? data.parkingFee : 0,
-      expenditures: data?.expenditures
-        ? data.expenditures
+      expenditures: data?.expenditure
+        ? data.expenditure
         : [
             {
               id: "1",
@@ -91,7 +92,7 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
             },
           ],
     };
-  }, [data, houseData._id]);
+  }, [data, houseId]);
 
   const validationSchema = useMemo(() => {
     return yup.object().shape({
@@ -130,9 +131,14 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
       const toastId = toast.loading("Processing...");
 
       try {
-        await RoomServices.createRoom(values);
+        if (data) {
+          await RoomServices.updateRoom(data._id, values);
+        } else {
+          await RoomServices.createRoom(values);
+        }
 
-        await refetchHouseDetail();
+        refetchHouseDetail && (await refetchHouseDetail());
+        refetchListRoom && (await refetchListRoom());
 
         toggle();
 
@@ -143,7 +149,7 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
           autoClose: 2000,
         });
       } catch (error) {
-        console.log('error', error);
+        console.log("error", error);
         toast.update(toastId, {
           render: "Failed!",
           type: "error",
@@ -152,7 +158,7 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
         });
       }
     },
-    [data, houseData]
+    [data]
   );
 
   //! Render
@@ -164,8 +170,10 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
       validateOnChange
       validateOnBlur
       validateOnMount
+      enableReinitialize
     >
-      {({ isSubmitting, errors, dirty }) => {
+      {({ isSubmitting, errors, dirty, submitForm }) => {
+        console.log("errors", errors);
         return (
           <Form
             style={{
@@ -253,6 +261,7 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
                       }}
                       type="submit"
                       isLoading={isSubmitting}
+                      onClick={submitForm}
                       disabled={isSubmitting || !isEmpty(errors) || !dirty}
                     >
                       Confirm
@@ -269,12 +278,12 @@ export const RoomActionDialog = (props: IRoomActionDialog) => {
 };
 
 interface IAddRoomButton {
-  houseData: House;
+  houseId: string;
 }
 
 const AddRoomButton = (props: IAddRoomButton) => {
   //! State
-  const { houseData } = props;
+  const { houseId } = props;
   const { open, shouldRender, toggle } = useToggleDialog();
 
   //! Function
@@ -289,7 +298,7 @@ const AddRoomButton = (props: IAddRoomButton) => {
           maxWidth="lg"
           fullWidth
         >
-          <RoomActionDialog toggle={toggle} houseData={houseData} />
+          <RoomActionDialog toggle={toggle} houseId={houseId} />
         </CommonStyles.Dialog>
       )}
       <CommonStyles.Button

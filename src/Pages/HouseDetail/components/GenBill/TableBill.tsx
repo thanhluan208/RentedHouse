@@ -9,7 +9,7 @@ import RowPrice from "./RowPrice";
 import { Bill, BillQuantityType } from "../../../../Interfaces/common";
 import InputQuantity from "./InputQuantity";
 
-const TableBill = () => {
+const TableBill = ({ disabled }: { disabled?: boolean }) => {
   //! State
   const { values, setFieldValue } = useFormikContext<PDFInitValues>();
 
@@ -23,8 +23,12 @@ const TableBill = () => {
       label: "STT",
       width: 50,
       customRender: (_, rowIndex) => {
-        return <CommonStyles.Typography type="bold14">{rowIndex + 1}</CommonStyles.Typography>;
-      }
+        return (
+          <CommonStyles.Typography type="bold14">
+            {rowIndex + 1}
+          </CommonStyles.Typography>
+        );
+      },
     },
     {
       id: "name",
@@ -36,6 +40,7 @@ const TableBill = () => {
               name={`bill.${rowIndex}.name`}
               placeholder="Tiền điên, tiền nước..."
               component={CommonField.InputField}
+              disabled={disabled}
             />
           </Box>
         );
@@ -51,6 +56,7 @@ const TableBill = () => {
               name={`bill.${rowIndex}.unit`}
               placeholder="1000"
               component={CommonField.InputField}
+              disabled={disabled}
             />
           </Box>
         );
@@ -60,7 +66,7 @@ const TableBill = () => {
       id: "quantity",
       label: "Quantity",
       customRender: (_, rowIndex) => {
-        return <InputQuantity rowIndex={rowIndex} />;
+        return <InputQuantity rowIndex={rowIndex} disabled={disabled}/>;
       },
     },
     {
@@ -74,6 +80,7 @@ const TableBill = () => {
               component={CommonField.InputField}
               fullWidth
               isPrice
+              disabled={disabled}
               InputProps={{
                 endAdornment: (
                   <CommonStyles.Typography
