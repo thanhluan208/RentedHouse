@@ -3,7 +3,7 @@ import useToggleDialog from "../../../../Hooks/useToggleDialog";
 import CommonStyles from "../../../../Components/CommonStyles";
 import { useCallback, useEffect, useMemo } from "react";
 import * as yup from "yup";
-import { Formik, Form, FastField, FormikHelpers } from "formik";
+import { Formik, Form, FastField, FormikHelpers, Field } from "formik";
 import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import CommonIcons from "../../../../Components/CommonIcons";
 import { capitalize, isArray, isEmpty, isString } from "lodash";
@@ -20,7 +20,7 @@ import {
   BillStatus,
 } from "../../../../Interfaces/common";
 import FormikEffectPDF from "./FormikEffectPDF";
-import { numberToVietnameseText, removeAllDot } from "../../../../Helpers";
+import { monthTextToNum, numberToVietnameseText, removeAllDot } from "../../../../Helpers";
 import { toast } from "react-toastify";
 import { compareBill } from "../../../../Constants/PDF.templates";
 // @ts-ignore
@@ -31,6 +31,7 @@ import { GuestDetail } from "../../../../Hooks/useGetGuestDetail";
 import { useGet, useSave } from "../../../../Stores/useStore";
 import cachedKeys from "../../../../Constants/cachedKeys";
 import FirebaseServices from "../../../../Services/Firebase.service";
+import RepeatExpense from "./RepeatExpense";
 
 interface IBillActionDialog {
   toggle: () => void;
@@ -47,6 +48,8 @@ export interface PDFInitValues {
   toDate: Moment | undefined;
   images?: File[] | string[];
   status?: BillStatus;
+  isExpense: boolean;
+  repeats?: string[];
 }
 
 export const BillActionDialog = (props: IBillActionDialog) => {
@@ -55,6 +58,8 @@ export const BillActionDialog = (props: IBillActionDialog) => {
   const save = useSave();
   const dataBill: PDFInitValues = useGet("BILL_DETAIL");
   const refetch = useGet(refetchKey as any);
+  
+  console.log("dataBill", dataBill);
 
   const isPaid = useMemo(() => {
     return dataBill?.status?.toLowerCase() === "paid";
@@ -80,37 +85,44 @@ export const BillActionDialog = (props: IBillActionDialog) => {
       fromDate: dataBill?.fromDate || moment(),
       toDate: dataBill?.toDate || moment().add(1, "month"),
       images: dataBill?.images || [],
+      isExpense: dataBill?.isExpense || false,
     };
   }, [dataBill]);
 
   const validationSchema = useMemo(() => {
     return yup.object().shape({
       room: yup.object().required("Room is required"),
-      guest: yup.object().required("Guest is required"),
+      guest: yup.object().when("isExpense", {
+        is: false,
+        then: (schema: any) => schema.required("Guest is required"),
+      }),
       fromDate: yup.object().required("From date is required"),
       toDate: yup.object().required("To date is required"),
-      bill: yup.array().of(
-        yup.object().shape({
-          name: yup.string().required("Name is required"),
-          unit: yup.string().required("Unit is required"),
-          unitPrice: yup.string().required("Unit price is required"),
-          type: yup.string().required("Type is required"),
-          quantity: yup.number().when("type", {
-            is: BillQuantityType.MONTH,
-            then: (schema: any) => schema.required("Quantity is required"),
-          }),
-          startMonthQuantity: yup.number().when("type", {
-            is: BillQuantityType.START_END,
-            then: (schema: any) =>
-              schema.required("Start month quantity is required"),
-          }),
-          endMonthQuantity: yup.number().when("type", {
-            is: BillQuantityType.START_END,
-            then: (schema: any) =>
-              schema.required("End month quantity is required"),
-          }),
-        })
-      ),
+      bill: yup
+        .array()
+        .min(1, "Bill must have at least 1 item")
+        .of(
+          yup.object().shape({
+            name: yup.string().required("Name is required"),
+            unit: yup.string().required("Unit is required"),
+            unitPrice: yup.string().required("Unit price is required"),
+            type: yup.string().required("Type is required"),
+            quantity: yup.number().when("type", {
+              is: BillQuantityType.MONTH,
+              then: (schema: any) => schema.required("Quantity is required"),
+            }),
+            startMonthQuantity: yup.number().when("type", {
+              is: BillQuantityType.START_END,
+              then: (schema: any) =>
+                schema.required("Start month quantity is required"),
+            }),
+            endMonthQuantity: yup.number().when("type", {
+              is: BillQuantityType.START_END,
+              then: (schema: any) =>
+                schema.required("End month quantity is required"),
+            }),
+          })
+        ),
     });
   }, []);
 
@@ -142,7 +154,7 @@ export const BillActionDialog = (props: IBillActionDialog) => {
       formikHelpers?: FormikHelpers<PDFInitValues>
     ) => {
       if (!formikHelpers || isPaid) return;
-      const isUpdate = !!dataBill;
+      const isUpdate = !!dataBill?.id;
 
       const toastLoadingText = isUpdate
         ? "Updating bill..."
@@ -195,7 +207,29 @@ export const BillActionDialog = (props: IBillActionDialog) => {
           ];
         }
 
-        if (isUpdate) {
+        if (values.repeats) {
+          delete finalBill.repeats;
+
+          const promises: any[] = []
+          
+          values.repeats.forEach((item) => {
+            const payload = {
+              ...finalBill,
+              fromDate: moment(finalBill.fromDate).set('month', monthTextToNum(item) - 1),
+              toDate: moment(finalBill.fromDate).set('month', monthTextToNum(item) - 1),
+            }
+
+            promises.push(BillServices.createBill(payload));
+          })
+
+          const response = await Promise.allSettled(promises);
+
+          response.forEach((item, index) => {
+            if(item.status === "rejected") {
+              toast.error(`Failed to create bill in ${values.repeats?.[index]}`);
+            }
+          })
+        } else if (isUpdate) {
           await BillServices.updateBill(finalBill);
         } else {
           await BillServices.createBill(finalBill);
@@ -277,7 +311,7 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                         gap: "8px",
                       }}
                     >
-                      {dataBill ? (
+                      {dataBill?.id ? (
                         <Fragment>
                           Update bill{" "}
                           <CommonStyles.Chip
@@ -290,7 +324,43 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                           />
                         </Fragment>
                       ) : (
-                        "Generate bill"
+                        <Box
+                          sx={{
+                            display: "flex",
+                            gap: "24px",
+                            alignItems: "center",
+                          }}
+                        >
+                          Generate bill
+                          <Box
+                            sx={{
+                              display: "flex",
+                              padding: "4px 12px",
+                              borderRadius: "12px",
+                              border: "solid 1px #ccc",
+                              gap: "8px",
+                            }}
+                          >
+                            <CommonStyles.Button
+                              variant={values.isExpense ? "contained" : "text"}
+                              startIcon={<CommonIcons.MoneyOff />}
+                              onClick={() => {
+                                setFieldValue("isExpense", true);
+                              }}
+                            >
+                              Expense bill
+                            </CommonStyles.Button>
+                            <CommonStyles.Button
+                              variant={values.isExpense ? "text" : "contained"}
+                              startIcon={<CommonIcons.AttachMoney />}
+                              onClick={() => {
+                                setFieldValue("isExpense", false);
+                              }}
+                            >
+                              Income bill
+                            </CommonStyles.Button>
+                          </Box>
+                        </Box>
                       )}
                     </CommonStyles.Typography>
                   </Box>
@@ -319,46 +389,55 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                       houseId={houseData?._id || dataBill?.room?.house || ""}
                       disabled={isPaid}
                     />
-                    <GuestSelect
-                      houseId={houseData?._id || dataBill?.room?.house || ""}
-                      disabled={isPaid}
-                    />
-                    <FastField
+                    {!values.isExpense && (
+                      <GuestSelect
+                        houseId={houseData?._id || dataBill?.room?.house || ""}
+                        disabled={isPaid}
+                      />
+                    )}
+                    <Field
                       name="fromDate"
                       component={CommonField.DatePickerField}
-                      label="From Date"
+                      label={values.isExpense ? "Pay date" : "From Date"}
                       disabled={isPaid}
                     />
-                    <FastField
-                      name="toDate"
-                      component={CommonField.DatePickerField}
-                      label="To Date"
-                      disabled={isPaid}
-                    />
+                    {!values.isExpense && (
+                      <FastField
+                        name="toDate"
+                        component={CommonField.DatePickerField}
+                        label="To Date"
+                        disabled={isPaid}
+                      />
+                    )}
                   </Box>
                   <TableBill disabled={isPaid} />
-                  <CommonStyles.FilesUpload
-                    label="Upload Images"
-                    files={values.images}
-                    dropzoneProps={{
-                      onDrop: (acceptedFiles) => {
-                        if (isPaid) return;
-                        const newImages = values.images?.concat(acceptedFiles);
-                        setFieldValue("images", newImages);
-                      },
-                      accept: {
-                        "image/*": [],
-                      },
-                      maxFiles: 10,
-                    }}
-                    handleDeleteFile={(index) => {
-                      if (!values.images || isPaid) return;
-                      const newFiles = values.images.filter(
-                        (_, i) => i !== index
-                      );
-                      setFieldValue("images", newFiles);
-                    }}
-                  />
+                  {!values.isExpense ? (
+                    <CommonStyles.FilesUpload
+                      label="Upload Images"
+                      files={values.images}
+                      dropzoneProps={{
+                        onDrop: (acceptedFiles) => {
+                          if (isPaid) return;
+                          const newImages =
+                            values.images?.concat(acceptedFiles);
+                          setFieldValue("images", newImages);
+                        },
+                        accept: {
+                          "image/*": [],
+                        },
+                        maxFiles: 10,
+                      }}
+                      handleDeleteFile={(index) => {
+                        if (!values.images || isPaid) return;
+                        const newFiles = values.images.filter(
+                          (_, i) => i !== index
+                        );
+                        setFieldValue("images", newFiles);
+                      }}
+                    />
+                  ) : (
+                    <RepeatExpense />
+                  )}
                 </DialogContent>
               </PerfectScrollbar>
 
@@ -445,7 +524,7 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                       isLoading={isSubmitting}
                       disabled={isSubmitting || !isEmpty(errors) || !dirty}
                     >
-                      {dataBill ? "Update" : "Create"}
+                      {dataBill?.id ? "Update" : "Create"}
                     </CommonStyles.Button>
                   )}
                 </Box>
@@ -458,11 +537,11 @@ export const BillActionDialog = (props: IBillActionDialog) => {
   );
 };
 
-interface IGenPdfButton {
+interface ICreateBillButton {
   houseData: House;
 }
 
-const GenPdfButton = (props: IGenPdfButton) => {
+const CreateBillButton = (props: ICreateBillButton) => {
   //! State
   const { houseData } = props;
   const { open, shouldRender, toggle } = useToggleDialog();
@@ -482,11 +561,11 @@ const GenPdfButton = (props: IGenPdfButton) => {
           <BillActionDialog toggle={toggle} houseData={houseData} />
         </CommonStyles.Dialog>
       )}
-      <CommonStyles.Button variant="outlined" onClick={toggle}>
-        Generate bill PDF
+      <CommonStyles.Button variant="contained" onClick={toggle}>
+        Generate bill
       </CommonStyles.Button>
     </Fragment>
   );
 };
 
-export default GenPdfButton;
+export default CreateBillButton;

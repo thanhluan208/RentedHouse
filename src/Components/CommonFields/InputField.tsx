@@ -139,6 +139,7 @@ function InputField(props: IInputField & FieldProps & TextFieldProps) {
               style: {
                 padding: "8px 16px",
               },
+              ...props.inputProps
             }}
             InputProps={{
               endAdornment: maxChar ? (

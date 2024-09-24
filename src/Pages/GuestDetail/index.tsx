@@ -93,9 +93,7 @@ const GuestDetail = () => {
         }}
       >
         <Box sx={{ display: "flex", gap: "8px", alignItems: "center" }}>
-          <CommonStyles.Typography type="bold24">
-            {data?.name}
-          </CommonStyles.Typography>
+          <CommonStyles.OpenSidebarButton title={data?.name || "Guest"} />
           <CommonStyles.Chip
             label={data?.room ? "Renting" : "Not renting"}
             sx={{

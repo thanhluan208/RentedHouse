@@ -19,6 +19,7 @@ export interface BillResponse {
   updatedAt: Date;
   proves?: string[];
   payDate?: Date;
+  isExpense: boolean;
   __v: number;
 }
 
@@ -34,23 +35,37 @@ export interface Content {
   quantityEnd?: number;
 }
 
-const useGetListBill = (params: CommonFilter, isTrigger = true) => {
+const useGetListBill = (
+  params: CommonFilter,
+  isTrigger = true,
+  loadMore = false
+) => {
   const [data, setData] = useState<BillResponse[] | []>([]);
   const [isLoading, setLoading] = useState(false);
   const [error, setError] = useState();
+  const [hasMore, setHasMore] = useState(true);
 
   const callApi = useCallback(() => {
     const nextparams = {
-      ...params, 
+      ...params,
       startDate: params.startDate?.toDate() || undefined,
       endDate: params.endDate?.toDate() || undefined,
-    }
+    };
     return BillServices.getListBill(nextparams);
   }, [params]);
 
   const transformResponse = useCallback(
-    (response?: AxiosResponse<BillResponse[]>) => {
+    (response?: AxiosResponse<BillResponse[]>, loadMore = false) => {
       if (response) {
+        if (loadMore) {
+          return setData((prev) => {
+            const nextData = [...prev, ...response.data];
+            if (nextData.length === prev.length) {
+              setHasMore(false);
+            }
+            return nextData;
+          });
+        }
         setData(response.data);
       }
     },
@@ -58,25 +73,26 @@ const useGetListBill = (params: CommonFilter, isTrigger = true) => {
   );
 
   const refetch = useCallback(async () => {
+    if (!hasMore) return;
     try {
       const response = await callApi();
-      transformResponse(response);
+      transformResponse(response, loadMore);
     } catch (error: any) {
       setError(error);
     }
-  }, [callApi]);
+  }, [callApi, hasMore, loadMore]);
 
   useEffect(() => {
     let shouldSetData = true;
 
-    if (isTrigger) {
+    if (isTrigger && hasMore) {
       (async () => {
         try {
           setLoading(true);
           const response = await callApi();
 
           if (shouldSetData) {
-            transformResponse(response);
+            transformResponse(response, loadMore);
           }
         } catch (error: any) {
           setError(error);
@@ -89,7 +105,7 @@ const useGetListBill = (params: CommonFilter, isTrigger = true) => {
         shouldSetData = false;
       };
     }
-  }, [isTrigger,callApi]);
+  }, [isTrigger, callApi, loadMore, hasMore]);
 
   return {
     data,

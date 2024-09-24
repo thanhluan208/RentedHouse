@@ -39,7 +39,7 @@ export enum BillStatus {
 }
 
 export interface OptionCommon {
-  value: string;
+  value: string | number;
   label: string;
   _id?: string;
 }

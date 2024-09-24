@@ -5,7 +5,6 @@ import CommonStyles from "..";
 import PaginationButton from "./component/PaginationButton";
 import { isDefined } from "../../../Helpers";
 import CommonIcons from "../../CommonIcons";
-import PerfectScrollbar from "react-perfect-scrollbar";
 import { pageSizeOption } from "../../../Constants/options";
 
 export type BaseRow = {
@@ -127,8 +126,8 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
             );
           })}
       </Box>
-      <PerfectScrollbar
-        style={{
+      <Box
+        sx={{
           minHeight: "480px",
           maxHeight: `${pageSize > 10 ? pageSize * 48 : 480}px`,
           ...styleBody,
@@ -176,7 +175,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
               </Box>
             );
           })}
-      </PerfectScrollbar>
+      </Box>
       {shouldShowPagination && (
         <Box
           sx={{

@@ -2,7 +2,7 @@ import { Box, CircularProgress } from "@mui/material";
 import { useNavigate, useParams } from "react-router-dom";
 import { useEffect } from "react";
 import AddRoomButton from "./components/AddRoomButton";
-import GenPdfButton from "./components/GenBill/GenPdfButton";
+import GenPdfButton from "./components/GenBill/CreateBillButton";
 import { useSave } from "@/Stores/useStore";
 import useGetHouse from "@/Hooks/useGetHouse";
 import cachedKeys from "@/Constants/cachedKeys";

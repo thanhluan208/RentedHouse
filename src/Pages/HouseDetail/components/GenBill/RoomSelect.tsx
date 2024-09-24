@@ -3,7 +3,7 @@ import useGetRoomsByHouse from "../../../../Hooks/useGetRoomsByHouse";
 import CommonField from "../../../../Components/CommonFields";
 import { useMemo } from "react";
 import { cloneDeep } from "lodash";
-import { PDFInitValues } from "./GenPdfButton";
+import { PDFInitValues } from "./CreateBillButton";
 
 interface IRoomSelect {
   houseId: string;

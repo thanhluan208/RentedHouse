@@ -33,32 +33,6 @@ function DefaultLayout() {
         position: "relative",
       }}
     >
-      {!open && (
-        <Box
-          sx={{
-            position: "absolute",
-            height: "100%",
-            zIndex: 10000,
-            left: 0,
-            top: 0,
-            opacity: 0,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "all 0.3s",
-            "&:hover": {
-              opacity: 1,
-              background: 'rgba(0, 0, 0, 0.6)',
-            },
-            background: 'rgba(0, 0, 0, 0.3)',
-            borderRadius: '0 10px 10px 0',
-            cursor: 'pointer'
-          }}
-          onClick={() => setOpen(true)}
-        >
-            <CommonIcons.KeyboardDoubleArrowRight />
-        </Box>
-      )}
       <PerfectScrollbar
         style={{
           maxHeight: "100vh",

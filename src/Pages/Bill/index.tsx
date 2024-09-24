@@ -51,7 +51,7 @@ const Bill = () => {
           padding: "10px 25px",
         }}
       >
-        <CommonStyles.Typography type="bold24">Bill</CommonStyles.Typography>
+        <CommonStyles.OpenSidebarButton title="Bill" />
         <Box>
           <AddBillButton />
         </Box>

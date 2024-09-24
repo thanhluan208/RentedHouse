@@ -1,7 +1,7 @@
 import { Fragment } from "react/jsx-runtime";
 import useToggleDialog from "../../../Hooks/useToggleDialog";
 import CommonStyles from "../../../Components/CommonStyles";
-import { BillActionDialog } from "../../HouseDetail/components/GenBill/GenPdfButton";
+import { BillActionDialog } from "../../HouseDetail/components/GenBill/CreateBillButton";
 import cachedKeys from "../../../Constants/cachedKeys";
 
 

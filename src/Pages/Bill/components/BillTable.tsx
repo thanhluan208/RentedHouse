@@ -1,4 +1,4 @@
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import { BillResponse } from "../../../Hooks/useGetBill";
 import CommonStyles from "../../../Components/CommonStyles";
 import { Column } from "../../../Components/CommonStyles/Table";
@@ -9,12 +9,15 @@ import moment from "moment";
 import PaidButton from "./PaidButton";
 import { BillStatus } from "../../../Interfaces/common";
 import useToggleDialog from "../../../Hooks/useToggleDialog";
-import { useSave } from "../../../Stores/useStore";
+import { useGet, useSave } from "../../../Stores/useStore";
 import cachedKeys from "../../../Constants/cachedKeys";
-import { BillActionDialog } from "../../HouseDetail/components/GenBill/GenPdfButton";
+import { BillActionDialog } from "../../HouseDetail/components/GenBill/CreateBillButton";
 import BillServices from "../../../Services/Bill.service";
 import DeleteButton from "./DeleteButton";
 import { CommonFilter } from "../../Home/interface";
+import CommonIcons from "@/Components/CommonIcons";
+import { cloneDeep } from "lodash";
+import SchedulerAction from "./SchedulerAction";
 
 interface IBillTable {
   data: BillResponse[];
@@ -29,7 +32,10 @@ const BillTable = (props: IBillTable) => {
   const { data } = props;
   const navigate = useNavigate();
   const save = useSave();
+  const theme = useTheme();
   const { open, toggle, shouldRender } = useToggleDialog();
+  const openDialog = useGet("DIALOG_OPEN");
+
 
   //! Function
   const onClickGuest = useCallback(
@@ -48,10 +54,11 @@ const BillTable = (props: IBillTable) => {
 
   const clickRow = useCallback(
     (row: BillResponse) => {
+      if (openDialog) return;
       save(cachedKeys.BILL_DETAIL, BillServices.parseResponseBill(row));
       toggle();
     },
-    [save]
+    [save,openDialog]
   );
 
   //! Render
@@ -64,14 +71,53 @@ const BillTable = (props: IBillTable) => {
         customRender: (_, rowIndex) => {
           return (
             <CommonStyles.Typography type="bold14" ml={1}>
-              {rowIndex + 1 + (props.filters?.page || 0) * (props.filters?.pageSize || 0)}
+              {rowIndex +
+                1 +
+                (props.filters?.page || 0) * (props.filters?.pageSize || 0)}
             </CommonStyles.Typography>
           );
         },
       },
       {
+        id: "type",
+        label: "Type",
+        width: 100,
+        customRender: (row) => {
+          if (row && row.isExpense) {
+            return (
+              <Box
+                sx={{
+                  background: theme.palette.error.main,
+                  width: "fit-content",
+                  padding: "4px 12px",
+                  borderRadius: "8px",
+                  color: theme.palette.error.contrastText,
+                }}
+              >
+                <CommonStyles.Typography>Expense</CommonStyles.Typography>
+              </Box>
+            );
+          } else {
+            return (
+              <Box
+                sx={{
+                  background: theme.palette.success.main,
+                  width: "fit-content",
+                  padding: "4px 12px",
+                  borderRadius: "8px",
+                  color: theme.palette.success.contrastText,
+                }}
+              >
+                <CommonStyles.Typography>Income</CommonStyles.Typography>
+              </Box>
+            );
+          }
+        },
+      },
+      {
         id: "guest",
         label: "Guest",
+        width: 200,
         customRender: (row) => {
           return (
             <CommonStyles.Typography
@@ -89,7 +135,7 @@ const BillTable = (props: IBillTable) => {
                 onClickGuest(row.guest._id);
               }}
             >
-              {row.guest.name}
+              {row.guest?.name || "--"}
             </CommonStyles.Typography>
           );
         },
@@ -114,7 +160,7 @@ const BillTable = (props: IBillTable) => {
                 onClickRoom(row.room._id);
               }}
             >
-              {row.room.name}
+              {row?.isExpense ? "--" : row.room.name}
             </CommonStyles.Typography>
           );
         },
@@ -194,13 +240,37 @@ const BillTable = (props: IBillTable) => {
               {row.status.toLowerCase() === BillStatus.UNPAID && (
                 <PaidButton data={row} />
               )}
+              <CommonStyles.Button
+                isIcon
+                tooltip="Duplicate bill"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  const { id, ...rest } = BillServices.parseResponseBill(
+                    cloneDeep(row)
+                  );
+                  save(cachedKeys.BILL_DETAIL, {
+                    ...rest,
+                    status: BillStatus.UNPAID,
+                  });
+                  toggle();
+                }}
+              >
+                <CommonIcons.Queue />
+              </CommonStyles.Button>
               <DeleteButton billId={row?._id} />
+              <SchedulerAction billId={row?._id}  />
             </Box>
           );
         },
       },
     ];
-  }, [onClickGuest, onClickRoom, props.filters?.page, props.filters?.pageSize, data]);
+  }, [
+    onClickGuest,
+    onClickRoom,
+    props.filters?.page,
+    props.filters?.pageSize,
+    data,
+  ]);
 
   return (
     <Fragment>
@@ -211,7 +281,10 @@ const BillTable = (props: IBillTable) => {
           onClose={toggle}
           maxWidth="lg"
         >
-          <BillActionDialog toggle={toggle} refetchKey={cachedKeys.REFETCH_BILL_LIST}/>
+          <BillActionDialog
+            toggle={toggle}
+            refetchKey={cachedKeys.REFETCH_BILL_LIST}
+          />
         </CommonStyles.Dialog>
       )}
       <Box sx={{ width: "100%" }}>

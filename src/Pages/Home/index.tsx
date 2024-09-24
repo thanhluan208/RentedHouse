@@ -35,7 +35,7 @@ function Home() {
           padding: "10px 25px",
         }}
       >
-        <CommonStyles.Typography type="bold24">Houses</CommonStyles.Typography>
+        <CommonStyles.OpenSidebarButton title="House" />
       </Box>
       <Box
         sx={{

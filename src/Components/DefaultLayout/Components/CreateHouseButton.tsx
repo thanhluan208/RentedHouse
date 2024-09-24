@@ -274,6 +274,10 @@ function CreateHouseButton() {
         variant="contained"
         startIcon={<CommonIcons.Add />}
         onClick={toggle}
+        sx={{
+          overflow:'hidden',
+          textWrap:"nowrap"
+        }}
       >
         Create new house
       </CommonStyles.Button>

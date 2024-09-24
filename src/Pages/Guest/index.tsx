@@ -32,7 +32,7 @@ const GuestList = () => {
           padding: "10px 25px",
         }}
       >
-        <CommonStyles.Typography type="bold24">Guest</CommonStyles.Typography>
+        <CommonStyles.OpenSidebarButton title="Guest" />
         <Box>
           <AddGuestButton refetchKey={cachedKeys.REFETCH_GUEST_LIST} />
         </Box>

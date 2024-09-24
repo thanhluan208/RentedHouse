@@ -8,7 +8,6 @@ import {
   useTheme,
 } from "@mui/material";
 import CommonStyles from "..";
-import { Fragment } from "react/jsx-runtime";
 
 interface ISelect {
   options: any[];
@@ -108,10 +107,10 @@ const CommonSelect = (props: ISelect & SelectProps) => {
         )}
         {options.map((op: { value: string; label: string; group?: string }) => {
           if (renderOption) {
-            return <Fragment key={op?.value}>{renderOption(op)}</Fragment>;
+            return <Box key={op?.value}>{renderOption(op)}</Box>;
           }
           return (
-            <Fragment key={op?.value}>
+            <Box key={op?.value}>
               {op?.group && <ListSubheader>{op?.group}</ListSubheader>}
               <MenuItem
                 value={op?.value}
@@ -121,7 +120,7 @@ const CommonSelect = (props: ISelect & SelectProps) => {
               >
                 {op?.label}
               </MenuItem>
-            </Fragment>
+            </Box>
           );
         })}
       </Select>

@@ -5,7 +5,7 @@ import { Fragment, useCallback, useMemo } from "react";
 import { Paths } from "../../../Constants/routes";
 import useToggleDialog from "../../../Hooks/useToggleDialog";
 import cachedKeys from "../../../Constants/cachedKeys";
-import { BillActionDialog } from "../../HouseDetail/components/GenBill/GenPdfButton";
+import { BillActionDialog } from "../../HouseDetail/components/GenBill/CreateBillButton";
 import { CommonFilter } from "../../Home/interface";
 import { GuestDetail } from "../../../Hooks/useGetGuestDetail";
 import { Column } from "../../../Components/CommonStyles/Table";

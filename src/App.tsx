@@ -13,6 +13,7 @@ import { useAuth } from "./Providers/AuthenticationProvider";
 import Login from "./Pages/Login";
 import Register from "./Pages/Register";
 import GuestList from "./Pages/Guest";
+import Scheduler from "./Pages/Scheduler";
 
 function App() {
   //! State
@@ -41,6 +42,10 @@ function App() {
         {
           path: Paths.guest,
           element: <GuestList />,
+        },
+        {
+          path: Paths.scheduler,
+          element: <Scheduler />,
         },
       ],
       loader: () => {

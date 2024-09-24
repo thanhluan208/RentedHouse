@@ -1,6 +1,6 @@
 import { Field, useFormikContext } from "formik";
 import CommonField from "../../../../Components/CommonFields";
-import { PDFInitValues } from "./GenPdfButton";
+import { PDFInitValues } from "./CreateBillButton";
 import { useMemo } from "react";
 import { cloneDeep } from "lodash";
 import useGetListGuest from "../../../../Hooks/useGetListGuest";

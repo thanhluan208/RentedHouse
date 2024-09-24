@@ -2,7 +2,7 @@ import { Box } from "@mui/material";
 import { FastField, useFormikContext } from "formik";
 import CommonField from "../../../../Components/CommonFields";
 import { BillQuantityType } from "../../../../Interfaces/common";
-import { PDFInitValues } from "./GenPdfButton";
+import { PDFInitValues } from "./CreateBillButton";
 
 interface IInputQuantity {
   rowIndex: number;

@@ -54,6 +54,7 @@ function MuiSelectField(props: IMuiSelectField & SelectProps & FieldProps) {
     event: SelectChangeEvent<any>,
     child: React.ReactNode
   ) => {
+    event.stopPropagation()
     if (onChangeCustomize) {
       onChangeCustomize(event, child);
     } else {

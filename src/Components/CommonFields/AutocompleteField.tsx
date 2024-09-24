@@ -78,7 +78,7 @@ function AutocompleteField(
           paddingTop: "0 !important",
           paddingBottom: "0 !important",
           display: "flex",
-          background:"#fff"
+          background: "#fff",
         },
         input: {
           "&:hover": {
@@ -116,11 +116,7 @@ function AutocompleteField(
           renderOption
             ? renderOption
             : (props, option) => (
-                <Box
-                  component="li"
-                  sx={{ "& > img": { mr: 2, flexShrink: 0 } }}
-                  {...props}
-                >
+                <Box component="li" {...props}>
                   {option.label}
                 </Box>
               )

@@ -1,7 +1,7 @@
 import { cloneDeep } from "lodash";
 import { baseBillApi } from "../Constants/api";
 import { removeAllDot } from "../Helpers";
-import { PDFInitValues } from "../Pages/HouseDetail/components/GenBill/GenPdfButton";
+import { PDFInitValues } from "../Pages/HouseDetail/components/GenBill/CreateBillButton";
 import httpServices from "./http.services";
 import { BillResponse } from "../Hooks/useGetBill";
 import moment from "moment";
@@ -34,6 +34,7 @@ class billServices {
         };
       }),
       images: payload.images,
+      isExpense: payload.isExpense
     };
   };
 
@@ -70,6 +71,7 @@ class billServices {
           };
         }
       }),
+      isExpense: response.isExpense
     };
   };
 

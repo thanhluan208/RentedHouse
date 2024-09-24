@@ -8,6 +8,7 @@ import Empty from "./Empty/Empty";
 import FilesUpload from "./FilesUpload";
 import ImageUpload from "./ImageUpload";
 import LoadingOverlay from "./LoadingOverlay/LoadingOverlay";
+import OpenSidebarButton from "./OpenSidebarButton/OpenSidebarButton";
 import CommonSelect from "./Select";
 import Table from "./Table";
 import Typography from "./Typography";
@@ -25,7 +26,8 @@ const CommonStyles = {
   Collapse,
   ConfirmDialog,
   CommonSelect,
-  DatePickerCommon
+  DatePickerCommon,
+  OpenSidebarButton
 };
 
 export default CommonStyles;

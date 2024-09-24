@@ -1,5 +1,5 @@
 import { useFormikContext } from "formik";
-import { PDFInitValues } from "./GenPdfButton";
+import { PDFInitValues } from "./CreateBillButton";
 import CommonStyles from "../../../../Components/CommonStyles";
 import { useEffect } from "react";
 import { removeAllDot } from "../../../../Helpers";

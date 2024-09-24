@@ -328,7 +328,6 @@ const IncomeAndExpense = () => {
             setYear(value);
           }}
         />
-       
       </Box>
 
       <Box
@@ -342,8 +341,6 @@ const IncomeAndExpense = () => {
       >
         {data && <Chart data={data} />}
       </Box>
-
-      
 
       <Box
         sx={{
@@ -360,10 +357,12 @@ const IncomeAndExpense = () => {
             alignItems: "center",
             marginBottom: "20px",
             justifyContent: "flex-end",
+            position: "sticky",
+            left: 0,
           }}
         >
           <EditColumnButton column={column} setColumn={setColumn} />
-          <EditButton />
+          {/* <EditButton /> */}
         </Box>
 
         <Box
@@ -510,8 +509,6 @@ const IncomeAndExpense = () => {
       </Box>
 
       <AddRowButton handleAddRow={handleAddRow} />
-
-      
     </Box>
   );
 };

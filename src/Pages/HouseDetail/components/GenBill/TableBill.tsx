@@ -1,18 +1,21 @@
-import { FastField, FieldArray, useFormikContext } from "formik";
+import { FastField, FieldArray, getIn, useFormikContext } from "formik";
 import CommonStyles from "../../../../Components/CommonStyles";
-import { PDFInitValues } from "./GenPdfButton";
+import { PDFInitValues } from "./CreateBillButton";
 import { Column } from "../../../../Components/CommonStyles/Table";
 import CommonField from "../../../../Components/CommonFields";
-import { Box } from "@mui/material";
+import { Box, useTheme } from "@mui/material";
 import CommonIcons from "../../../../Components/CommonIcons";
 import RowPrice from "./RowPrice";
 import { Bill, BillQuantityType } from "../../../../Interfaces/common";
 import InputQuantity from "./InputQuantity";
+import { Fragment } from "react/jsx-runtime";
+import { isString } from "lodash";
 
 const TableBill = ({ disabled }: { disabled?: boolean }) => {
   //! State
-  const { values, setFieldValue } = useFormikContext<PDFInitValues>();
-
+  const { values, setFieldValue, errors } = useFormikContext<PDFInitValues>();
+  const theme = useTheme();
+  const billError = getIn(errors, "bill");
   //! Function
 
   //! Render
@@ -38,7 +41,7 @@ const TableBill = ({ disabled }: { disabled?: boolean }) => {
           <Box sx={{ pr: "10px" }}>
             <FastField
               name={`bill.${rowIndex}.name`}
-              placeholder="Tiền điên, tiền nước..."
+              placeholder="Tiền điện, tiền nước..."
               component={CommonField.InputField}
               disabled={disabled}
             />
@@ -66,7 +69,7 @@ const TableBill = ({ disabled }: { disabled?: boolean }) => {
       id: "quantity",
       label: "Quantity",
       customRender: (_, rowIndex) => {
-        return <InputQuantity rowIndex={rowIndex} disabled={disabled}/>;
+        return <InputQuantity rowIndex={rowIndex} disabled={disabled} />;
       },
     },
     {
@@ -144,7 +147,12 @@ const TableBill = ({ disabled }: { disabled?: boolean }) => {
                   "bill",
                   [
                     ...values.bill.slice(0, rowIndex + 1),
-                    { id: values.bill.length + 1, name: "", price: "" },
+                    {
+                      id: values.bill.length + 1,
+                      name: "",
+                      price: "",
+                      status: values.isExpense ? "paid" : "unpaid",
+                    },
                     ...values.bill.slice(rowIndex + 1),
                   ].map((item, index) => ({ ...item, id: index + 1 }))
                 );
@@ -182,16 +190,43 @@ const TableBill = ({ disabled }: { disabled?: boolean }) => {
         name="bill"
         render={() => {
           return (
-            <CommonStyles.Table
-              columns={columns}
-              data={values.bill || []}
-              styleBody={{
-                minHeight: "unset",
-              }}
-            />
+            <Fragment>
+              <CommonStyles.Table
+                columns={columns}
+                data={values.bill || []}
+                styleBody={{
+                  minHeight: "unset",
+                }}
+              />
+              <CommonStyles.Button
+                variant="contained"
+                type="button"
+                sx={{ margin: "20px 0" }}
+                onClick={() => {
+                  setFieldValue("bill", [
+                    ...values.bill,
+                    {
+                      id: values.bill.length + 1,
+                      name: "",
+                      price: 0,
+                      unit: "",
+                      unitPrice: 0,
+                      quantity: 0,
+                      status: values.isExpense ? "paid" : "unpaid",
+                      type: BillQuantityType.MONTH,
+                    },
+                  ]);
+                }}
+              >
+                Add row
+              </CommonStyles.Button>
+            </Fragment>
           );
         }}
       />
+      <CommonStyles.Typography color={theme.palette.error.main}>
+        {isString(billError) ? billError : ""}
+      </CommonStyles.Typography>
     </Box>
   );
 };

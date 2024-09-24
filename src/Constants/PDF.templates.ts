@@ -5,7 +5,7 @@ import {
   removeAllDot,
   urlToBase64,
 } from "../Helpers";
-import { PDFInitValues } from "../Pages/HouseDetail/components/GenBill/GenPdfButton";
+import { PDFInitValues } from "../Pages/HouseDetail/components/GenBill/CreateBillButton";
 import moment from "moment";
 import { BillQuantityType } from "../Interfaces/common";
 

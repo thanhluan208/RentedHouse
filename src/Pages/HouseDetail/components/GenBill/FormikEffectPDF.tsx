@@ -1,5 +1,5 @@
 import { useFormikContext } from "formik";
-import { PDFInitValues } from "./GenPdfButton";
+import { PDFInitValues } from "./CreateBillButton";
 import { useEffect, useRef } from "react";
 import { isString } from "lodash";
 import { BillQuantityType } from "../../../../Interfaces/common";

@@ -6,10 +6,6 @@ const Routes = {
       path: "/home",
       icon: <CommonIcons.Home />,
     },
-    ROOM: {
-      path: "/room",
-      icon: <CommonIcons.MeetingRoom />,
-    },
     Guest: {
       path: "/guest",
       icon: <CommonIcons.Person />,
@@ -18,6 +14,10 @@ const Routes = {
       path: "/bill",
       icon: <CommonIcons.Payment />,
     },
+    Scheduler: {
+      path: "/scheduler",
+      icon: <CommonIcons.Schedule />,
+    }
   },
 };
 
@@ -28,6 +28,7 @@ export const Paths = {
   room: "/room",
   login: "/login",
   register: "/register",
+  scheduler: "/scheduler",
 };
 
 export default Routes;

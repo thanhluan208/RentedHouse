@@ -4,7 +4,7 @@ import { Fragment, memo, useMemo } from "react";
 import { IncomeAndExpenseColumn, initvalueDefault } from "../type";
 import { useFormikContext } from "formik";
 import { MoneyFlowResponse } from "@/Hooks/useGetHouseMoneyFlow";
-import { cloneDeep, isString, remove } from "lodash";
+import { cloneDeep, isString } from "lodash";
 import { removeAllDot } from "@/Helpers";
 
 interface ITotalRow {

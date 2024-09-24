@@ -3,12 +3,14 @@ import {
   ButtonProps,
   CircularProgress,
   IconButton,
+  Tooltip,
 } from "@mui/material";
 
 interface IMuiButton {
   children: React.ReactNode;
   isIcon?: boolean;
   isLoading?: boolean;
+  tooltip?: string;
 }
 
 function MuiButton(props: IMuiButton & ButtonProps) {
@@ -20,19 +22,23 @@ function MuiButton(props: IMuiButton & ButtonProps) {
   //! Render
   if (isIcon) {
     return (
-      <IconButton
-        {...otherProps}
-        sx={{
-          height: "32px",
-          width: "32px",
-          "&:focus": {
-            outline: "none",
-          },
-          ...props.sx,
-        }}
-      >
-        {children}
-      </IconButton>
+      <Tooltip title={props.tooltip}>
+        <div>
+          <IconButton
+            {...otherProps}
+            sx={{
+              height: "32px",
+              width: "32px",
+              "&:focus": {
+                outline: "none",
+              },
+              ...props.sx,
+            }}
+          >
+            {children}
+          </IconButton>
+        </div>
+      </Tooltip>
     );
   }
 
