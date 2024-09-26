@@ -6,7 +6,13 @@ import CommonIcons from "@/Components/CommonIcons";
 import { useSave } from "@/Stores/useStore";
 import cachedKeys from "@/Constants/cachedKeys";
 
-const SchedulerAction = ({billId}: {billId:string}) => {
+const SchedulerAction = ({
+  billId,
+  scheduler,
+}: {
+  billId: string;
+  scheduler?: string;
+}) => {
   //! State
   const { open, shouldRender, toggle } = useToggleDialog();
   const save = useSave();
@@ -27,14 +33,17 @@ const SchedulerAction = ({billId}: {billId:string}) => {
           fullWidth
           maxWidth="sm"
         >
-          <ActionSchedulerDialog toggle={toggle} billIds={[billId]}/>
+          <ActionSchedulerDialog toggle={toggle} billIds={[billId]} />
         </CommonStyles.Dialog>
       )}
       <CommonStyles.Button
         isIcon
-        tooltip="Scheduler"
+        disabled={!!scheduler}
+        tooltip={scheduler ? "Already scheduled" : "Scheduler"}
         onClick={(e) => {
           e.stopPropagation();
+          if (scheduler) return;
+
           toggle();
         }}
       >

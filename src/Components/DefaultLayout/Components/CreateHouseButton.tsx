@@ -16,7 +16,7 @@ import { useGet } from "../../../Stores/useStore";
 import HouseServices, {
   CreateHouse,
   HouseStatusEnum,
-} from "../../../Services/House.services";
+} from "../../../Services/House.service";
 
 interface ICreateHouseDialog {
   toggle: () => void;

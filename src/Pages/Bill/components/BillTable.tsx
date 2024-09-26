@@ -36,7 +36,6 @@ const BillTable = (props: IBillTable) => {
   const { open, toggle, shouldRender } = useToggleDialog();
   const openDialog = useGet("DIALOG_OPEN");
 
-
   //! Function
   const onClickGuest = useCallback(
     (id: string) => {
@@ -58,7 +57,7 @@ const BillTable = (props: IBillTable) => {
       save(cachedKeys.BILL_DETAIL, BillServices.parseResponseBill(row));
       toggle();
     },
-    [save,openDialog]
+    [save, openDialog]
   );
 
   //! Render
@@ -121,6 +120,7 @@ const BillTable = (props: IBillTable) => {
         customRender: (row) => {
           return (
             <CommonStyles.Typography
+            type="bold14"
               sx={{
                 cursor: "pointer",
                 "&:hover": {
@@ -146,6 +146,7 @@ const BillTable = (props: IBillTable) => {
         customRender: (row) => {
           return (
             <CommonStyles.Typography
+            type="bold14"
               sx={{
                 cursor: "pointer",
                 "&:hover": {
@@ -216,30 +217,29 @@ const BillTable = (props: IBillTable) => {
         },
       },
       {
-        id: "createdAt",
-        label: "Created At",
+        id: "total",
+        label: "Total",
         customRender: (row) => {
           return (
-            <CommonStyles.Typography>
-              {moment(row.createdAt).format("DD/MM/YYYY")}
+            <CommonStyles.Typography type="bold14">
+              {row.contents.reduce((acc, cur) => acc + cur.price, 0).toLocaleString()} đ
             </CommonStyles.Typography>
           );
         },
       },
       {
         id: "action",
-        label: "",
+        label: "Action",
+        width: 160,
         customRender: (row) => {
           return (
             <Box
               sx={{
                 display: "flex",
                 gap: "10px",
+                justifyContent: "start",
               }}
             >
-              {row.status.toLowerCase() === BillStatus.UNPAID && (
-                <PaidButton data={row} />
-              )}
               <CommonStyles.Button
                 isIcon
                 tooltip="Duplicate bill"
@@ -258,7 +258,10 @@ const BillTable = (props: IBillTable) => {
                 <CommonIcons.Queue />
               </CommonStyles.Button>
               <DeleteButton billId={row?._id} />
-              <SchedulerAction billId={row?._id}  />
+              <SchedulerAction billId={row?._id} scheduler={row?.scheduler} />
+              {row.status.toLowerCase() === BillStatus.UNPAID && (
+                <PaidButton data={row} />
+              )}
             </Box>
           );
         },
@@ -296,6 +299,7 @@ const BillTable = (props: IBillTable) => {
           total={props.total}
           changePage={props.changePage}
           changePageSize={props.changePageSize}
+          width={"max(1300px, 100%)"}
         />
       </Box>
     </Fragment>

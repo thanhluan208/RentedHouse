@@ -11,6 +11,11 @@ const Typography = (props: ITypography & TypographyProps) => {
   const sxCustomize = useMemo(() => {
     const styles = new Map();
 
+    styles.set("bold12", {
+      fontSize: "12px",
+      fontWeight: 600,
+    });
+
     styles.set("normal14", {
       fontSize: "14px",
       fontWeight: 400,
@@ -30,8 +35,7 @@ const Typography = (props: ITypography & TypographyProps) => {
       fontSize: "16px",
       fontWeight: 400,
     });
-    
-    
+
     styles.set("bold16", {
       fontSize: "16px",
       fontWeight: 600,

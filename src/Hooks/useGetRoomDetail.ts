@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import FirebaseServices from "../Services/Firebase.service";
-import { HouseStatusEnum } from "../Services/House.services";
+import { HouseStatusEnum } from "../Services/House.service";
 
 export interface RoomDetail {
   _id: string;

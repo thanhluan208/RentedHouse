@@ -9,7 +9,7 @@ import { Paths } from "../../../Constants/routes";
 import { useGet } from "../../../Stores/useStore";
 import { capitalize } from "lodash";
 import { formatDate } from "../../../Helpers";
-import { HouseStatusEnum } from "../../../Services/House.services";
+import { HouseStatusEnum } from "../../../Services/House.service";
 
 interface IEachHouse {
   data: House;

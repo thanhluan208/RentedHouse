@@ -79,6 +79,27 @@ const GuestGeneralInfo = () => {
         }}
       >
         <FastField
+          name="checkIn"
+          component={CommonField.DatePickerField}
+          fullWidth
+          label="Check in"
+        />
+        <FastField
+          name="checkOut"
+          component={CommonField.DatePickerField}
+          fullWidth
+          label="Check out"
+        />
+      </Box>
+
+      <Box
+        sx={{
+          display: "flex",
+          alignItems: "center",
+          gap: "20px",
+        }}
+      >
+        <FastField
           name="city"
           component={CommonField.MuiSelectField}
           fullWidth

@@ -75,6 +75,9 @@ const DatePickerField = (
             },
           }}
           slotProps={{
+            textField: {
+              fullWidth: props.fullWidth,
+            },
             yearButton: {
               sx: {
                 display: "flex",

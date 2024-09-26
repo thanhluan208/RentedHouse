@@ -10,7 +10,7 @@ import DeleteGuest from "./DeleteGuest";
 import cachedKeys from "../../../Constants/cachedKeys";
 import AddGuestButton from "../../Guest/components/AddGuestButton";
 import { Paths } from "../../../Constants/routes";
-import { HouseStatusEnum } from "../../../Services/House.services";
+import { HouseStatusEnum } from "../../../Services/House.service";
 import { Room } from "../../Home/interface";
 import EditButton from "./EditButton";
 

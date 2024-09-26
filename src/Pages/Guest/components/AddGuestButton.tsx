@@ -17,6 +17,7 @@ import GuestGeneralInfo from "./GuestGeneralInfo";
 import moment, { Moment } from "moment";
 import { Room } from "../../Home/interface";
 import GuestService from "../../../Services/Guest.service";
+import { OptionCommon } from "@/Interfaces/common";
 
 interface IActionGuestDialog {
   toggle: () => void;
@@ -30,24 +31,17 @@ export interface GuestInitValue {
   address?: string;
   name: string;
   dob?: Moment;
-  city?: {
-    value: string;
-    label: string;
-  };
-  district?: {
-    value: string;
-    label: string;
-  };
-  commune?: {
-    value: string;
-    label: string;
-  };
+  city?: OptionCommon;
+  district?: OptionCommon;
+  commune?: OptionCommon;
   gender?: string;
   citizenIdFront?: File | string;
   citizenIdBack?: File | string;
   contract?: File[] | string[];
   history?: string;
   phone?: string;
+  checkIn?: Moment;
+  checkOut?: Moment;
 }
 
 export const ActionGuestDialog = (props: IActionGuestDialog) => {
@@ -66,7 +60,8 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
       commune: data?.commune ? data.commune : undefined,
       citizenIdFront: data?.citizenIdFront ? data.citizenIdFront : undefined,
       citizenIdBack: data?.citizenIdBack ? data.citizenIdBack : undefined,
-      contract: data?.contract ? data.contract : [],
+      checkIn: data?.checkIn ? moment(data.checkIn) : moment(),
+      checkOut: data?.checkOut ? moment(data.checkOut) : moment(),  
       phone: data?.phone ? data.phone : undefined,
       gender: data?.gender ? capitalize(data?.gender) : undefined,
     };
@@ -156,53 +151,7 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
         );
       });
 
-      const uploadContracts: Promise<any>[] = [];
-
-      let toastIdContract: any;
-      if (!isEmpty(values.contract)) {
-        if (!values.contract?.every((file) => isString(file))) {
-          toastIdContract = toast.loading("Uploading contracts...", {
-            isLoading: true,
-            autoClose: 0,
-          });
-        }
-
-        values.contract?.forEach((file) => {
-          const uploadContract = new Promise((res) => {
-            const contractFile = file as File;
-            if (isString(file)) {
-              return res(file);
-            } else {
-              FirebaseServices.uploadImage(
-                contractFile,
-                { contentType: contractFile.type },
-                onFailed,
-                (url) => {
-                  res(url);
-                },
-                () => {},
-                `contracts/${values.name}`
-              );
-            }
-          });
-          uploadContracts.push(uploadContract);
-        });
-      }
-
-      const citizenId = await Promise.all([
-        uploadFront,
-        uploadBack,
-        ...uploadContracts,
-      ]);
-
-      if (toastIdContract) {
-        toast.update(toastIdContract, {
-          isLoading: false,
-          type: "success",
-          render: "Upload contracts success!",
-          autoClose: 3000,
-        });
-      }
+      const citizenId = await Promise.all([uploadFront, uploadBack]);
 
       const newGuest = {
         ...values,
@@ -217,10 +166,6 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
 
       if (citizenId[1]) {
         newGuest.citizenIdBack = citizenId[1] as string;
-      }
-
-      if (citizenId[2]) {
-        newGuest.contract = citizenId.slice(2);
       }
 
       if (isEdit) {
@@ -316,25 +261,7 @@ export const ActionGuestDialog = (props: IActionGuestDialog) => {
                     />
                   </Box>
 
-                  <CommonStyles.FilesUpload
-                    label="Upload contract"
-                    files={values.contract}
-                    dropzoneProps={{
-                      onDrop: (acceptedFiles) => {
-                        setFieldValue("contract", [
-                          ...(values?.contract as File[]),
-                          ...acceptedFiles,
-                        ]);
-                      },
-                    }}
-                    handleDeleteFile={(index) => {
-                      if (!values.contract) return;
-                      const newFiles = values.contract.filter(
-                        (_, i) => i !== index
-                      );
-                      setFieldValue("contract", newFiles);
-                    }}
-                  />
+                  
                 </DialogContent>
               </PerfectScollBar>
 

@@ -1,5 +1,5 @@
 import { Box, SxProps } from "@mui/material";
-import { isArray, isEmpty } from "lodash";
+import { isArray, isEmpty, isString } from "lodash";
 import { Fragment, useMemo } from "react";
 import CommonStyles from "..";
 import PaginationButton from "./component/PaginationButton";
@@ -24,6 +24,7 @@ interface ITable<T> {
   changePage?: (page: number) => void;
   changePageSize?: (pageSize: number) => void;
   styleBody?: any;
+  width?: number | string;
 }
 
 export type Column<T> = {
@@ -31,7 +32,7 @@ export type Column<T> = {
   label?: string;
   customRender?: (row: T, rowIndex: number) => JSX.Element;
   customerHeader?: () => JSX.Element;
-  width?: number;
+  width?: number | number;
 };
 
 const Table = <T extends BaseRow>(props: ITable<T>) => {
@@ -45,13 +46,24 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
     filters,
     total,
     styleBody,
+    width,
   } = props;
   const { page, pageSize } = filters || {};
 
   const gridTemplateColumns = useMemo(() => {
     if (!isArray(columns)) return "";
     return columns.reduce((acc, columns) => {
-      return acc + `${columns.width ? columns?.width + "px " : "1fr "}`;
+      console.log("columns", columns);
+      return (
+        acc +
+        `${
+          columns.width
+            ? isString(columns.width)
+              ? columns.width
+              : columns?.width + "px "
+            : "1fr "
+        }`
+      );
     }, "");
   }, [columns]);
 
@@ -98,6 +110,8 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
   return (
     <Box
       sx={{
+        maxWidth: "100%",
+        overflowX: "auto",
         ...sxContainer,
       }}
     >
@@ -108,7 +122,11 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
           gap: 1,
           padding: 1,
           backgroundColor: "white",
-          borderRadius: '4px 4px 0 0 ',
+          borderRadius: "4px 4px 0 0 ",
+          width: width ?? "auto",
+          position: "sticky", 
+          top: 0,
+          zIndex: 10,
         }}
       >
         {isArray(columns) &&
@@ -130,6 +148,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
         sx={{
           minHeight: "480px",
           maxHeight: `${pageSize > 10 ? pageSize * 48 : 480}px`,
+          position: "relative",
           ...styleBody,
         }}
       >
@@ -153,6 +172,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
                     backgroundColor: "#e4e4e4",
                     cursor: "pointer",
                   },
+                  width: width ?? "auto",
                 }}
               >
                 {columns.map((column) => {
@@ -180,11 +200,13 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
         <Box
           sx={{
             width: "100%",
+            position: "sticky",
+            bottom: 0,
+            left: 0,
             borderRadius: 1,
             height: "50px",
             background: "#fff",
             marginTop: "20px",
-            position: "relative",
             boxShadow: "0px 5px 10px rgba(0, 0, 0, 0.05)",
           }}
         >

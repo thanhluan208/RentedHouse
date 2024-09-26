@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { House } from "../Pages/Home/interface";
-import HouseServices from "../Services/House.services";
+import HouseServices from "../Services/House.service";
 import { AxiosResponse } from "axios";
 
 const useGetHouse = (id: string, isTrigger = true) => {

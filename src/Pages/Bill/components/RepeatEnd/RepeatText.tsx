@@ -18,10 +18,11 @@ const RepeatText = () => {
     startDate,
   } = values;
 
+
   const rule = new RRule({
     freq: repeatType.value as Frequency,
     interval: repeatEvery,
-    dtstart: cloneDeep(startDate).add(5, "minute").toDate(),
+    dtstart: cloneDeep(startDate).startOf("day").toDate(),
     tzid: "Asia/Bangkok",
   });
 
@@ -36,7 +37,7 @@ const RepeatText = () => {
 
   useEffect(() => {
     setFieldValue("endRule", rule.toString());
-  }, [rule.toText()]);
+  }, [rule.toString()]);
 
   //! Function
 

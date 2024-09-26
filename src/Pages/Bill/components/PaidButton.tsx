@@ -254,13 +254,14 @@ const PaidButton = (props: IPaidButton) => {
         </CommonStyles.Dialog>
       )}
       <CommonStyles.Button
-        variant="outlined"
+        isIcon
+        tooltip="Pay bill"
         onClick={(e) => {
           e.stopPropagation();
           toggle();
         }}
       >
-        Pay bill
+        <CommonIcons.Payment />
       </CommonStyles.Button>
     </Fragment>
   );

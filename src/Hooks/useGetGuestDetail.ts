@@ -22,6 +22,8 @@ export interface GuestDetail {
   citizenIdBack?: string;
   createdAt: Date;
   updatedAt: Date;
+  checkIn: Date;
+  checkOut: Date;
   bills?: BillResponse[]
   __v: number;
 }

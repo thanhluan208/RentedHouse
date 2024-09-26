@@ -98,7 +98,6 @@ const ActionSchedulerDialog = (props: IActionSchedulerDialog) => {
         endRule: values.endRule,
       };
 
-      console.log(values)
 
       await httpServices.post(baseSchedulerApi, payload);
 

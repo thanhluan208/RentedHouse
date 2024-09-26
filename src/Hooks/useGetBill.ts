@@ -20,6 +20,7 @@ export interface BillResponse {
   proves?: string[];
   payDate?: Date;
   isExpense: boolean;
+  scheduler?: string;
   __v: number;
 }
 

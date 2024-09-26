@@ -116,13 +116,15 @@ const TableBill = ({ disabled }: { disabled?: boolean }) => {
     {
       id: "action",
       label: "Action",
-      width: 100,
+      width: 200,
       customRender: (_, rowIndex) => {
+        if(disabled) return <div />;
         return (
           <Box
             sx={{
               display: "flex",
               alignItems: "center",
+              justifyContent:'flex-end'
             }}
           >
             <CommonStyles.Button
@@ -198,7 +200,7 @@ const TableBill = ({ disabled }: { disabled?: boolean }) => {
                   minHeight: "unset",
                 }}
               />
-              <CommonStyles.Button
+              {!disabled && <CommonStyles.Button
                 variant="contained"
                 type="button"
                 sx={{ margin: "20px 0" }}
@@ -219,7 +221,7 @@ const TableBill = ({ disabled }: { disabled?: boolean }) => {
                 }}
               >
                 Add row
-              </CommonStyles.Button>
+              </CommonStyles.Button>}
             </Fragment>
           );
         }}

@@ -5,6 +5,8 @@ import { Box } from "@mui/material";
 import moment from "moment";
 import { useMemo, useState } from "react";
 import WeekDay from "./components/Weekday";
+import useGetListScheduler from "@/Hooks/useGetListScheduler";
+import { RRule } from "rrule";
 
 const weekDay = [
   "Sunday",
@@ -16,10 +18,12 @@ const weekDay = [
   "Saturday",
 ];
 
-
 const index = () => {
   //! State
   const [currentMonth, setCurrentMonth] = useState(moment());
+
+  const { data, isLoading } = useGetListScheduler();
+  console.log(data);
 
   const monthDays = useMemo(() => {
     const startOfMonth = currentMonth.clone().startOf("month").startOf("week");
@@ -111,11 +115,14 @@ const index = () => {
           borderRadius: " 8px",
           marginTop: "20px",
           overflow: "hidden",
+          position: "relative",
         }}
       >
+        <CommonStyles.LoadingOverlay isLoading={isLoading} />
         {monthDays.map((day, index) => {
           const notSameMonth = day.month() !== currentMonth.month();
           const isWeekend = day.day() === 0 || day.day() === 6;
+          const event = data.find((elm) => RRule.fromString(elm.endRule)?.origOptions?.dtstart?.getDate() === day.date());
           return (
             <WeekDay
               key={day.format("DDMMYYYY")}
@@ -124,6 +131,7 @@ const index = () => {
               index={index}
               monthDays={monthDays}
               isWeekend={isWeekend}
+              event={event}
             />
           );
         })}

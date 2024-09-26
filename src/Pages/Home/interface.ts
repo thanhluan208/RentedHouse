@@ -1,5 +1,5 @@
 import { OptionCommon } from "../../Interfaces/common";
-import { HouseStatusEnum } from "../../Services/House.services";
+import { HouseStatusEnum } from "../../Services/House.service";
 
 export interface House {
   _id: string;

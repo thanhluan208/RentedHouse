@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import HouseServices from "../Services/House.services";
+import HouseServices from "../Services/House.service";
 import { AxiosResponse } from "axios";
 import { House } from "../Pages/Home/interface";
 
