@@ -36,6 +36,8 @@ const WeekDay = ({
           cursor: notSameMonth ? "default" : "pointer",
           width: "100%",
           aspectRatio: "1/1",
+          maxHeight: "100%",
+          overflowY: "auto",
           background: event
             ? theme.palette.success.main
             : day.format("DDMMYYYY") === moment().format("DDMMYYYY")
@@ -61,10 +63,16 @@ const WeekDay = ({
         <CommonStyles.Typography
           color={isWeekend ? "red" : ""}
           padding="12px 12px 6px 12px"
+          sx={{
+            position:"sticky",
+            top:0,
+            zIndex:10,
+            backdropFilter: "blur(1000px)",
+          }}
         >
           {day.format(notSameMonth ? "DD/MM" : "DD")}
         </CommonStyles.Typography>
-        {event && (
+        {event && day.isAfter(moment()) && (
           <Box
             sx={{
               display: "flex",
