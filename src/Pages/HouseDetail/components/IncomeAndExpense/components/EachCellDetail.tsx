@@ -1,14 +1,24 @@
 import CommonIcons from "@/Components/CommonIcons";
 import CommonStyles from "@/Components/CommonStyles";
 import { Column } from "@/Components/CommonStyles/Table";
+import cachedKeys from "@/Constants/cachedKeys";
 import { monthTextToNum } from "@/Helpers";
 import useGetListBill, { BillResponse } from "@/Hooks/useGetBill";
-import { useGet } from "@/Stores/useStore";
-import { Box, DialogContent, DialogTitle } from "@mui/material";
+import useToggleDialog from "@/Hooks/useToggleDialog";
+import BillServices from "@/Services/Bill.service";
+import { useGet, useSave } from "@/Stores/useStore";
+import {
+  Box,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
+  useTheme,
+} from "@mui/material";
 import { capitalize, cloneDeep, isEmpty } from "lodash";
 import moment, { Moment } from "moment";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { Fragment } from "react/jsx-runtime";
+import { BillActionDialog } from "../../GenBill/CreateBillButton";
 
 interface IEachCellDetail {
   month: string;
@@ -19,8 +29,10 @@ interface IEachCellDetail {
 const EachCellDetail = (props: IEachCellDetail) => {
   //! State
   const { month, content, type, toggle } = props;
+  const { open, shouldRender, toggle: toggleBillDetail } = useToggleDialog();
   const year: Moment = useGet("YEAR");
-
+  const theme = useTheme();
+  const save = useSave();
   const payload = useMemo(() => {
     const payDate = year.set("month", monthTextToNum(capitalize(month)) - 1);
 
@@ -34,26 +46,40 @@ const EachCellDetail = (props: IEachCellDetail) => {
 
   const { data, isLoading } = useGetListBill(payload);
 
-  const filterData: Omit<BillResponse, "contents">[] = useMemo(() => {
+  const filterData: BillResponse[] = useMemo(() => {
     if (isEmpty(data)) return [];
 
     return cloneDeep(data)
       .map((item) => {
         return {
           ...item,
-          contents: item.contents.find((elm) => elm.name === content),
+          contents: cloneDeep(item.contents).filter((elm) => {
+            if (content) {
+              return elm.name === content;
+            }
+            return elm;
+          }),
         };
       })
-      .filter((item) => item.contents)
+      .filter((item) => !isEmpty(item.contents))
       .sort((a, b) => {
-        return a.room.name.localeCompare(b.room.name);
+        return a.room?.name.localeCompare(b.room?.name);
       });
   }, [data]);
 
   //! Function
+  const clickRow = useCallback(
+    (row: BillResponse) => {
+      const bill = data.find((elm) => elm._id === row._id);
+      if (!bill) return;
+      save(cachedKeys.BILL_DETAIL, BillServices.parseResponseBill(bill));
+      toggleBillDetail();
+    },
+    [save, data, toggleBillDetail]
+  );
 
   //! Render
-  const columns: Column<Omit<BillResponse, "contents">>[] = useMemo(() => {
+  const columns: Column<BillResponse>[] = useMemo(() => {
     return [
       {
         id: "id",
@@ -73,7 +99,7 @@ const EachCellDetail = (props: IEachCellDetail) => {
         customRender: (row) => {
           return (
             <CommonStyles.Typography type="bold14">
-              {row.guest.name}
+              {row?.guest?.name ?? "--"}
             </CommonStyles.Typography>
           );
         },
@@ -103,10 +129,14 @@ const EachCellDetail = (props: IEachCellDetail) => {
       {
         id: "price",
         label: "Price",
-        customRender: (row: any) => {
+        customRender: (row) => {
           return (
             <CommonStyles.Typography type="bold14">
-              {row.contents.price.toLocaleString()}
+              {row.contents
+                .reduce((acc, elm) => {
+                  return acc + elm.price;
+                }, 0)
+                .toLocaleString("vi-VN")}
             </CommonStyles.Typography>
           );
         },
@@ -116,6 +146,20 @@ const EachCellDetail = (props: IEachCellDetail) => {
 
   return (
     <Fragment>
+      {shouldRender && (
+        <CommonStyles.Dialog
+          open={open}
+          toggle={toggleBillDetail}
+          onClose={toggleBillDetail}
+          maxWidth="lg"
+          fullWidth
+        >
+          <BillActionDialog
+            toggle={toggleBillDetail}
+            refetchKey={cachedKeys.REFETCH_BILL_LIST}
+          />
+        </CommonStyles.Dialog>
+      )}
       <CommonStyles.LoadingOverlay isLoading={isLoading} />
       <DialogTitle>
         <Box
@@ -126,10 +170,37 @@ const EachCellDetail = (props: IEachCellDetail) => {
             width: "100%",
           }}
         >
-          <CommonStyles.Typography type="bold24">
-            {content} - {monthTextToNum(capitalize(month))}/
-            {year.format("YYYY")}
-          </CommonStyles.Typography>
+          <Box
+            sx={{
+              display: "flex",
+              gap: "12px",
+              alignItems: "center",
+            }}
+          >
+            <CommonStyles.Typography type="bold24">
+              {content || `Total ${capitalize(type)}`} -{" "}
+              {monthTextToNum(capitalize(month))}/{year.format("YYYY")}
+            </CommonStyles.Typography>
+            {content && (
+              <Box
+                sx={{
+                  background:
+                    type === "expense"
+                      ? theme.palette.error.main
+                      : theme.palette.success.main,
+                  width: "fit-content",
+                  padding: "4px 12px",
+                  height: "fit-content",
+                  borderRadius: "8px",
+                  color: theme.palette.error.contrastText,
+                }}
+              >
+                <CommonStyles.Typography type="bold12">
+                  {capitalize(type)}
+                </CommonStyles.Typography>
+              </Box>
+            )}
+          </Box>
           <CommonStyles.Button
             isIcon
             onClick={(e) => {
@@ -142,8 +213,37 @@ const EachCellDetail = (props: IEachCellDetail) => {
         </Box>
       </DialogTitle>
       <DialogContent>
-        <CommonStyles.Table data={filterData} columns={columns} />
+        <CommonStyles.Table
+          data={filterData}
+          columns={columns}
+          onClickRow={clickRow}
+        />
       </DialogContent>
+      <DialogActions>
+        <Box
+          sx={{
+            display: "flex",
+            width: "100%",
+            justifyContent: "flex-start",
+            padding: "20px 24px 10px",
+            borderTop: "1px solid #e0e0e0",
+          }}
+        >
+          <CommonStyles.Typography type="normal18">
+            <b>Total</b> :{" "}
+            {filterData
+              .reduce((acc, elm) => {
+                return (
+                  acc +
+                  elm.contents.reduce((acc2, elm2) => {
+                    return acc2 + elm2.price;
+                  }, 0)
+                );
+              }, 0)
+              .toLocaleString("vi-VN")}
+          </CommonStyles.Typography>
+        </Box>
+      </DialogActions>
     </Fragment>
   );
 };

@@ -186,6 +186,10 @@ const TableBill = ({ disabled }: { disabled?: boolean }) => {
     },
   ];
 
+  if(disabled) {
+    columns.pop();
+  }
+
   return (
     <Box>
       <FieldArray

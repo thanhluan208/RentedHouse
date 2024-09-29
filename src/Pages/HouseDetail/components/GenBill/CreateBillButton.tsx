@@ -59,7 +59,6 @@ export const BillActionDialog = (props: IBillActionDialog) => {
   const dataBill: PDFInitValues = useGet("BILL_DETAIL");
   const refetch = useGet(refetchKey as any);
   
-  console.log("dataBill", dataBill);
 
   const isPaid = useMemo(() => {
     return dataBill?.status?.toLowerCase() === "paid";
@@ -435,9 +434,11 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                         setFieldValue("images", newFiles);
                       }}
                     />
-                  ) : (
-                    <RepeatExpense />
-                  )}
+                  ) : !isPaid ? (
+                    (
+                      <RepeatExpense />
+                    )
+                  ) : null}
                 </DialogContent>
               </PerfectScrollbar>
 
