@@ -257,7 +257,7 @@ const BillTable = (props: IBillTable) => {
               >
                 <CommonIcons.Queue />
               </CommonStyles.Button>
-              <DeleteButton billId={row?._id} />
+              <DeleteButton billId={row?._id}  scheduler={row?.scheduler}/>
               <SchedulerAction billId={row?._id} scheduler={row?.scheduler} />
               {row.status.toLowerCase() === BillStatus.UNPAID && (
                 <PaidButton data={row} />

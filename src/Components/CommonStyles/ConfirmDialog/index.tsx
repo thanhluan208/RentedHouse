@@ -1,12 +1,12 @@
 import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
-import { ReactNode, useEffect } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import CommonStyles from "..";
 import CommonIcons from "../../CommonIcons";
 import { useSave } from "../../../Stores/useStore";
 import cachedKeys from "../../../Constants/cachedKeys";
 
 interface IConfirmDialog {
-  handleConfirm: () => void;
+  handleConfirm: () => Promise<void>;
   toggle: () => void;
   content: ReactNode | string;
   title?: ReactNode | string;
@@ -15,6 +15,7 @@ interface IConfirmDialog {
 const ConfirmDialog = (props: IConfirmDialog) => {
   //! State
   const { toggle, handleConfirm, content, title = "Confirm delete" } = props;
+  const [loading, setLoading] = useState(false);
   const save = useSave();
   //! Function
   useEffect(() => {
@@ -89,9 +90,13 @@ const ConfirmDialog = (props: IConfirmDialog) => {
             }}
             type="submit"
             color="error"
-            onClick={(e) => {
+            disabled={loading}
+            onClick={async (e) => {
               e.stopPropagation();
-              handleConfirm();
+              if(loading) return;
+              setLoading(true);
+              await handleConfirm();
+              setLoading(false);
             }}
           >
             Confirm

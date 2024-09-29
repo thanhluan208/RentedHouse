@@ -8,6 +8,7 @@ import { useGet } from "../../../Stores/useStore";
 
 interface IDeleteButton {
   billId: string;
+  scheduler?: string;
 }
 
 const DeleteButton = (props: IDeleteButton) => {
@@ -17,6 +18,7 @@ const DeleteButton = (props: IDeleteButton) => {
 
   //! Function
   const handleDelete = async () => {
+    if (props.scheduler || !props.billId) return;
     const loading = toast.loading("Deleting...", {
       isLoading: true,
       autoClose: false,
@@ -47,10 +49,14 @@ const DeleteButton = (props: IDeleteButton) => {
   return (
     <Fragment>
       {shouldRender && (
-        <CommonStyles.Dialog toggle={toggle} open={open} onClose={(e: any) => {
+        <CommonStyles.Dialog
+          toggle={toggle}
+          open={open}
+          onClose={(e: any) => {
             e.stopPropagation();
             toggle();
-        }}>
+          }}
+        >
           <CommonStyles.ConfirmDialog
             toggle={toggle}
             content="Do you want to delete this bill?"
@@ -58,10 +64,20 @@ const DeleteButton = (props: IDeleteButton) => {
           />
         </CommonStyles.Dialog>
       )}
-      <CommonStyles.Button isIcon color="error" onClick={(e) => {
-        e.stopPropagation();
-        toggle();
-      }}>
+      <CommonStyles.Button
+        isIcon
+        color="error"
+        onClick={(e) => {
+          e.stopPropagation();
+          toggle();
+        }}
+        disabled={!!props?.scheduler}
+        tooltip={
+          props?.scheduler
+            ? "This bill is in scheduler cannot delete"
+            : "Delete bill"
+        }
+      >
         <CommonIcons.Delete />
       </CommonStyles.Button>
     </Fragment>
