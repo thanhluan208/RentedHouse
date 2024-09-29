@@ -53,8 +53,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
   const gridTemplateColumns = useMemo(() => {
     if (!isArray(columns)) return "";
     return columns.reduce((acc, columns) => {
-      console.log("columns", columns);
-      return (
+        return (
         acc +
         `${
           columns.width
@@ -124,7 +123,7 @@ const Table = <T extends BaseRow>(props: ITable<T>) => {
           backgroundColor: "white",
           borderRadius: "4px 4px 0 0 ",
           width: width ?? "auto",
-          position: "sticky", 
+          position: "sticky",
           top: 0,
           zIndex: 10,
         }}

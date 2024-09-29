@@ -18,13 +18,12 @@ const RepeatText = () => {
     startDate,
   } = values;
 
-
   const rule = new RRule({
     freq: repeatType.value as Frequency,
     interval: repeatEvery,
     dtstart: cloneDeep(startDate).startOf("day").toDate(),
-    tzid: "Asia/Bangkok",
   });
+
 
   if (repeatEnd === "after") {
     rule.options.count = repeatEndAfter;

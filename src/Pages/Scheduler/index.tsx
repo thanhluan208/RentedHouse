@@ -23,7 +23,6 @@ const index = () => {
   const [currentMonth, setCurrentMonth] = useState(moment());
 
   const { data, isLoading } = useGetListScheduler();
-  console.log(data);
 
   const monthDays = useMemo(() => {
     const startOfMonth = currentMonth.clone().startOf("month").startOf("week");

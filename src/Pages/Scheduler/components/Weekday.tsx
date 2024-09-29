@@ -2,6 +2,7 @@ import CommonStyles from "@/Components/CommonStyles";
 import { SchedulerResponse } from "@/Hooks/useGetListScheduler";
 import { Box, Tooltip, useTheme } from "@mui/material";
 import moment, { Moment } from "moment";
+import { memo } from "react";
 import { Fragment } from "react/jsx-runtime";
 
 interface WeekDayProps {
@@ -23,7 +24,6 @@ const WeekDay = ({
 }: WeekDayProps) => {
   //! State
   const theme = useTheme();
-  console.log("event", event);
 
   //! Function
 
@@ -38,6 +38,7 @@ const WeekDay = ({
           aspectRatio: "1/1",
           maxHeight: "100%",
           overflowY: "auto",
+          paddingBottom: "12px",
           background: event
             ? theme.palette.success.main
             : day.format("DDMMYYYY") === moment().format("DDMMYYYY")
@@ -64,9 +65,9 @@ const WeekDay = ({
           color={isWeekend ? "red" : ""}
           padding="12px 12px 6px 12px"
           sx={{
-            position:"sticky",
-            top:0,
-            zIndex:10,
+            position: "sticky",
+            top: 0,
+            zIndex: 10,
             backdropFilter: "blur(1000px)",
           }}
         >
@@ -130,4 +131,4 @@ const WeekDay = ({
   );
 };
 
-export default WeekDay;
+export default memo(WeekDay);

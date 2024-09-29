@@ -13,6 +13,7 @@ import { OptionCommon } from "@/Interfaces/common";
 import { toast } from "react-toastify";
 import httpServices from "@/Services/http.services";
 import { baseSchedulerApi } from "@/Constants/api";
+import { useGet } from "@/Stores/useStore";
 
 interface IActionSchedulerDialog {
   toggle: () => void;
@@ -85,6 +86,8 @@ const ActionSchedulerDialog = (props: IActionSchedulerDialog) => {
     };
   }, [billIds]);
 
+  const refetchListBill = useGet('REFETCH_BILL_LIST')
+
 
   //! Function
   const handleSubmit = async (values: SchedulerInitialValue) => {
@@ -100,6 +103,8 @@ const ActionSchedulerDialog = (props: IActionSchedulerDialog) => {
 
 
       await httpServices.post(baseSchedulerApi, payload);
+
+      refetchListBill && await refetchListBill()
 
       toast.update(toastId, {
         render: "Success",
