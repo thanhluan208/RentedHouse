@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react";
 import { cloneDeep } from "lodash";
-import CommonSelect from "../../../Components/CommonStyles/Select";
-import useGetListHouses from "../../../Hooks/useGetListHouse";
+import CommonSelect from "../../../../Components/CommonStyles/Select";
+import useGetListHouses from "../../../../Hooks/useGetListHouse";
 
 interface IHouseSelect {
   room: string;

@@ -49,6 +49,7 @@ const useGetListBill = (
   const callApi = useCallback(() => {
     const nextparams = {
       ...params,
+      isExpense: params.isExpense === "all" ? undefined : params.isExpense,
       startDate: params.startDate?.toDate() || undefined,
       endDate: params.endDate?.toDate() || undefined,
     };

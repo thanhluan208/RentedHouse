@@ -1,6 +1,6 @@
 import { memo } from "react";
-import CommonSelect from "../../../Components/CommonStyles/Select";
-import { BillStatus } from "../../../Interfaces/common";
+import CommonSelect from "../../../../Components/CommonStyles/Select";
+import { BillStatus } from "../../../../Interfaces/common";
 
 interface IStatusSelect {
   setFilters: any;

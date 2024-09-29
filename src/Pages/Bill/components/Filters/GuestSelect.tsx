@@ -1,7 +1,7 @@
 import { memo, useMemo } from "react";
 import { cloneDeep } from "lodash";
-import CommonSelect from "../../../Components/CommonStyles/Select";
-import useGetListGuest from "../../../Hooks/useGetListGuest";
+import CommonSelect from "../../../../Components/CommonStyles/Select";
+import useGetListGuest from "../../../../Hooks/useGetListGuest";
 
 interface IGuestSelect {
   room?: string;
@@ -25,7 +25,7 @@ const GuestSelect = (props: IGuestSelect) => {
     return nextOptions.filter((guest) => {
       let valid = true;
       if (room) {
-        valid = guest.room === room;
+        valid = guest.room?._id === room;
       }
 
       if (house) {

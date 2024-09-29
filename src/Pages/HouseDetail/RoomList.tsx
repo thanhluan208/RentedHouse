@@ -90,6 +90,7 @@ const RoomList = (props: IRoomList) => {
             }}
           >
             {data?.rooms?.map((room) => {
+              if(room.isDefault) return null;
               return <EachRoom key={room._id} data={room} />;
             })}
           </Mansory>

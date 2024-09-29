@@ -10,6 +10,7 @@ const useGetTotalBill = (filters: any, isTrigger = true) => {
   const callApi = useCallback(() => {
     const nextFiters = {
       ...filters,
+      isExpense: filters.isExpense === "all" ? undefined : filters.isExpense,
       startDate: filters.startDate?.toDate() || undefined,
       endDate: filters.endDate?.toDate() || undefined,
     }

@@ -3,11 +3,10 @@ import { Box } from "@mui/material";
 import { capitalize, cloneDeep, isString } from "lodash";
 import { useEffect, useMemo, useRef, useState } from "react";
 import EachRow from "./components/EachRow";
-import EditButton from "./components/EditButton";
 import AddRowButton from "./components/AddRowButton";
 import { IncomeAndExpenseColumn, initvalueDefault } from "./type";
 import EditColumnButton from "./components/EditColumnButton";
-import { FieldArray, FieldArrayRenderProps, Form, Formik } from "formik";
+import { FieldArray, Form, Formik } from "formik";
 import FormikEffect from "./components/FormikEffect";
 import * as yup from "yup";
 import { useSave } from "@/Stores/useStore";
@@ -285,11 +284,6 @@ const IncomeAndExpense = () => {
     }
   };
 
-  const handleRemoveRow = (index: number) => {
-    const arrayHelper: FieldArrayRenderProps = arrayHelperRef.current;
-    arrayHelper.remove(index);
-  };
-
   const validationSchema = yup.object().shape({
     incomeAndExpenses: yup
       .array()
@@ -304,6 +298,11 @@ const IncomeAndExpense = () => {
   useEffect(() => {
     save(cachedKeys.COLUMN_INCOME_EXPENSE, column);
   }, [column]);
+
+  useEffect(() => {
+    save(cachedKeys.YEAR, year);
+  }, [year, save]);
+
   //! Render
   return (
     <Box
@@ -362,7 +361,6 @@ const IncomeAndExpense = () => {
           }}
         >
           <EditColumnButton column={column} setColumn={setColumn} />
-          {/* <EditButton /> */}
         </Box>
 
         <Box
@@ -488,7 +486,6 @@ const IncomeAndExpense = () => {
                               column={column}
                               row={row}
                               borderRadius={borderRadius}
-                              handleRemoveRow={() => handleRemoveRow(index)}
                             />
                           );
                         })}

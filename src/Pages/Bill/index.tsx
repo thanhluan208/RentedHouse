@@ -8,7 +8,7 @@ import cachedKeys from "../../Constants/cachedKeys";
 import AddBillButton from "./components/AddBillButton";
 import useFilters from "../../Hooks/useFilters";
 import useGetTotalBill from "../../Hooks/useGetTotalBill";
-import FilterBill from "./components/FilterBill";
+import FilterBill from "./components/Filters/FilterBill";
 
 const Bill = () => {
   //! State
@@ -19,7 +19,8 @@ const Bill = () => {
     });
 
   const totalFilters = useMemo(() => {
-    const { page, pageSize, ...rest } = filters;
+    console.log(filters);
+    const { page, pageSize, ...rest } = filters || {};
     return rest;
   }, [filters]);
 

@@ -3,9 +3,10 @@ import RoomSelect from "./RoomSelect";
 import HouseSelect from "./HouseSelect";
 import GuestSelect from "./GuestSelect";
 import StatusSelect from "./StatusSelect";
-import DatePickerCommon from "../../../Components/CommonStyles/DatePicker";
-import CommonStyles from "../../../Components/CommonStyles";
-import CommonIcons from "../../../Components/CommonIcons";
+import DatePickerCommon from "../../../../Components/CommonStyles/DatePicker";
+import CommonStyles from "../../../../Components/CommonStyles";
+import CommonIcons from "../../../../Components/CommonIcons";
+import TypeSelect from "./TypeSelect";
 
 interface IFilterBill {
   filters: any;
@@ -16,7 +17,6 @@ interface IFilterBill {
 const FilterBill = (props: IFilterBill) => {
   //! State
   const { filters, setFilter, resetFilter } = props;
-
   //! Function
 
   //! Render
@@ -57,6 +57,7 @@ const FilterBill = (props: IFilterBill) => {
             filters={filters}
           />
           <StatusSelect setFilters={setFilter} filters={filters} />
+          <TypeSelect setFilters={setFilter} filters={filters} />
         </Box>
         <Box
           sx={{

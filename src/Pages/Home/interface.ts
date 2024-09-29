@@ -32,6 +32,7 @@ export interface Room {
   house: string;
   createdAt: Date;
   updatedAt: Date;
+  isDefault: boolean;
   __v: number;
 }
 

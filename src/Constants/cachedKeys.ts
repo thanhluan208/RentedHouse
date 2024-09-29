@@ -22,4 +22,7 @@ export default {
   //! DATA
   BILL_DETAIL: "BILL_DETAIL",
 
+  //! HOUSE
+  YEAR: "YEAR",
+
 } as const;
