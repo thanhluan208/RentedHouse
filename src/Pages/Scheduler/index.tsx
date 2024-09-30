@@ -3,10 +3,12 @@ import CommonStyles from "@/Components/CommonStyles";
 import OpenSidebarButton from "@/Components/CommonStyles/OpenSidebarButton/OpenSidebarButton";
 import { Box } from "@mui/material";
 import moment from "moment";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import WeekDay from "./components/Weekday";
 import useGetListScheduler from "@/Hooks/useGetListScheduler";
 import { RRule } from "rrule";
+import { useSave } from "@/Stores/useStore";
+import cachedKeys from "@/Constants/cachedKeys";
 
 const weekDay = [
   "Sunday",
@@ -22,7 +24,8 @@ const index = () => {
   //! State
   const [currentMonth, setCurrentMonth] = useState(moment());
 
-  const { data, isLoading } = useGetListScheduler();
+  const { data, isLoading, refetch } = useGetListScheduler();
+  const save = useSave()
 
   const monthDays = useMemo(() => {
     const startOfMonth = currentMonth.clone().startOf("month").startOf("week");
@@ -39,6 +42,11 @@ const index = () => {
   }, [currentMonth]);
 
   //! Function
+  useEffect(() => {
+    save(cachedKeys.REFETCH_SCHEDULE_LIST, refetch);
+
+    return () => save(cachedKeys.REFETCH_SCHEDULE_LIST, null);
+  },[refetch, save])
 
   //! Render
   return (

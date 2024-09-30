@@ -6,7 +6,7 @@ import { useFormikContext } from "formik";
 import { MoneyFlowResponse } from "@/Hooks/useGetHouseMoneyFlow";
 import { cloneDeep, isString } from "lodash";
 import { removeAllDot } from "@/Helpers";
-import EachCellDetail from "./EachCellDetail";
+import EachCellDetail from "./TableRow/EachCellDetail";
 
 interface ITotalRow {
   column: IncomeAndExpenseColumn[];

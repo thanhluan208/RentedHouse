@@ -2,7 +2,6 @@ import CommonStyles from "@/Components/CommonStyles";
 import { Box } from "@mui/material";
 import { capitalize, cloneDeep, isString } from "lodash";
 import { useEffect, useMemo, useRef, useState } from "react";
-import EachRow from "./components/EachRow";
 import AddRowButton from "./components/AddRowButton";
 import { IncomeAndExpenseColumn, initvalueDefault } from "./type";
 import EditColumnButton from "./components/EditColumnButton";
@@ -23,6 +22,7 @@ import useGetHouseMoneyFlow, {
 import TotalRow from "./components/TotalRow";
 import moment from "moment";
 import Chart from "./components/Chart";
+import EachRow from "./components/TableRow/EachRow";
 
 const columns = [
   {

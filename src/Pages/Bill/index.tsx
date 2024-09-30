@@ -19,7 +19,6 @@ const Bill = () => {
     });
 
   const totalFilters = useMemo(() => {
-    console.log(filters);
     const { page, pageSize, ...rest } = filters || {};
     return rest;
   }, [filters]);
@@ -36,6 +35,8 @@ const Bill = () => {
   //! Function
   useEffect(() => {
     save(cachedKeys.REFETCH_BILL_LIST, refetchBill);
+
+    return () => save(cachedKeys.REFETCH_BILL_LIST, null);
   }, [save, refetchBill]);
 
   //! Render

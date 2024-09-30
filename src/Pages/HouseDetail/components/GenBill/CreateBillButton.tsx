@@ -343,7 +343,8 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                             <CommonStyles.Button
                               variant={values.isExpense ? "contained" : "text"}
                               startIcon={<CommonIcons.MoneyOff />}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setFieldValue("isExpense", true);
                               }}
                             >
@@ -352,7 +353,8 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                             <CommonStyles.Button
                               variant={values.isExpense ? "text" : "contained"}
                               startIcon={<CommonIcons.AttachMoney />}
-                              onClick={() => {
+                              onClick={(e) => {
+                                e.stopPropagation();
                                 setFieldValue("isExpense", false);
                               }}
                             >
@@ -494,8 +496,9 @@ export const BillActionDialog = (props: IBillActionDialog) => {
                   <CommonStyles.Button
                     variant="outlined"
                     onClick={(event) => {
-                      handleDownloadPDF(values, setSubmitting);
                       event.stopPropagation();
+
+                      handleDownloadPDF(values, setSubmitting);
                     }}
                     disabled={
                       isSubmitting || !values.room || !values.guest || !dirty

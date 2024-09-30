@@ -1,16 +1,17 @@
 import CommonStyles from "@/Components/CommonStyles";
 import useToggleDialog from "@/Hooks/useToggleDialog";
 import { Fragment, useEffect } from "react";
-import ActionSchedulerDialog from "./ActionSchedulerDialog";
 import CommonIcons from "@/Components/CommonIcons";
 import { useSave } from "@/Stores/useStore";
 import cachedKeys from "@/Constants/cachedKeys";
+import { BillResponse } from "@/Hooks/useGetBill";
+import ListSchedulerDialog from "./ListSchedulerDialog";
 
 const SchedulerAction = ({
-  billId,
   scheduler,
+  bill
 }: {
-  billId: string;
+  bill: BillResponse;
   scheduler?: string;
 }) => {
   //! State
@@ -31,19 +32,17 @@ const SchedulerAction = ({
           toggle={toggle}
           open={open}
           fullWidth
-          maxWidth="sm"
+          maxWidth="lg"
+          onClick={(e) => e.stopPropagation()}
         >
-          <ActionSchedulerDialog toggle={toggle} billIds={[billId]} />
+          <ListSchedulerDialog toggle={toggle} bill={bill}/>
         </CommonStyles.Dialog>
       )}
       <CommonStyles.Button
         isIcon
-        disabled={!!scheduler}
         tooltip={scheduler ? "Already scheduled" : "Scheduler"}
         onClick={(e) => {
           e.stopPropagation();
-          if (scheduler) return;
-
           toggle();
         }}
       >

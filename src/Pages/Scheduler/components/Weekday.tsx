@@ -1,9 +1,13 @@
 import CommonStyles from "@/Components/CommonStyles";
 import { SchedulerResponse } from "@/Hooks/useGetListScheduler";
+import useToggleDialog from "@/Hooks/useToggleDialog";
+import ActionSchedulerDialog, { repeatTypeOptions } from "@/Pages/Bill/components/Scheduler/ActionSchedulerDialog";
+
 import { Box, Tooltip, useTheme } from "@mui/material";
 import moment, { Moment } from "moment";
-import { memo } from "react";
+import { memo, useMemo } from "react";
 import { Fragment } from "react/jsx-runtime";
+import { RRule } from "rrule";
 
 interface WeekDayProps {
   day: Moment;
@@ -24,16 +28,55 @@ const WeekDay = ({
 }: WeekDayProps) => {
   //! State
   const theme = useTheme();
+  const { open, shouldRender, toggle } = useToggleDialog();
 
+  const parseData = useMemo(() => {
+    const rule = RRule.fromString(event?.endRule || "").origOptions;
+
+    const endRule: any = {
+      repeatEvery: rule.interval || 1,
+      repeatType:
+        repeatTypeOptions.find((elm) => elm.value === rule.freq) ||
+        repeatTypeOptions[0],
+      repeatEnd: rule.count ? "after" : rule.until ? "date" : "never",
+    };
+
+    if (rule.count) {
+      endRule.repeatEndAfter = rule.count;
+    }
+
+    if (rule.until) {
+      endRule.repeatEndDate = moment(rule.until);
+    }
+
+    return {
+      ...endRule,
+      id: event?._id,
+      bills: event?.bills || [],
+      startDate: moment(rule.dtstart),
+      targetMail: event?.targetMail || "",
+    };
+  }, [event]);
   //! Function
 
   //! Render
   return (
     <Fragment>
+      {shouldRender && event && (
+        <CommonStyles.Dialog
+          toggle={toggle}
+          open={open}
+          fullWidth
+          maxWidth="lg"
+        >
+          <ActionSchedulerDialog toggle={toggle} initData={parseData} />
+        </CommonStyles.Dialog>
+      )}
       <Box
+        onClick={event ? toggle : undefined}
         key={day.format("ddmmyyyy")}
         sx={{
-          cursor: notSameMonth ? "default" : "pointer",
+          cursor: !event ? "default" : "pointer",
           width: "100%",
           aspectRatio: "1/1",
           maxHeight: "100%",

@@ -1,6 +1,6 @@
 import CommonStyles from "@/Components/CommonStyles";
 import { useFormikContext } from "formik";
-import { SchedulerInitialValue } from "../ActionSchedulerDialog";
+import { SchedulerInitialValue } from "../Scheduler/ActionSchedulerDialog";
 import { Frequency, RRule } from "rrule";
 import { useEffect } from "react";
 import moment from "moment";

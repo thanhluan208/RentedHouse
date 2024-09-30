@@ -4,20 +4,25 @@ import CommonStyles from "@/Components/CommonStyles";
 import { Box, DialogActions, DialogContent, DialogTitle } from "@mui/material";
 import { FastField, Field, Form, Formik } from "formik";
 import { useMemo } from "react";
-import RepeatEndDate from "./RepeatEnd/RepeatEndDate";
+import RepeatEndDate from "../RepeatEnd/RepeatEndDate";
 import moment, { Moment } from "moment";
-import RepeatEndAfter from "./RepeatEnd/RepeatEndAfter";
+import RepeatEndAfter from "../RepeatEnd/RepeatEndAfter";
 import { RRule } from "rrule";
-import RepeatText from "./RepeatEnd/RepeatText";
+import RepeatText from "../RepeatEnd/RepeatText";
 import { OptionCommon } from "@/Interfaces/common";
 import { toast } from "react-toastify";
 import httpServices from "@/Services/http.services";
 import { baseSchedulerApi } from "@/Constants/api";
 import { useGet } from "@/Stores/useStore";
+import { BillResponse } from "@/Hooks/useGetBill";
+import SchedulerBills from "./SchedulerBills";
 
 interface IActionSchedulerDialog {
   toggle: () => void;
-  billIds: string[];
+  bills?: BillResponse[];
+  initData?: SchedulerInitialValue & {
+    id: string
+  };
 }
 
 export interface SchedulerInitialValue {
@@ -26,13 +31,13 @@ export interface SchedulerInitialValue {
   repeatEnd: string;
   repeatEndAfter: number;
   repeatEndDate: Moment;
-  bills: string[];
+  bills: BillResponse[];
   startDate: Moment;
   endRule: string;
   targetMail: string;
 }
 
-const repeatTypeOptions = [
+export const repeatTypeOptions = [
   {
     value: RRule.DAILY,
     label: "Day",
@@ -68,8 +73,10 @@ const repeatEndOptions = [
 
 const ActionSchedulerDialog = (props: IActionSchedulerDialog) => {
   //! State
-  const { toggle, billIds } = props;
+  const { toggle, bills, initData } = props;
+
   const initialValues: SchedulerInitialValue = useMemo(() => {
+    const { bills: initBills, ...initDataRest } = initData || {};
     return {
       repeatEvery: 1,
       repeatType: {
@@ -79,15 +86,20 @@ const ActionSchedulerDialog = (props: IActionSchedulerDialog) => {
       repeatEnd: "never",
       repeatEndAfter: 1,
       repeatEndDate: moment().add(1, "day"),
-      bills: billIds,
+      bills: bills || initBills || [],
       startDate: moment(),
       endRule: "Every month",
       targetMail: "",
+      ...initDataRest,
     };
-  }, [billIds]);
+  }, [bills, initData]);
 
-  const refetchListBill = useGet('REFETCH_BILL_LIST')
+  const refetchListBill = useGet("REFETCH_BILL_LIST");
+  const refetchScheduler = useGet('REFETCH_SCHEDULE_LIST')
 
+  const isEdit = useMemo(() => {
+    return !!initData;
+  }, [initData]);
 
   //! Function
   const handleSubmit = async (values: SchedulerInitialValue) => {
@@ -95,16 +107,20 @@ const ActionSchedulerDialog = (props: IActionSchedulerDialog) => {
 
     try {
       const payload = {
-        bills: values.bills,
+        bills: values.bills.map((elm) => elm._id),
         type: "Mail",
         targetMail: values.targetMail,
         endRule: values.endRule,
       };
 
+      if(isEdit) {
+        await httpServices.post(`${baseSchedulerApi}/${initData?.id}/update`, payload);
+      } else {
+        await httpServices.post(baseSchedulerApi, payload);
+      }
 
-      await httpServices.post(baseSchedulerApi, payload);
-
-      refetchListBill && await refetchListBill()
+      refetchListBill && (await refetchListBill());
+      refetchScheduler && (await refetchScheduler());
 
       toast.update(toastId, {
         render: "Success",
@@ -138,7 +154,7 @@ const ActionSchedulerDialog = (props: IActionSchedulerDialog) => {
                 }}
               >
                 <CommonStyles.Typography type="bold24">
-                  Create mail scheduler
+                  {isEdit ? "Edit mail scheduler" : "Create mail scheduler"}
                 </CommonStyles.Typography>
                 <CommonStyles.Button
                   isIcon
@@ -151,7 +167,14 @@ const ActionSchedulerDialog = (props: IActionSchedulerDialog) => {
                 </CommonStyles.Button>
               </Box>
             </DialogTitle>
-            <DialogContent>
+            <DialogContent
+              sx={{
+                maxHeight: "70vh",
+                "&::-webkit-scrollbar": {
+                  display: "none",
+                },
+              }}
+            >
               <Box
                 sx={{
                   display: "flex",
@@ -240,6 +263,8 @@ const ActionSchedulerDialog = (props: IActionSchedulerDialog) => {
               />
 
               <RepeatText />
+
+              <SchedulerBills bills={values.bills || []} />
             </DialogContent>
 
             <DialogActions>

@@ -17,7 +17,7 @@ import DeleteButton from "./DeleteButton";
 import { CommonFilter } from "../../Home/interface";
 import CommonIcons from "@/Components/CommonIcons";
 import { cloneDeep } from "lodash";
-import SchedulerAction from "./SchedulerAction";
+import SchedulerAction from "./Scheduler/SchedulerAction";
 
 interface IBillTable {
   data: BillResponse[];
@@ -258,7 +258,7 @@ const BillTable = (props: IBillTable) => {
                 <CommonIcons.Queue />
               </CommonStyles.Button>
               <DeleteButton billId={row?._id}  scheduler={row?.scheduler}/>
-              <SchedulerAction billId={row?._id} scheduler={row?.scheduler} />
+              <SchedulerAction bill={row} scheduler={row?.scheduler} />
               {row.status.toLowerCase() === BillStatus.UNPAID && (
                 <PaidButton data={row} />
               )}

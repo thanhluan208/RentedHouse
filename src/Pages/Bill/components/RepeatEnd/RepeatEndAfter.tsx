@@ -52,12 +52,13 @@ const RepeatEndAfter = () => {
         >
           <CommonIcons.KeyboardArrowUp
             onClick={() => {
+              if(repeatEnd !== "after") return;
               setFieldValue("repeatEvery", +values.repeatEvery + 1);
             }}
           />
           <CommonIcons.KeyboardArrowDown
             onClick={() => {
-              if (values.repeatEvery > 1) {
+              if (values.repeatEvery > 1 && repeatEnd === "after") {
                 setFieldValue("repeatEvery", +values.repeatEvery - 1);
               }
             }}

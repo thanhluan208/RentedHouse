@@ -43,7 +43,7 @@ const PaybillDialog = memo((props: IPayBillDialog) => {
     const { files } = values;
     const { setSubmitting } = formikHelper;
     setSubmitting(true);
-    const toastId = toast.loading("Uploading...", {
+    const toastId = toast.loading("Saving...", {
       autoClose: false,
       isLoading: true,
     });
@@ -72,7 +72,7 @@ const PaybillDialog = memo((props: IPayBillDialog) => {
       const listFile = await Promise.all(listPromise);
 
       toast.update(toastId, {
-        render: "Upload successfully!",
+        render: "Save successfully!",
         type: "success",
         isLoading: false,
         autoClose: 3000,
@@ -82,7 +82,7 @@ const PaybillDialog = memo((props: IPayBillDialog) => {
         payDate: values.paidDate.toDate(),
       });
     } catch (error: any) {
-      toast.error("Upload failed" + error.message);
+      toast.error("Save failed" + error.message);
     }
   };
 
@@ -127,6 +127,7 @@ const PaybillDialog = memo((props: IPayBillDialog) => {
                 name="paidDate"
                 component={CommonField.DatePickerField}
                 label="Pay date"
+                views={["month", "year"]}
               />
               <CommonStyles.FilesUpload
                 label="Upload Images"

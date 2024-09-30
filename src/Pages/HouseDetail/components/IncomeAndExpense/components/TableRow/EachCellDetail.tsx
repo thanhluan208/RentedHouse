@@ -18,7 +18,7 @@ import { capitalize, cloneDeep, isEmpty } from "lodash";
 import moment, { Moment } from "moment";
 import { useCallback, useMemo } from "react";
 import { Fragment } from "react/jsx-runtime";
-import { BillActionDialog } from "../../GenBill/CreateBillButton";
+import { BillActionDialog } from "../../../GenBill/CreateBillButton";
 
 interface IEachCellDetail {
   month: string;
@@ -41,8 +41,9 @@ const EachCellDetail = (props: IEachCellDetail) => {
       isExpense: type === "expense",
       page: 0,
       pageSize: 20,
+      content: content || "all",
     };
-  }, [year, month]);
+  }, [year, month, content]);
 
   const { data, isLoading } = useGetListBill(payload);
 
