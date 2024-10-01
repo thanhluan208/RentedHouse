@@ -3,15 +3,20 @@ import CommonStyles from "@/Components/CommonStyles";
 import { baseBillApi } from "@/Constants/api";
 import cachedKeys from "@/Constants/cachedKeys";
 import { BillResponse } from "@/Hooks/useGetBill";
-import useGetListScheduler from "@/Hooks/useGetListScheduler";
+import useGetListScheduler, {
+  SchedulerResponse,
+} from "@/Hooks/useGetListScheduler";
 import httpServices from "@/Services/http.services";
 import { useGet, useSave } from "@/Stores/useStore";
 import { Box, DialogContent, DialogTitle, useTheme } from "@mui/material";
 import { capitalize, isEmpty } from "lodash";
 import moment from "moment";
-import { Fragment } from "react";
+import { Fragment, useMemo, useState } from "react";
 import { toast } from "react-toastify";
 import { RRule } from "rrule";
+import ActionSchedulerDialog, {
+  repeatTypeOptions,
+} from "./ActionSchedulerDialog";
 
 interface IListSchedulerDialog {
   toggle: () => void;
@@ -24,7 +29,36 @@ const ListSchedulerDialog = (props: IListSchedulerDialog) => {
   const theme = useTheme();
   const save = useSave();
 
-  console.log("bill", bill);
+  const [currentScheduler, setCurrentScheduler] =
+    useState<SchedulerResponse | null>(null);
+  const parseData = useMemo(() => {
+    if (!currentScheduler) return null;
+    const rule = RRule.fromString(currentScheduler?.endRule || "").origOptions;
+
+    const endRule: any = {
+      repeatEvery: rule.interval || 1,
+      repeatType:
+        repeatTypeOptions.find((elm) => elm.value === rule.freq) ||
+        repeatTypeOptions[0],
+      repeatEnd: rule.count ? "after" : rule.until ? "date" : "never",
+    };
+
+    if (rule.count) {
+      endRule.repeatEndAfter = rule.count;
+    }
+
+    if (rule.until) {
+      endRule.repeatEndDate = moment(rule.until);
+    }
+
+    return {
+      ...endRule,
+      id: currentScheduler?._id,
+      bills: currentScheduler?.bills || [],
+      startDate: moment(rule.dtstart),
+      targetMail: currentScheduler?.targetMail || "",
+    };
+  }, [currentScheduler]);
 
   const isRegisted = !!bill.scheduler;
 
@@ -77,9 +111,26 @@ const ListSchedulerDialog = (props: IListSchedulerDialog) => {
     }
   };
 
+  const handleClose = () => {
+    setCurrentScheduler(null);
+  };
+
   //! Render
   return (
     <Fragment>
+      {!!parseData && (
+        <CommonStyles.Dialog
+          toggle={handleClose}
+          open={!!parseData}
+          fullWidth
+          maxWidth="lg"
+          onClick={(e) => {
+            e.stopPropagation();
+          }}
+        >
+          <ActionSchedulerDialog toggle={handleClose} initData={parseData} />
+        </CommonStyles.Dialog>
+      )}
       <DialogTitle>
         <Box
           sx={{
@@ -124,6 +175,10 @@ const ListSchedulerDialog = (props: IListSchedulerDialog) => {
               const rule = RRule.fromString(elm.endRule);
               return (
                 <Box
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setCurrentScheduler(elm);
+                  }}
                   key={elm._id}
                   sx={{
                     borderRadius: "12px",
@@ -166,7 +221,10 @@ const ListSchedulerDialog = (props: IListSchedulerDialog) => {
                       {!isRegisted && (
                         <CommonStyles.Button
                           isIcon
-                          onClick={(e) => handleClick(e, elm._id, true)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleClick(e, elm._id, true);
+                          }}
                           tooltip="Register to this scheduler"
                         >
                           <CommonIcons.Add />
@@ -175,7 +233,10 @@ const ListSchedulerDialog = (props: IListSchedulerDialog) => {
                       {isRegistedToThis && (
                         <CommonStyles.Button
                           isIcon
-                          onClick={(e) => handleClick(e, elm._id, false)}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleClick(e, elm._id, false);
+                          }}
                           tooltip="Unregister to this scheduler"
                         >
                           <CommonIcons.Remove />
